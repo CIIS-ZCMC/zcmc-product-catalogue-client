@@ -20,6 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { PriceChange } from '@/components/products/price-change'
 import { DeleteProductDialog } from '@/components/products/delete-product-dialog'
 import { ListState } from '@/components/products/list-state'
 import { PageFallback } from '../route-fallbacks'
@@ -44,19 +45,6 @@ function Section({ title, description, children, className }) {
       </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>
-  )
-}
-
-function PriceChange({ entry }) {
-  if (entry.old_price === null || entry.old_price === undefined) return <Badge variant="secondary">Initial price</Badge>
-  const change = Number(entry.price_change) || 0
-  if (change === 0) return <span className="text-muted-foreground">No change</span>
-  const up = change > 0
-  return (
-    <span className={up ? 'text-destructive' : 'text-success'}>
-      {up ? 'Up' : 'Down'} {formatPeso(Math.abs(change))} ({up ? '+' : ''}
-      {entry.percentage_change}%)
-    </span>
   )
 }
 

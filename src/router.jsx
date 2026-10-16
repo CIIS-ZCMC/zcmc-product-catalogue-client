@@ -11,6 +11,9 @@ const ProductCreatePage = lazy(() => import('./pages/products/product-create-pag
 const ProductEditPage = lazy(() => import('./pages/products/product-edit-page'))
 const DashboardPage = lazy(() => import('./pages/dashboard-page'))
 const ActivityLogsPage = lazy(() => import('./pages/activity-logs-page'))
+const PricingPage = lazy(() => import('./pages/pricing-page'))
+const CategoriesPage = lazy(() => import('./pages/categories-page'))
+const NamingPage = lazy(() => import('./pages/naming-page'))
 
 const withSuspense = (element) => <Suspense fallback={<PageFallback />}>{element}</Suspense>
 
@@ -24,6 +27,9 @@ export const router = createBrowserRouter([
       { path: 'products/new', element: withSuspense(<ProductCreatePage />) },
       { path: 'products/:id', element: withSuspense(<ProductDetailsPage />) },
       { path: 'products/:id/edit', element: withSuspense(<ProductEditPage />) },
+      { path: 'pricing', element: withSuspense(<PricingPage />) },
+      { path: 'categories', element: withSuspense(<CategoriesPage />) },
+      { path: 'naming', element: withSuspense(<NamingPage />) },
       { path: 'dashboard', element: withSuspense(<DashboardPage />) },
       { path: 'activity-logs', element: withSuspense(<ActivityLogsPage />) },
       { path: '*', element: <RouteErrorPage notFound /> },

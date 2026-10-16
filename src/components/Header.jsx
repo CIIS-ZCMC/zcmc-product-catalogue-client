@@ -61,12 +61,12 @@ export default function Header({
                 width: 34,
                 height: 34,
                 borderRadius: 1.8,
-                background: 'linear-gradient(135deg, #0f766e 0%, #0d9488 100%)',
+                background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#ffffff',
-                boxShadow: '0 2px 8px rgba(15, 118, 110, 0.25)',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)',
               }}
             >
               <LocalHospitalIcon sx={{ fontSize: 20 }} />
@@ -75,7 +75,7 @@ export default function Header({
               label="ZCMC"
               size="small"
               sx={{
-                backgroundColor: '#0f766e',
+                backgroundColor: '#2563eb',
                 color: '#ffffff',
                 fontWeight: 800,
                 letterSpacing: '0.06em',
@@ -170,9 +170,9 @@ export default function Header({
                   size="small"
                   sx={{
                     fontWeight: 700,
-                    borderColor: '#99f6e4',
-                    backgroundColor: '#f0fdfa',
-                    color: '#0f766e',
+                    borderColor: '#bfdbfe',
+                    backgroundColor: '#eff6ff',
+                    color: '#2563eb',
                     height: 28,
                   }}
                 />
@@ -183,7 +183,7 @@ export default function Header({
                     fontWeight: 800,
                     fontSize: '0.68rem',
                     height: 22,
-                    backgroundColor: currentUser.is_admin ? '#0f766e' : '#f1f5f9',
+                    backgroundColor: currentUser.is_admin ? '#2563eb' : '#f1f5f9',
                     color: currentUser.is_admin ? '#ffffff' : '#475569',
                     border: currentUser.is_admin ? 'none' : '1px solid #cbd5e1',
                   }}

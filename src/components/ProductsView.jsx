@@ -221,7 +221,7 @@ export default function ProductsView({
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon fontSize="small" sx={{ color: '#0f766e' }} />
+                      <SearchIcon fontSize="small" sx={{ color: '#2563eb' }} />
                     </InputAdornment>
                   ),
                   endAdornment: filters.search ? (
@@ -259,7 +259,7 @@ export default function ProductsView({
                           startAdornment: (
                             <>
                               <InputAdornment position="start">
-                                <BusinessIcon fontSize="small" sx={{ color: '#0f766e' }} />
+                                <BusinessIcon fontSize="small" sx={{ color: '#2563eb' }} />
                               </InputAdornment>
                               {params.slotProps?.input?.startAdornment}
                             </>
@@ -289,7 +289,7 @@ export default function ProductsView({
                             height: 20,
                             backgroundColor: '#f1f5f9',
                             fontWeight: 700,
-                            color: '#0f766e',
+                            color: '#2563eb',
                           }}
                         />
                       </Box>
@@ -328,7 +328,7 @@ export default function ProductsView({
                           startAdornment: (
                             <>
                               <InputAdornment position="start">
-                                <AccountTreeIcon fontSize="small" sx={{ color: '#0f766e' }} />
+                                <AccountTreeIcon fontSize="small" sx={{ color: '#2563eb' }} />
                               </InputAdornment>
                               {params.slotProps?.input?.startAdornment}
                             </>
@@ -389,13 +389,13 @@ export default function ProductsView({
                   onClick={handleClearAll}
                   sx={{
                     height: 40,
-                    borderColor: hasActiveFilters ? '#0f766e' : '#e2e8f0',
-                    color: hasActiveFilters ? '#0f766e' : '#94a3b8',
+                    borderColor: hasActiveFilters ? '#2563eb' : '#e2e8f0',
+                    color: hasActiveFilters ? '#2563eb' : '#94a3b8',
                     fontWeight: 700,
                     textTransform: 'none',
                     '&:hover': {
-                      borderColor: '#0d9488',
-                      backgroundColor: '#f0fdfa',
+                      borderColor: '#1d4ed8',
+                      backgroundColor: '#eff6ff',
                     },
                   }}
                 >
@@ -428,7 +428,7 @@ export default function ProductsView({
                     icon={<BusinessIcon sx={{ fontSize: '13px !important' }} />}
                     label={`Internal: ${selectedInternalCat.name} (${selectedInternalCat.code})`}
                     onDelete={() => onFilterChange('internal_category_id', '')}
-                    sx={{ backgroundColor: '#f0fdfa', color: '#0f766e', borderColor: '#99f6e4', fontWeight: 700, fontSize: '0.72rem' }}
+                    sx={{ backgroundColor: '#eff6ff', color: '#2563eb', borderColor: '#bfdbfe', fontWeight: 700, fontSize: '0.72rem' }}
                     variant="outlined"
                   />
                 )}
@@ -532,12 +532,12 @@ export default function ProductsView({
                       <TableCell sx={{ verticalAlign: 'top' }}>
                         <Stack spacing={0.5}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f766e', fontFamily: 'monospace' }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#2563eb', fontFamily: 'monospace' }}>
                               {row.erp_item_code}
                             </Typography>
                             <Tooltip title={copiedId === row.id ? 'Copied!' : 'Copy Code'}>
                               <IconButton size="small" onClick={() => handleCopyCode(row.erp_item_code, row.id)} sx={{ p: 0.2 }}>
-                                <ContentCopyIcon sx={{ fontSize: 13, color: copiedId === row.id ? '#0f766e' : '#94a3b8' }} />
+                                <ContentCopyIcon sx={{ fontSize: 13, color: copiedId === row.id ? '#2563eb' : '#94a3b8' }} />
                               </IconButton>
                             </Tooltip>
                           </Box>
@@ -550,10 +550,10 @@ export default function ProductsView({
                               sx={{
                                 height: 18,
                                 fontSize: '0.65rem',
-                                backgroundColor: '#f0fdfa',
-                                color: '#0f766e',
+                                backgroundColor: '#eff6ff',
+                                color: '#2563eb',
                                 fontWeight: 800,
-                                border: '1px solid #99f6e4',
+                                border: '1px solid #bfdbfe',
                                 alignSelf: 'flex-start',
                               }}
                             />
@@ -575,7 +575,7 @@ export default function ProductsView({
                                   href="https://ps-philgeps.gov.ph/home/index.php/what-we-sell/common-use-items"
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  sx={{ p: 0.1, color: '#0f766e' }}
+                                  sx={{ p: 0.1, color: '#2563eb' }}
                                 >
                                   <OpenInNewIcon sx={{ fontSize: 11 }} />
                                 </IconButton>
@@ -648,7 +648,7 @@ export default function ProductsView({
                           </Typography>
                         )}
                         {row.category_hierarchy?.length > 0 && (
-                          <Typography variant="caption" sx={{ color: '#0f766e', fontWeight: 600, display: 'block', mt: 0.2 }}>
+                          <Typography variant="caption" sx={{ color: '#2563eb', fontWeight: 600, display: 'block', mt: 0.2 }}>
                             Level {row.category_hierarchy.length} Commodity
                           </Typography>
                         )}
@@ -665,7 +665,7 @@ export default function ProductsView({
 
                       {/* Unit Price */}
                       {/* <TableCell align="right" sx={{ verticalAlign: 'top' }}>
-                        <Typography variant="body2" sx={{ fontWeight: 800, color: '#0f766e' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 800, color: '#2563eb' }}>
                           ₱{Number(row.unit_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
                         </Typography>
                       </TableCell> */}

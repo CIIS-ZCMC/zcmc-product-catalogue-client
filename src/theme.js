@@ -3,9 +3,9 @@
 export const theme = createTheme({
   palette: {
     primary: {
-      main: '#0f766e', // Medical Teal
-      light: '#14b8a6',
-      dark: '#115e59',
+      main: '#2563eb', // Medical Blue
+      light: '#60a5fa',
+      dark: '#1e40af',
       contrastText: '#ffffff',
     },
     secondary: {
@@ -81,11 +81,11 @@ export const theme = createTheme({
           boxShadow: 'none',
           padding: '8px 16px',
           '&:hover': {
-            boxShadow: '0 4px 12px rgba(15, 118, 110, 0.15)',
+            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)',
           },
         },
         containedPrimary: {
-          background: 'linear-gradient(135deg, #0f766e 0%, #0d9488 100%)',
+          background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
         },
       },
     },

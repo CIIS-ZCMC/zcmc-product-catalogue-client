@@ -78,7 +78,7 @@ export default function UniformNamingTool({ onSendToProductModal }) {
           <Card>
             <CardContent sx={{ p: 3 }}>
               <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
-                <Box sx={{ p: 0.8, borderRadius: 1.5, backgroundColor: '#0f766e', color: '#fff' }}>
+                <Box sx={{ p: 0.8, borderRadius: 1.5, backgroundColor: '#2563eb', color: '#fff' }}>
                   <RuleIcon fontSize="small" />
                 </Box>
                 <Box>

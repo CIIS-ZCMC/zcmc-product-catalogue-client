@@ -137,7 +137,7 @@ export default function ImportExportModal({ open, onClose, onImportSuccess }) {
               textAlign: 'center',
               backgroundColor: '#fafafa',
               cursor: 'pointer',
-              '&:hover': { borderColor: '#0f766e', backgroundColor: '#f0fdfa' },
+              '&:hover': { borderColor: '#2563eb', backgroundColor: '#eff6ff' },
             }}
             component="label"
           >
@@ -147,7 +147,7 @@ export default function ImportExportModal({ open, onClose, onImportSuccess }) {
               style={{ display: 'none' }}
               onChange={handleFileChange}
             />
-            <CloudUploadIcon sx={{ fontSize: 40, color: '#0f766e', mb: 1 }} />
+            <CloudUploadIcon sx={{ fontSize: 40, color: '#2563eb', mb: 1 }} />
             <Typography variant="body1" sx={{ fontWeight: 700, color: '#0f172a' }}>
               {selectedFile ? selectedFile.name : 'Click to select CSV catalogue file'}
             </Typography>

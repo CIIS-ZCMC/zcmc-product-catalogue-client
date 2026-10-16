@@ -117,7 +117,7 @@ export default function ProductDetailDrawer({
 
   return (
     <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{ sx: { width: { xs: '100%', sm: 560 }, p: 0 } }}>
-      <Box sx={{ p: 2.5, backgroundColor: '#0f766e', color: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Box sx={{ p: 2.5, backgroundColor: '#2563eb', color: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
           <Typography variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.85, fontWeight: 700 }}>
             Catalogue Product Details
@@ -146,7 +146,7 @@ export default function ProductDetailDrawer({
               <Chip
                 size="small"
                 label={`ZCMC: ${product.internal_category ? product.internal_category.name : product.internal_category_code}`}
-                sx={{ fontWeight: 700, backgroundColor: '#f0fdfa', color: '#0f766e', border: '1px solid #99f6e4' }}
+                sx={{ fontWeight: 700, backgroundColor: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}
               />
             )}
             {product.tech_specs_pdf_url && (
@@ -166,7 +166,7 @@ export default function ProductDetailDrawer({
         {structuredFields.length > 0 && (
           <Paper variant="outlined" sx={{ p: 2, mb: 3, backgroundColor: '#f8fafc', borderColor: '#cbd5e1', borderRadius: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-              <FormatQuoteIcon sx={{ color: '#0f766e', fontSize: 20 }} />
+              <FormatQuoteIcon sx={{ color: '#2563eb', fontSize: 20 }} />
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
                 Standard Naming Attributes Breakdown
               </Typography>
@@ -179,7 +179,7 @@ export default function ProductDetailDrawer({
                     <TableCell sx={{ width: '42%', color: '#64748b', fontWeight: 600, fontSize: '0.78rem' }}>
                       {field.label}:
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: field.highlight ? '#0f766e' : '#1e293b', fontSize: '0.82rem' }}>
+                    <TableCell sx={{ fontWeight: 700, color: field.highlight ? '#2563eb' : '#1e293b', fontSize: '0.82rem' }}>
                       {field.value}
                     </TableCell>
                   </TableRow>
@@ -196,8 +196,8 @@ export default function ProductDetailDrawer({
             sx={{
               p: 2,
               mb: 3,
-              backgroundColor: '#f0fdfa',
-              borderColor: '#99f6e4',
+              backgroundColor: '#eff6ff',
+              borderColor: '#bfdbfe',
               borderRadius: 2,
               display: 'flex',
               alignItems: 'center',
@@ -205,7 +205,7 @@ export default function ProductDetailDrawer({
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <PictureAsPdfIcon sx={{ color: '#0f766e', fontSize: 28 }} />
+              <PictureAsPdfIcon sx={{ color: '#2563eb', fontSize: 28 }} />
               <Box>
                 <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
                   Technical Specifications Document
@@ -224,10 +224,10 @@ export default function ProductDetailDrawer({
               target="_blank"
               rel="noopener noreferrer"
               sx={{
-                backgroundColor: '#0f766e',
+                backgroundColor: '#2563eb',
                 fontWeight: 700,
                 textTransform: 'none',
-                '&:hover': { backgroundColor: '#0d9488' },
+                '&:hover': { backgroundColor: '#1d4ed8' },
               }}
             >
               View PDF
@@ -242,7 +242,7 @@ export default function ProductDetailDrawer({
               <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>
                 Current Unit Price
               </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f766e' }}>
+              <Typography variant="h5" sx={{ fontWeight: 800, color: '#2563eb' }}>
                 ₱{Number(product.unit_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </Typography>
             </Grid>
@@ -261,7 +261,7 @@ export default function ProductDetailDrawer({
         <Box sx={{ mb: 3 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
             <Stack direction="row" spacing={1} alignItems="center">
-              <TrendingUpIcon fontSize="small" sx={{ color: '#0f766e' }} />
+              <TrendingUpIcon fontSize="small" sx={{ color: '#2563eb' }} />
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
                 Unit Price History & Inflation Tracking
               </Typography>
@@ -289,7 +289,7 @@ export default function ProductDetailDrawer({
                         <TableCell sx={{ fontSize: '0.75rem', fontWeight: 600, color: '#334155' }}>
                           {formatDate(h.effective_date || h.created_at)}
                         </TableCell>
-                        <TableCell sx={{ fontSize: '0.78rem', fontWeight: 800, color: '#0f766e' }}>
+                        <TableCell sx={{ fontSize: '0.78rem', fontWeight: 800, color: '#2563eb' }}>
                           ₱{Number(h.new_price).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
                         </TableCell>
                         <TableCell sx={{ fontSize: '0.72rem' }}>
@@ -341,7 +341,7 @@ export default function ProductDetailDrawer({
         <Box sx={{ mb: 3 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
             <Stack direction="row" spacing={1} alignItems="center">
-              <HistoryIcon fontSize="small" sx={{ color: '#0f766e' }} />
+              <HistoryIcon fontSize="small" sx={{ color: '#2563eb' }} />
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
                 Audit Trail & History
               </Typography>
@@ -375,7 +375,7 @@ export default function ProductDetailDrawer({
                               color: badgeColor,
                             }}
                           />
-                          <Typography variant="caption" sx={{ fontWeight: 700, color: '#0f766e' }}>
+                          <Typography variant="caption" sx={{ fontWeight: 700, color: '#2563eb' }}>
                             {log.user_name || log.user_email || 'System'}
                           </Typography>
                         </Stack>
@@ -425,7 +425,7 @@ export default function ProductDetailDrawer({
         {/* Other Technical Specifications */}
         <Box sx={{ mb: 3 }}>
           <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-            <ReceiptLongIcon fontSize="small" sx={{ color: '#0f766e' }} />
+            <ReceiptLongIcon fontSize="small" sx={{ color: '#2563eb' }} />
             <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f172a' }}>
               Other Specifications (Optional) ({specs.length})
             </Typography>
@@ -459,7 +459,7 @@ export default function ProductDetailDrawer({
           <Stack spacing={1.2}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="caption" sx={{ color: '#64748b' }}>ERP Item Code:</Typography>
-              <Typography variant="caption" sx={{ fontWeight: 800, color: '#0f766e', fontFamily: 'monospace' }}>
+              <Typography variant="caption" sx={{ fontWeight: 800, color: '#2563eb', fontFamily: 'monospace' }}>
                 {product.erp_item_code || 'N/A'}
               </Typography>
             </Box>
@@ -473,7 +473,7 @@ export default function ProductDetailDrawer({
                     ? `${product.internal_category.name} (${product.internal_category.code})`
                     : product.internal_category_code || 'N/A'
                 }
-                sx={{ fontWeight: 700, backgroundColor: '#f0fdfa', color: '#0f766e', fontSize: '0.72rem' }}
+                sx={{ fontWeight: 700, backgroundColor: '#eff6ff', color: '#2563eb', fontSize: '0.72rem' }}
               />
             </Box>
 
@@ -493,7 +493,7 @@ export default function ProductDetailDrawer({
                   rel="noopener noreferrer"
                   sx={{
                     fontWeight: 700,
-                    color: '#0f766e',
+                    color: '#2563eb',
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 0.3,

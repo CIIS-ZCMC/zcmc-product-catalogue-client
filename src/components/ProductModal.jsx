@@ -527,7 +527,7 @@ export default function ProductModal({
                 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <FormatQuoteIcon sx={{ color: '#0f766e', fontSize: 22 }} />
+                  <FormatQuoteIcon sx={{ color: '#2563eb', fontSize: 22 }} />
                   <Box>
                     <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
                       Standard Naming Specification Builder
@@ -638,18 +638,18 @@ export default function ProductModal({
                     p: 2,
                     borderRadius: 2,
                     backgroundColor: '#ffffff',
-                    border: '2px solid #0f766e',
-                    boxShadow: '0 2px 8px rgba(15, 118, 110, 0.08)',
+                    border: '2px solid #2563eb',
+                    boxShadow: '0 2px 8px rgba(37, 99, 235, 0.08)',
                   }}
                 >
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.8 }}>
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#0f766e', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       Standard Name (Built Counterpart):
                     </Typography>
                     <Chip
                       size="small"
                       label="Auto-Assembled Standard"
-                      sx={{ backgroundColor: '#f0fdfa', color: '#0f766e', fontWeight: 700, fontSize: '0.68rem', height: 20 }}
+                      sx={{ backgroundColor: '#eff6ff', color: '#2563eb', fontWeight: 700, fontSize: '0.68rem', height: 20 }}
                     />
                   </Box>
 
@@ -711,8 +711,8 @@ export default function ProductModal({
                 sx={{
                   p: 2,
                   borderRadius: 2,
-                  backgroundColor: '#f0fdfa',
-                  borderColor: '#99f6e4',
+                  backgroundColor: '#eff6ff',
+                  borderColor: '#bfdbfe',
                   display: 'flex',
                   flexDirection: { xs: 'column', sm: 'row' },
                   alignItems: { xs: 'flex-start', sm: 'center' },
@@ -721,7 +721,7 @@ export default function ProductModal({
                 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <PictureAsPdfIcon sx={{ color: '#0f766e', fontSize: 32 }} />
+                  <PictureAsPdfIcon sx={{ color: '#2563eb', fontSize: 32 }} />
                   <Box>
                     <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
                       Technical Specification Document (PDF)
@@ -767,10 +767,10 @@ export default function ProductModal({
                       disabled={pdfUploading}
                       onClick={() => fileInputRef.current?.click()}
                       sx={{
-                        borderColor: '#0f766e',
-                        color: '#0f766e',
+                        borderColor: '#2563eb',
+                        color: '#2563eb',
                         fontWeight: 700,
-                        '&:hover': { borderColor: '#0d9488', backgroundColor: '#e6fffa' },
+                        '&:hover': { borderColor: '#1d4ed8', backgroundColor: '#dbeafe' },
                       }}
                     >
                       {pdfUploading ? 'Uploading PDF...' : 'Upload PDF Document'}
@@ -813,7 +813,7 @@ export default function ProductModal({
                         startAdornment: (
                           <>
                             <InputAdornment position="start">
-                              <BusinessIcon fontSize="small" sx={{ color: '#0f766e' }} />
+                              <BusinessIcon fontSize="small" sx={{ color: '#2563eb' }} />
                             </InputAdornment>
                             {params.slotProps?.input?.startAdornment}
                           </>
@@ -843,7 +843,7 @@ export default function ProductModal({
                           height: 20,
                           backgroundColor: '#f1f5f9',
                           fontWeight: 700,
-                          color: '#0f766e',
+                          color: '#2563eb',
                         }}
                       />
                     </Box>
@@ -869,14 +869,14 @@ export default function ProductModal({
                     readOnly: true,
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LockIcon fontSize="small" sx={{ color: '#0f766e' }} />
+                        <LockIcon fontSize="small" sx={{ color: '#2563eb' }} />
                       </InputAdornment>
                     ),
                     sx: {
                       backgroundColor: '#f8fafc',
                       fontFamily: 'monospace',
                       fontWeight: 700,
-                      color: formData.erp_item_code ? '#0f766e' : '#94a3b8',
+                      color: formData.erp_item_code ? '#2563eb' : '#94a3b8',
                     },
                   },
                 }}
@@ -918,7 +918,7 @@ export default function ProductModal({
                             href="https://ps-philgeps.gov.ph/home/index.php/what-we-sell/common-use-items"
                             target="_blank"
                             rel="noopener noreferrer"
-                            sx={{ color: '#0f766e' }}
+                            sx={{ color: '#2563eb' }}
                           >
                             <OpenInNewIcon fontSize="small" />
                           </IconButton>
@@ -938,9 +938,9 @@ export default function ProductModal({
                         display: 'inline-flex',
                         alignItems: 'center',
                         fontWeight: 700,
-                        color: '#0f766e',
+                        color: '#2563eb',
                         textDecoration: 'underline',
-                        '&:hover': { color: '#0d9488' },
+                        '&:hover': { color: '#1d4ed8' },
                       }}
                     >
                       PS-PhilGEPS Common-Use Items ↗

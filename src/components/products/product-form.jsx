@@ -82,16 +82,22 @@ function buildSchema({ requirePassword }) {
     })
 }
 
-function defaultsFrom(product) {
-  const p = product || {}
+// Splits a free-text name from the naming assistant ("NOUN, attribute, ...") into the structured fields.
+function prefillFrom(description) {
+  const [noun = '', ...rest] = (description || '').split(',').map((s) => s.trim()).filter(Boolean)
+  return { noun: noun.toUpperCase(), key_attributes: rest.join(', ').toUpperCase() }
+}
+
+function defaultsFrom(product, prefill) {
+  const p = product || prefill || {}
   return {
     noun: p.noun || '',
     type: p.type || '',
     material_composition: p.material_composition || '',
     key_attributes: p.key_attributes || '',
     size: p.size || '',
-    uom: p.uom || 'Piece',
-    commodity: p.category_key
+    uom: product?.uom || 'Piece',
+    commodity: product?.category_key
       ? {
           key: p.category_key,
           code: p.unspsc_code || p.category_relation?.code || '',
@@ -435,7 +441,7 @@ function PdfField({ path, initialUrl, onChange }) {
  * `onSubmit(payload)` performs the request and should throw the API error on failure;
  * field errors from the server (err.errors) are mapped back onto the inputs.
  */
-export function ProductForm({ mode, product, requirePassword = false, onSubmit, onCancel }) {
+export function ProductForm({ mode, product, prefillDescription, requirePassword = false, onSubmit, onCancel }) {
   const [formError, setFormError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -444,7 +450,7 @@ export function ProductForm({ mode, product, requirePassword = false, onSubmit, 
 
   const form = useForm({
     resolver: zodResolver(buildSchema({ requirePassword })),
-    defaultValues: defaultsFrom(product),
+    defaultValues: defaultsFrom(product, prefillDescription ? prefillFrom(prefillDescription) : null),
     mode: 'onTouched',
   })
   const { control, handleSubmit, setError, formState } = form

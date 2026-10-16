@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
 import { api } from '@/services/api'
@@ -10,6 +10,7 @@ import { BackLink } from './back-link'
 export default function ProductCreatePage() {
   const navigate = useNavigate()
   const returnTo = useReturnTo()
+  const location = useLocation()
 
   const handleSubmit = async (payload) => {
     const res = await api.createProduct(payload)
@@ -28,6 +29,7 @@ export default function ProductCreatePage() {
       </PageHeader>
       <ProductForm
         mode="create"
+        prefillDescription={location.state?.prefillDescription}
         onSubmit={handleSubmit}
         onCancel={() => navigate(returnTo)}
       />
