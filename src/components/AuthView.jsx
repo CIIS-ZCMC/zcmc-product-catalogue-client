@@ -218,7 +218,7 @@ export default function AuthView({ onAuthSuccess }) {
         justifyContent: 'center',
         backgroundColor: '#0f172a',
         backgroundImage:
-          'radial-gradient(at 0% 0%, rgba(15, 118, 110, 0.25) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(13, 148, 136, 0.2) 0px, transparent 50%)',
+          'radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.25) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(13, 148, 136, 0.2) 0px, transparent 50%)',
         p: 2,
       }}
     >
@@ -237,7 +237,7 @@ export default function AuthView({ onAuthSuccess }) {
         <Box
           sx={{
             p: 3,
-            backgroundColor: '#0f766e',
+            backgroundColor: '#2563eb',
             color: '#ffffff',
             textAlign: 'center',
             position: 'relative',
@@ -313,7 +313,7 @@ export default function AuthView({ onAuthSuccess }) {
                       input: {
                         startAdornment: (
                           <InputAdornment position="start">
-                            <PersonOutlinedIcon fontSize="small" sx={{ color: '#0f766e' }} />
+                            <PersonOutlinedIcon fontSize="small" sx={{ color: '#2563eb' }} />
                           </InputAdornment>
                         ),
                       },
@@ -331,7 +331,7 @@ export default function AuthView({ onAuthSuccess }) {
                       input: {
                         startAdornment: (
                           <InputAdornment position="start">
-                            <BadgeOutlinedIcon fontSize="small" sx={{ color: '#0f766e' }} />
+                            <BadgeOutlinedIcon fontSize="small" sx={{ color: '#2563eb' }} />
                           </InputAdornment>
                         ),
                       },
@@ -355,7 +355,7 @@ export default function AuthView({ onAuthSuccess }) {
                   input: {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <EmailOutlinedIcon fontSize="small" sx={{ color: '#0f766e' }} />
+                        <EmailOutlinedIcon fontSize="small" sx={{ color: '#2563eb' }} />
                       </InputAdornment>
                     ),
                   },
@@ -378,7 +378,7 @@ export default function AuthView({ onAuthSuccess }) {
                     input: {
                       startAdornment: (
                         <InputAdornment position="start">
-                          <LockOutlinedIcon fontSize="small" sx={{ color: '#0f766e' }} />
+                          <LockOutlinedIcon fontSize="small" sx={{ color: '#2563eb' }} />
                         </InputAdornment>
                       ),
                       endAdornment: (
@@ -413,7 +413,7 @@ export default function AuthView({ onAuthSuccess }) {
                           variant="caption"
                           sx={{
                             fontWeight: hasMinLength ? 700 : 500,
-                            color: hasMinLength ? '#0f766e' : '#64748b',
+                            color: hasMinLength ? '#2563eb' : '#64748b',
                           }}
                         >
                           At least 8 characters
@@ -430,7 +430,7 @@ export default function AuthView({ onAuthSuccess }) {
                           variant="caption"
                           sx={{
                             fontWeight: hasNumber ? 700 : 500,
-                            color: hasNumber ? '#0f766e' : '#64748b',
+                            color: hasNumber ? '#2563eb' : '#64748b',
                           }}
                         >
                           At least 1 number (0–9)
@@ -447,7 +447,7 @@ export default function AuthView({ onAuthSuccess }) {
                           variant="caption"
                           sx={{
                             fontWeight: hasSpecial ? 700 : 500,
-                            color: hasSpecial ? '#0f766e' : '#64748b',
+                            color: hasSpecial ? '#2563eb' : '#64748b',
                           }}
                         >
                           At least 1 special character (!@#$%^&*...)
@@ -484,7 +484,7 @@ export default function AuthView({ onAuthSuccess }) {
                         textTransform: 'none',
                         fontSize: '0.8rem',
                         fontWeight: 700,
-                        color: '#0f766e',
+                        color: '#2563eb',
                         p: 0,
                         '&:hover': { background: 'none', textDecoration: 'underline' },
                       }}
@@ -516,7 +516,7 @@ export default function AuthView({ onAuthSuccess }) {
                             <PasswordIcon
                               fontSize="small"
                               sx={{
-                                color: passwordsMismatch ? '#ef4444' : passwordsMatch ? '#10b981' : '#0f766e',
+                                color: passwordsMismatch ? '#ef4444' : passwordsMatch ? '#10b981' : '#2563eb',
                               }}
                             />
                           </InputAdornment>
@@ -554,7 +554,7 @@ export default function AuthView({ onAuthSuccess }) {
               {/* Status / Feature Badges */}
               {tab === 'register' ? (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, pt: 0.5 }}>
-                  <MarkEmailReadOutlinedIcon sx={{ fontSize: 16, color: '#0f766e' }} />
+                  <MarkEmailReadOutlinedIcon sx={{ fontSize: 16, color: '#2563eb' }} />
                   <Typography variant="caption" sx={{ color: '#475569', fontWeight: 600 }}>
                     A confirmation welcome email will be dispatched to your inbox.
                   </Typography>
@@ -578,9 +578,9 @@ export default function AuthView({ onAuthSuccess }) {
                 sx={{
                   py: 1.2,
                   fontWeight: 800,
-                  backgroundColor: '#0f766e',
-                  '&:hover': { backgroundColor: '#0d9488' },
-                  boxShadow: '0 4px 12px rgba(15, 118, 110, 0.25)',
+                  backgroundColor: '#2563eb',
+                  '&:hover': { backgroundColor: '#1d4ed8' },
+                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)',
                 }}
               >
                 {loading ? (
@@ -605,7 +605,7 @@ export default function AuthView({ onAuthSuccess }) {
         PaperProps={{ sx: { borderRadius: 3, p: 1 } }}
       >
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 1 }}>
-          <LockResetIcon sx={{ color: '#0f766e', fontSize: 26 }} />
+          <LockResetIcon sx={{ color: '#2563eb', fontSize: 26 }} />
           <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a' }}>
             Reset Password
           </Typography>
@@ -642,7 +642,7 @@ export default function AuthView({ onAuthSuccess }) {
                   input: {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <EmailOutlinedIcon fontSize="small" sx={{ color: '#0f766e' }} />
+                        <EmailOutlinedIcon fontSize="small" sx={{ color: '#2563eb' }} />
                       </InputAdornment>
                     ),
                   },
@@ -683,7 +683,7 @@ export default function AuthView({ onAuthSuccess }) {
                   input: {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LockOutlinedIcon fontSize="small" sx={{ color: '#0f766e' }} />
+                        <LockOutlinedIcon fontSize="small" sx={{ color: '#2563eb' }} />
                       </InputAdornment>
                     ),
                     endAdornment: (
@@ -729,7 +729,7 @@ export default function AuthView({ onAuthSuccess }) {
                               ? '#ef4444'
                               : forgotPasswordsMatch
                               ? '#10b981'
-                              : '#0f766e',
+                              : '#2563eb',
                           }}
                         />
                       </InputAdornment>
@@ -757,7 +757,7 @@ export default function AuthView({ onAuthSuccess }) {
                   size="small"
                   onClick={handleSendResetCode}
                   disabled={forgotLoading}
-                  sx={{ textTransform: 'none', color: '#0f766e', fontWeight: 600 }}
+                  sx={{ textTransform: 'none', color: '#2563eb', fontWeight: 600 }}
                 >
                   Resend code
                 </Button>
@@ -789,8 +789,8 @@ export default function AuthView({ onAuthSuccess }) {
               onClick={handleSendResetCode}
               disabled={forgotLoading || !forgotEmail.trim()}
               sx={{
-                backgroundColor: '#0f766e',
-                '&:hover': { backgroundColor: '#0d9488' },
+                backgroundColor: '#2563eb',
+                '&:hover': { backgroundColor: '#1d4ed8' },
                 fontWeight: 700,
                 minWidth: 140,
               }}
@@ -808,8 +808,8 @@ export default function AuthView({ onAuthSuccess }) {
                 forgotNewPass !== forgotConfirmPass
               }
               sx={{
-                backgroundColor: '#0f766e',
-                '&:hover': { backgroundColor: '#0d9488' },
+                backgroundColor: '#2563eb',
+                '&:hover': { backgroundColor: '#1d4ed8' },
                 fontWeight: 700,
                 minWidth: 140,
               }}

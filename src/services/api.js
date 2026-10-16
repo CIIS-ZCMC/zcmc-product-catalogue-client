@@ -127,17 +127,18 @@ export const api = {
     return request(`/products/next-erp-code?${query.toString()}`);
   },
 
-  getProducts: (params = {}) => {
+  // `options` is passed through to fetch (e.g. { signal } to cancel stale list requests).
+  getProducts: (params = {}, options = {}) => {
     const query = new URLSearchParams();
     Object.entries(params).forEach(([key, val]) => {
       if (val !== undefined && val !== null && val !== '') {
         query.append(key, val);
       }
     });
-    return request(`/products?${query.toString()}`);
+    return request(`/products?${query.toString()}`, options);
   },
 
-  getProduct: (id) => request(`/products/${id}`),
+  getProduct: (id, options = {}) => request(`/products/${id}`, options),
 
   createProduct: (data) =>
     request('/products', {
@@ -156,8 +157,9 @@ export const api = {
       method: 'DELETE',
     }),
 
-  validateNaming: (description) =>
+  validateNaming: (description, options = {}) =>
     request('/products/validate-naming', {
+      ...options,
       method: 'POST',
       body: JSON.stringify({ description }),
     }),
@@ -246,8 +248,8 @@ export const api = {
     return request(`/categories/search?q=${encodeURIComponent(q)}`);
   },
 
-  getCommodities: (q = '') => {
-    return request(`/categories/commodities?q=${encodeURIComponent(q)}`);
+  getCommodities: (q = '', options = {}) => {
+    return request(`/categories/commodities?q=${encodeURIComponent(q)}`, options);
   },
 
   getRootCategories: () => request('/categories/roots'),
@@ -283,5 +285,5 @@ export const api = {
     return request(`/activity-logs?${query.toString()}`);
   },
 
-  getProductActivityLogs: (productId) => request(`/products/${productId}/activity-logs`),
+  getProductActivityLogs: (productId, options = {}) => request(`/products/${productId}/activity-logs`, options),
 };

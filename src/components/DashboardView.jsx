@@ -29,8 +29,8 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
             title="Total Catalogue Products"
             value={stats.total_products || 0}
             subtitle="Standardized Hospital Items"
-            icon={<Inventory2Icon sx={{ color: '#0f766e' }} />}
-            bgColor="#f0fdfa"
+            icon={<Inventory2Icon sx={{ color: '#2563eb' }} />}
+            bgColor="#eff6ff"
           />
         </Grid>
 
@@ -86,7 +86,7 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
                         <Typography variant="body2" sx={{ fontWeight: 600, color: '#1e293b' }}>
                           {g.category_group || 'Unclassified'}
                         </Typography>
-                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#0f766e' }}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#2563eb' }}>
                           {g.count} items ({pct}%)
                         </Typography>
                       </Box>
@@ -98,7 +98,7 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
                           borderRadius: 4,
                           backgroundColor: '#e2e8f0',
                           '& .MuiLinearProgress-bar': {
-                            backgroundColor: idx % 2 === 0 ? '#0f766e' : '#0d9488',
+                            backgroundColor: idx % 2 === 0 ? '#2563eb' : '#1d4ed8',
                             borderRadius: 4,
                           },
                         }}
@@ -136,7 +136,7 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
                       textAlign: 'center',
                     }}
                   >
-                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f766e' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#2563eb' }}>
                       {u.count}
                     </Typography>
                     <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', textTransform: 'uppercase' }}>
@@ -185,12 +185,12 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
                         justifyContent: 'space-between',
                         backgroundColor: '#ffffff',
                         borderColor: '#e2e8f0',
-                        '&:hover': { borderColor: '#0f766e', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' },
+                        '&:hover': { borderColor: '#2563eb', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' },
                       }}
                     >
                       <Box>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
-                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#0f766e' }}>
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#2563eb' }}>
                             {item.erp_item_code}
                           </Typography>
                           <Chip
@@ -211,7 +211,7 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
 
                       <Box sx={{ pt: 1.5, mt: 1.5, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between' }}>
                         <Typography variant="caption" sx={{ color: '#94a3b8' }}>Unit Price:</Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 800, color: '#0f766e' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 800, color: '#2563eb' }}>
                           ₱{Number(item.unit_price || 0).toFixed(2)}
                         </Typography>
                       </Box>

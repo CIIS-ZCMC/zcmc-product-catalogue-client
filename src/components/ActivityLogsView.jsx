@@ -136,12 +136,12 @@ export default function ActivityLogsView() {
                 width: 40,
                 height: 40,
                 borderRadius: '8px',
-                backgroundColor: 'rgba(15, 118, 110, 0.4)',
+                backgroundColor: 'rgba(37, 99, 235, 0.4)',
                 border: '1px solid rgba(45, 212, 191, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#2dd4bf',
+                color: '#60a5fa',
               }}
             >
               <HistoryIcon fontSize="medium" />
@@ -170,8 +170,8 @@ export default function ActivityLogsView() {
             onClick={() => fetchLogs()}
             disabled={loading}
             sx={{
-              backgroundColor: '#0f766e',
-              '&:hover': { backgroundColor: '#0d9488' },
+              backgroundColor: '#2563eb',
+              '&:hover': { backgroundColor: '#1d4ed8' },
               textTransform: 'none',
               fontWeight: 700,
             }}
@@ -243,7 +243,7 @@ export default function ActivityLogsView() {
               {loading && logs.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
-                    <CircularProgress size={28} sx={{ color: '#0f766e' }} />
+                    <CircularProgress size={28} sx={{ color: '#2563eb' }} />
                     <Typography variant="body2" sx={{ color: '#64748b', mt: 1 }}>
                       Loading audit logs...
                     </Typography>
@@ -289,7 +289,7 @@ export default function ActivityLogsView() {
                         <Stack spacing={0.2}>
                           <Stack direction="row" spacing={0.5} alignItems="center">
                             {log.user?.is_admin ? (
-                              <AdminPanelSettingsIcon sx={{ fontSize: 14, color: '#0f766e' }} />
+                              <AdminPanelSettingsIcon sx={{ fontSize: 14, color: '#2563eb' }} />
                             ) : (
                               <PersonIcon sx={{ fontSize: 14, color: '#64748b' }} />
                             )}
@@ -304,7 +304,7 @@ export default function ActivityLogsView() {
                       </TableCell>
 
                       <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.78rem', color: '#0f766e' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.78rem', color: '#2563eb' }}>
                           {log.entity_identifier || `#${log.entity_id || '—'}`}
                         </Typography>
                         <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.68rem' }}>
@@ -323,9 +323,9 @@ export default function ActivityLogsView() {
                               size="small"
                               onClick={() => setSelectedLog(log)}
                               sx={{
-                                color: '#0f766e',
-                                backgroundColor: '#f0fdfa',
-                                '&:hover': { backgroundColor: '#ccfbf1' },
+                                color: '#2563eb',
+                                backgroundColor: '#eff6ff',
+                                '&:hover': { backgroundColor: '#dbeafe' },
                               }}
                             >
                               <VisibilityIcon fontSize="small" />
@@ -362,7 +362,7 @@ export default function ActivityLogsView() {
         <Dialog open={Boolean(selectedLog)} onClose={() => setSelectedLog(null)} maxWidth="md" fullWidth>
           <DialogTitle sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Stack direction="row" spacing={1} alignItems="center">
-              <CompareArrowsIcon sx={{ color: '#0f766e' }} />
+              <CompareArrowsIcon sx={{ color: '#2563eb' }} />
               <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
                 Audit Change Details &bull; Log #{selectedLog.id}
               </Typography>

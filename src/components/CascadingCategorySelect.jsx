@@ -174,7 +174,7 @@ export default function CascadingCategorySelect({ selectedKey, onSelectCategory 
       {/* Label and Guidance */}
       <Box sx={{ mb: 1.2 }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <LayersIcon sx={{ fontSize: 18, color: '#0f766e' }} />
+          <LayersIcon sx={{ fontSize: 18, color: '#2563eb' }} />
           Select UNSPSC Commodity
         </Typography>
         <Typography variant="caption" sx={{ color: '#64748b' }}>
@@ -233,7 +233,7 @@ export default function CascadingCategorySelect({ selectedKey, onSelectCategory 
                         fontWeight: 700,
                         fontSize: '0.7rem',
                         backgroundColor: '#f1f5f9',
-                        color: '#0f766e',
+                        color: '#2563eb',
                         height: 20,
                       }}
                     />
@@ -261,17 +261,17 @@ export default function CascadingCategorySelect({ selectedKey, onSelectCategory 
           sx={{
             mt: 2,
             p: 2,
-            backgroundColor: '#f0fdfa',
-            borderColor: '#99f6e4',
+            backgroundColor: '#eff6ff',
+            borderColor: '#bfdbfe',
             borderRadius: 2,
-            boxShadow: '0 2px 8px rgba(15, 118, 110, 0.08)',
+            boxShadow: '0 2px 8px rgba(37, 99, 235, 0.08)',
           }}
         >
           {/* Header of relations card */}
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <CheckCircleIcon sx={{ color: '#0f766e', fontSize: 20 }} />
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#134e4a' }}>
+              <CheckCircleIcon sx={{ color: '#2563eb', fontSize: 20 }} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1e3a8a' }}>
                 Resolved Category Relations
               </Typography>
             </Box>
@@ -279,7 +279,7 @@ export default function CascadingCategorySelect({ selectedKey, onSelectCategory 
               <Chip
                 size="small"
                 label={`UNSPSC: ${selectedCommodity.code || 'N/A'}`}
-                sx={{ backgroundColor: '#0f766e', color: '#ffffff', fontWeight: 700, fontSize: '0.72rem' }}
+                sx={{ backgroundColor: '#2563eb', color: '#ffffff', fontWeight: 700, fontSize: '0.72rem' }}
               />
               <Tooltip title="Clear Selection">
                 <IconButton size="small" onClick={handleClear} sx={{ color: '#64748b' }}>
@@ -293,8 +293,8 @@ export default function CascadingCategorySelect({ selectedKey, onSelectCategory 
           <Grid container spacing={1.5} sx={{ mb: 1.5 }}>
             {/* Level 0: Segment */}
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Paper sx={{ p: 1.2, backgroundColor: '#ffffff', border: '1px solid #ccfbf1', borderRadius: 1.5 }}>
-                <Typography variant="caption" sx={{ color: '#0d9488', fontWeight: 700, display: 'block', textTransform: 'uppercase', fontSize: '0.68rem' }}>
+              <Paper sx={{ p: 1.2, backgroundColor: '#ffffff', border: '1px solid #dbeafe', borderRadius: 1.5 }}>
+                <Typography variant="caption" sx={{ color: '#1d4ed8', fontWeight: 700, display: 'block', textTransform: 'uppercase', fontSize: '0.68rem' }}>
                   1. Segment (Group)
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 700, color: '#1e293b', lineHeight: 1.2, mt: 0.2 }}>
@@ -310,8 +310,8 @@ export default function CascadingCategorySelect({ selectedKey, onSelectCategory 
 
             {/* Level 1: Family */}
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Paper sx={{ p: 1.2, backgroundColor: '#ffffff', border: '1px solid #ccfbf1', borderRadius: 1.5 }}>
-                <Typography variant="caption" sx={{ color: '#0d9488', fontWeight: 700, display: 'block', textTransform: 'uppercase', fontSize: '0.68rem' }}>
+              <Paper sx={{ p: 1.2, backgroundColor: '#ffffff', border: '1px solid #dbeafe', borderRadius: 1.5 }}>
+                <Typography variant="caption" sx={{ color: '#1d4ed8', fontWeight: 700, display: 'block', textTransform: 'uppercase', fontSize: '0.68rem' }}>
                   2. Family
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 700, color: '#1e293b', lineHeight: 1.2, mt: 0.2 }}>
@@ -327,8 +327,8 @@ export default function CascadingCategorySelect({ selectedKey, onSelectCategory 
 
             {/* Level 2: Class */}
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Paper sx={{ p: 1.2, backgroundColor: '#ffffff', border: '1px solid #ccfbf1', borderRadius: 1.5 }}>
-                <Typography variant="caption" sx={{ color: '#0d9488', fontWeight: 700, display: 'block', textTransform: 'uppercase', fontSize: '0.68rem' }}>
+              <Paper sx={{ p: 1.2, backgroundColor: '#ffffff', border: '1px solid #dbeafe', borderRadius: 1.5 }}>
+                <Typography variant="caption" sx={{ color: '#1d4ed8', fontWeight: 700, display: 'block', textTransform: 'uppercase', fontSize: '0.68rem' }}>
                   3. Class
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 700, color: '#1e293b', lineHeight: 1.2, mt: 0.2 }}>
@@ -344,15 +344,15 @@ export default function CascadingCategorySelect({ selectedKey, onSelectCategory 
 
             {/* Level 3: Commodity */}
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Paper sx={{ p: 1.2, backgroundColor: '#ffffff', border: '2px solid #0f766e', borderRadius: 1.5 }}>
-                <Typography variant="caption" sx={{ color: '#0f766e', fontWeight: 800, display: 'block', textTransform: 'uppercase', fontSize: '0.68rem' }}>
+              <Paper sx={{ p: 1.2, backgroundColor: '#ffffff', border: '2px solid #2563eb', borderRadius: 1.5 }}>
+                <Typography variant="caption" sx={{ color: '#2563eb', fontWeight: 800, display: 'block', textTransform: 'uppercase', fontSize: '0.68rem' }}>
                   4. Commodity (Assigned)
                 </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 800, color: '#0f766e', lineHeight: 1.2, mt: 0.2 }}>
+                <Typography variant="body2" sx={{ fontWeight: 800, color: '#2563eb', lineHeight: 1.2, mt: 0.2 }}>
                   {selectedCommodity.title}
                 </Typography>
                 {selectedCommodity.code && (
-                  <Typography variant="caption" sx={{ color: '#0f766e', fontFamily: 'monospace', fontWeight: 700, fontSize: '0.68rem' }}>
+                  <Typography variant="caption" sx={{ color: '#2563eb', fontFamily: 'monospace', fontWeight: 700, fontSize: '0.68rem' }}>
                     Code: {selectedCommodity.code}
                   </Typography>
                 )}
@@ -362,8 +362,8 @@ export default function CascadingCategorySelect({ selectedKey, onSelectCategory 
 
           {/* Full Path Breadcrumb Trail */}
           {selectedCommodity.full_path && (
-            <Box sx={{ pt: 1, borderTop: '1px dashed #99f6e4' }}>
-              <Typography variant="caption" sx={{ color: '#0f766e', fontWeight: 700, display: 'block' }}>
+            <Box sx={{ pt: 1, borderTop: '1px dashed #bfdbfe' }}>
+              <Typography variant="caption" sx={{ color: '#2563eb', fontWeight: 700, display: 'block' }}>
                 Full Hierarchy Trail:
               </Typography>
               <Typography variant="caption" sx={{ color: '#334155', fontWeight: 600 }}>
@@ -374,8 +374,8 @@ export default function CascadingCategorySelect({ selectedKey, onSelectCategory 
 
           {/* UNSPSC Official Definition if available */}
           {selectedCommodity.definition && (
-            <Box sx={{ mt: 1, pt: 1, borderTop: '1px dashed #99f6e4', display: 'flex', alignItems: 'flex-start', gap: 0.8 }}>
-              <InfoOutlinedIcon sx={{ fontSize: 16, color: '#0d9488', mt: 0.2 }} />
+            <Box sx={{ mt: 1, pt: 1, borderTop: '1px dashed #bfdbfe', display: 'flex', alignItems: 'flex-start', gap: 0.8 }}>
+              <InfoOutlinedIcon sx={{ fontSize: 16, color: '#1d4ed8', mt: 0.2 }} />
               <Typography variant="caption" sx={{ color: '#475569', fontStyle: 'italic', lineHeight: 1.3 }}>
                 "{selectedCommodity.definition}"
               </Typography>

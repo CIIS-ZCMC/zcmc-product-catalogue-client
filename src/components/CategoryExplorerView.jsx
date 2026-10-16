@@ -209,7 +209,7 @@ export default function CategoryExplorerView({ onFilterProductsByCategory }) {
           size="small"
           startIcon={<AccountTreeIcon />}
           onClick={() => handleNavigateToBreadcrumb(-1)}
-          sx={{ fontWeight: 700, color: '#0f766e' }}
+          sx={{ fontWeight: 700, color: '#2563eb' }}
         >
           All Segments (Root)
         </Button>
@@ -278,7 +278,7 @@ export default function CategoryExplorerView({ onFilterProductsByCategory }) {
                         divider
                         secondaryAction={
                           child.children_count > 0 ? (
-                            <IconButton size="small" onClick={() => handleDrilldown(child)} sx={{ color: '#0f766e' }}>
+                            <IconButton size="small" onClick={() => handleDrilldown(child)} sx={{ color: '#2563eb' }}>
                               <ChevronRightIcon />
                             </IconButton>
                           ) : null
@@ -290,12 +290,12 @@ export default function CategoryExplorerView({ onFilterProductsByCategory }) {
                           sx={{
                             py: 1.2,
                             '&.Mui-selected': {
-                              backgroundColor: '#f0fdfa',
-                              borderLeft: '4px solid #0f766e',
+                              backgroundColor: '#eff6ff',
+                              borderLeft: '4px solid #2563eb',
                             },
                           }}
                         >
-                          <ListItemIcon sx={{ minWidth: 36, color: isSelected ? '#0f766e' : '#64748b' }}>
+                          <ListItemIcon sx={{ minWidth: 36, color: isSelected ? '#2563eb' : '#64748b' }}>
                             {child.children_count > 0 ? <FolderIcon fontSize="small" /> : <FolderOpenIcon fontSize="small" />}
                           </ListItemIcon>
                           <ListItemText
@@ -326,18 +326,18 @@ export default function CategoryExplorerView({ onFilterProductsByCategory }) {
             {selectedNode ? (
               <Box>
                 {/* Node details header */}
-                <Box sx={{ p: 2.5, backgroundColor: '#f0fdfa', borderBottom: '1px solid #ccfbf1' }}>
+                <Box sx={{ p: 2.5, backgroundColor: '#eff6ff', borderBottom: '1px solid #dbeafe' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <Box>
                       <Chip
                         size="small"
                         label={`Level ${selectedNode.level || (navPath.length)}`}
-                        sx={{ backgroundColor: '#0f766e', color: '#fff', fontWeight: 700, mb: 1, fontSize: '0.7rem' }}
+                        sx={{ backgroundColor: '#2563eb', color: '#fff', fontWeight: 700, mb: 1, fontSize: '0.7rem' }}
                       />
-                      <Typography variant="h6" sx={{ fontWeight: 800, color: '#134e4a', lineHeight: 1.2 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e3a8a', lineHeight: 1.2 }}>
                         {selectedNode.title}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: '#0f766e', fontWeight: 600 }}>
+                      <Typography variant="caption" sx={{ color: '#2563eb', fontWeight: 600 }}>
                         Code: {selectedNode.code || 'N/A'} • Key: {selectedNode.key}
                       </Typography>
                     </Box>
@@ -363,7 +363,7 @@ export default function CategoryExplorerView({ onFilterProductsByCategory }) {
                       variant="outlined"
                       endIcon={<ChevronRightIcon />}
                       onClick={() => handleDrilldown(selectedNode)}
-                      sx={{ mt: 1.5, borderColor: '#0f766e', color: '#0f766e' }}
+                      sx={{ mt: 1.5, borderColor: '#2563eb', color: '#2563eb' }}
                     >
                       Browse {selectedNode.children_count} Subcategories
                     </Button>
@@ -374,7 +374,7 @@ export default function CategoryExplorerView({ onFilterProductsByCategory }) {
                 <CardContent sx={{ p: 2.5 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                     <Stack direction="row" spacing={1} alignItems="center">
-                      <Inventory2Icon fontSize="small" sx={{ color: '#0f766e' }} />
+                      <Inventory2Icon fontSize="small" sx={{ color: '#2563eb' }} />
                       <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f172a' }}>
                         Products under this category ({nodeProducts.length})
                       </Typography>
@@ -409,10 +409,10 @@ export default function CategoryExplorerView({ onFilterProductsByCategory }) {
                             p: 1.5,
                             borderRadius: 1.5,
                             borderColor: '#e2e8f0',
-                            '&:hover': { borderColor: '#0f766e' },
+                            '&:hover': { borderColor: '#2563eb' },
                           }}
                         >
-                          <Typography variant="caption" sx={{ fontWeight: 700, color: '#0f766e' }}>
+                          <Typography variant="caption" sx={{ fontWeight: 700, color: '#2563eb' }}>
                             {p.erp_item_code}
                           </Typography>
                           <Typography variant="body2" sx={{ fontWeight: 700, color: '#0f172a' }}>
@@ -422,7 +422,7 @@ export default function CategoryExplorerView({ onFilterProductsByCategory }) {
                             <Typography variant="caption" sx={{ color: '#64748b' }}>
                               UOM: {p.uom}
                             </Typography>
-                            <Typography variant="caption" sx={{ fontWeight: 700, color: '#0f766e' }}>
+                            <Typography variant="caption" sx={{ fontWeight: 700, color: '#2563eb' }}>
                               ₱{Number(p.unit_price || 0).toFixed(2)}
                             </Typography>
                           </Box>
