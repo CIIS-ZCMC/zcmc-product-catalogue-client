@@ -18,7 +18,6 @@ import {
   DialogContent,
   DialogActions,
   FormHelperText,
-  Chip,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockResetIcon from '@mui/icons-material/LockReset';
@@ -27,7 +26,6 @@ import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import SecurityIcon from '@mui/icons-material/Security';
 import MarkEmailReadOutlinedIcon from '@mui/icons-material/MarkEmailReadOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';

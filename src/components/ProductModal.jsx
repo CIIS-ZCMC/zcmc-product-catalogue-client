@@ -92,7 +92,7 @@ export default function ProductModal({
 
   // Uniform naming live audit
   const [namingAudit, setNamingAudit] = useState(null);
-  const [validatingNaming, setValidatingNaming] = useState(false);
+  const [_validatingNaming, setValidatingNaming] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -152,6 +152,23 @@ export default function ProductModal({
       mounted = false;
     };
   }, []);
+
+  // Debounced live naming validation
+  const validateNaming = async (text) => {
+    if (!text || text.trim().length < 2) {
+      setNamingAudit(null);
+      return;
+    }
+    setValidatingNaming(true);
+    try {
+      const result = await api.validateNaming(text);
+      setNamingAudit(result);
+    } catch (err) {
+      console.error('Validation error', err);
+    } finally {
+      setValidatingNaming(false);
+    }
+  };
 
   // Form initialization
   useEffect(() => {
@@ -258,22 +275,6 @@ export default function ProductModal({
     }
   };
 
-  // Debounced live naming validation
-  const validateNaming = async (text) => {
-    if (!text || text.trim().length < 2) {
-      setNamingAudit(null);
-      return;
-    }
-    setValidatingNaming(true);
-    try {
-      const result = await api.validateNaming(text);
-      setNamingAudit(result);
-    } catch (err) {
-      console.error('Validation error', err);
-    } finally {
-      setValidatingNaming(false);
-    }
-  };
 
   // Structured field change handler - strictly uppercase
   const handleStructuredFieldChange = (field, value) => {

@@ -2,7 +2,6 @@ import React from 'react';
 import {
   AppBar,
   Toolbar,
-  Typography,
   Box,
   Tabs,
   Tab,
@@ -15,8 +14,6 @@ import {
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import RuleIcon from '@mui/icons-material/Rule';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AddIcon from '@mui/icons-material/Add';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
