@@ -30,7 +30,8 @@ The **ZCMC Product Catalogue Client** is a modern, high-performance web applicat
 ## Tech Stack
 
 - **Framework:** React 19 + Vite
-- **UI Components:** Material UI (MUI v6 / v7) + Emotion
+- **UI Components:** shadcn/ui + Tailwind CSS v4 (products and app shell); Material UI + Emotion for screens not yet migrated (sign-in, dashboard, activity logs, CSV import)
+- **Routing / forms:** React Router, React Hook Form + Zod
 - **Icons:** Material Icons & Lucide React
 - **Network / HTTP:** Fetch API with dynamic hostname resolution
 
