@@ -71,7 +71,12 @@ The **ZCMC Product Catalogue Client** is a modern, high-performance web applicat
    - Local: http://localhost:5173/
    - Network: http://<your-lan-ip>:5173/
 
-5. **Build for production:**
+5. **Run unit tests (matching rules and search helpers):**
+   `ash
+   npm test
+   `
+
+6. **Build for production:**
    `ash
    npm run build
    `

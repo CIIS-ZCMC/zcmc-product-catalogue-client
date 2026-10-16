@@ -248,15 +248,18 @@ export const api = {
     return request(`/categories/search?q=${encodeURIComponent(q)}`);
   },
 
-  getCommodities: (q = '', options = {}) => {
-    return request(`/categories/commodities?q=${encodeURIComponent(q)}`, options);
+  // `limit` is accepted by CategoryController::commodities (server default 40).
+  getCommodities: (q = '', options = {}, { limit } = {}) => {
+    const query = new URLSearchParams({ q });
+    if (limit) query.append('limit', String(limit));
+    return request(`/categories/commodities?${query.toString()}`, options);
   },
 
   getRootCategories: () => request('/categories/roots'),
 
   getCategoryChildren: (key) => request(`/categories/${key}/children`),
 
-  getCategory: (key) => request(`/categories/${key}`),
+  getCategory: (key, options = {}) => request(`/categories/${key}`, options),
 
   createCategory: (data) =>
     request('/categories', {

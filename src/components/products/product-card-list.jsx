@@ -20,7 +20,14 @@ export function ProductCardList({ products, onDelete, linkState, busy }) {
               >
                 {display(p.item_description)}
               </Link>
-              <p className="text-muted-foreground font-mono text-xs break-all">{display(p.erp_item_code)}</p>
+              <p className="text-muted-foreground font-mono text-xs break-all">
+                <span className="sr-only">ERP code </span>
+                {display(p.erp_item_code)}
+              </p>
+              <p className="text-muted-foreground text-xs [overflow-wrap:anywhere]">
+                BizBox {display(p.bizbox_item_code)}
+                {p.philgeps_code && <> · PhilGEPS {p.philgeps_code}</>}
+              </p>
             </div>
             {/* Sits above the card-wide link so the menu stays tappable. */}
             <div className="relative z-10 -mt-1 -mr-2">

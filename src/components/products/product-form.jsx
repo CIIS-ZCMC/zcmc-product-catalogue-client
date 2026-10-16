@@ -3,6 +3,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import {
+  ChevronDown,
   CircleAlert,
   CircleCheck,
   ExternalLink,
@@ -29,9 +30,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { CommodityCombobox } from './commodity-combobox'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { InternalCategoryCombobox } from './internal-category-combobox'
+import { UnitSelect } from './unit-select'
+import { UnspscClassifier } from './unspsc-classifier'
 import { UnsavedChangesGuard } from './unsaved-changes-guard'
 
 const MAX_PDF_BYTES = 20 * 1024 * 1024
@@ -139,11 +141,47 @@ function toPayload(values, { includePassword }) {
 // Server field names → form field names.
 const SERVER_FIELD_MAP = { category_key: 'commodity', password: 'confirm_password' }
 
-function SectionCard({ title, description, children }) {
+// Order and wording used by the error summary; matches the order fields appear on screen.
+const FIELD_LABELS = {
+  noun: 'Noun',
+  type: 'Type',
+  material_composition: 'Material / composition',
+  key_attributes: 'Key attributes',
+  size: 'Size',
+  uom: 'Unit of measure',
+  commodity: 'UNSPSC commodity',
+  internal_category_id: 'Internal category',
+  bizbox_item_code: 'BizBox item code',
+  philgeps_code: 'PhilGEPS code',
+  other_specs: 'Other specifications',
+  tech_specs_pdf_path: 'Technical specification PDF',
+  confirm_password: 'Account password',
+}
+const FIELD_ORDER = Object.keys(FIELD_LABELS)
+
+/** Moves focus to the first control inside the field wrapper marked data-field={name}. */
+function focusField(name) {
+  const wrapper = document.querySelector(`[data-field="${name}"]`)
+  // FormControl gives the labelled control an id ending in -form-item; fall back to the first focusable element.
+  const target =
+    wrapper?.querySelector('[id$="-form-item"]') ||
+    wrapper?.querySelector('input:not([type=hidden]):not(.sr-only), button, textarea, [tabindex]:not([tabindex="-1"])')
+  wrapper?.scrollIntoView({ block: 'center' })
+  target?.focus({ preventScroll: true })
+}
+
+function SectionCard({ title, description, optional, children, headingId }) {
   return (
-    <Card className="gap-4">
+    <Card className="gap-4" role="group" aria-labelledby={headingId}>
       <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
+        <CardTitle className="flex flex-wrap items-center gap-2 text-base" id={headingId}>
+          {title}
+          {optional && (
+            <Badge variant="secondary" className="font-normal">
+              Optional
+            </Badge>
+          )}
+        </CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
       <CardContent>{children}</CardContent>
@@ -157,7 +195,7 @@ function NamingField({ control, name, label, placeholder, description, required 
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem data-field={name}>
           <FormLabel required={required}>{label}</FormLabel>
           <FormControl required={required}>
             {/* Displayed and saved in uppercase; the typed value is left alone so the caret never jumps. */}
@@ -244,6 +282,81 @@ function NamingAudit({ description, excludeId }) {
         </Alert>
       )}
     </div>
+  )
+}
+
+/**
+ * Warns when another product already uses this BizBox code. The server does not enforce
+ * uniqueness, so this is advice, not a block. Uses the existing list search (GET /products?search=).
+ */
+function BizboxDuplicateCheck({ code, excludeId }) {
+  const term = useDebouncedValue(code.trim(), 500)
+  const [state, setState] = useState({ term: null, matches: [] })
+
+  useEffect(() => {
+    if (term.length < 3) return undefined
+    const controller = new AbortController()
+    api
+      .getProducts({ search: term, per_page: 10 }, { signal: controller.signal })
+      .then((res) => {
+        const rows = Array.isArray(res?.data) ? res.data : []
+        const matches = rows.filter(
+          (p) => (p.bizbox_item_code || '').trim().toLowerCase() === term.toLowerCase() && String(p.id) !== String(excludeId),
+        )
+        setState({ term, matches })
+      })
+      .catch(() => {
+        // Advisory only: a failed check never blocks saving.
+      })
+    return () => controller.abort()
+  }, [term, excludeId])
+
+  if (term.length < 3 || state.term !== term || state.matches.length === 0) return null
+  return (
+    <Alert variant="warning" role="status" className="mt-2">
+      <TriangleAlert aria-hidden="true" />
+      <AlertTitle>BizBox code already in use</AlertTitle>
+      <AlertDescription>
+        <ul className="space-y-1">
+          {state.matches.slice(0, 3).map((p) => (
+            <li key={p.id} className="break-words">
+              <a href={`/products/${p.id}`} target="_blank" rel="noreferrer" className="font-medium underline underline-offset-2">
+                {p.item_description}
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>{' '}
+              <span className="font-mono text-xs">{p.erp_item_code}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-1">Check this is not the same item before saving.</p>
+      </AlertDescription>
+    </Alert>
+  )
+}
+
+function ErrorSummary({ errors, message, errorRef }) {
+  const entries = FIELD_ORDER.filter((name) => errors[name])
+  if (!message && entries.length === 0) return null
+  return (
+    <Alert variant="destructive" ref={errorRef} tabIndex={-1} className="outline-none">
+      <CircleAlert aria-hidden="true" />
+      <AlertTitle>{entries.length ? `Not saved: ${entries.length} ${entries.length === 1 ? 'field needs' : 'fields need'} attention` : 'Not saved'}</AlertTitle>
+      <AlertDescription>
+        {message && <p>{message}</p>}
+        {entries.length > 0 && (
+          <ul className="mt-1 list-disc space-y-0.5 pl-5">
+            {entries.map((name) => (
+              <li key={name}>
+                <button type="button" className="text-left underline underline-offset-2" onClick={() => focusField(name)}>
+                  {FIELD_LABELS[name]}
+                </button>
+                : {errors[name]?.message}
+              </li>
+            ))}
+          </ul>
+        )}
+      </AlertDescription>
+    </Alert>
   )
 }
 
@@ -452,6 +565,8 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
     resolver: zodResolver(buildSchema({ requirePassword })),
     defaultValues: defaultsFrom(product, prefillDescription ? prefillFrom(prefillDescription) : null),
     mode: 'onTouched',
+    // Focus goes to the error summary instead, which links to each invalid field.
+    shouldFocusError: false,
   })
   const { control, handleSubmit, setError, formState } = form
 
@@ -463,12 +578,31 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
     key_attributes: naming[3],
     size: naming[4],
   })
-  const commodity = useWatch({ control, name: 'commodity' })
-  const internalCategoryId = useWatch({ control, name: 'internal_category_id' })
+  const [commodity, internalCategoryId, uom, bizboxCode, otherSpecs, pdfPath, password] = useWatch({
+    control,
+    name: ['commodity', 'internal_category_id', 'uom', 'bizbox_item_code', 'other_specs', 'tech_specs_pdf_path', 'confirm_password'],
+  })
+
+  // Required-field progress shown next to the save button.
+  const required = [
+    naming[0]?.trim(),
+    uom,
+    commodity,
+    internalCategoryId !== null && internalCategoryId !== '',
+    bizboxCode?.trim(),
+    ...(requirePassword ? [password] : []),
+  ]
+  const remaining = required.filter((v) => !v).length
 
   const unitOptions = units.some((u) => u.toLowerCase() === (product?.uom || '').toLowerCase()) || !product?.uom
     ? units
     : [product.uom, ...units]
+
+  const showSummary = formState.submitCount > 0 && !formState.isSubmitting
+  // Each failed submit ends with showSummary turning true; move focus to the summary then.
+  useEffect(() => {
+    if (showSummary) errorRef.current?.focus()
+  }, [showSummary])
 
   const submit = handleSubmit(
     async (values) => {
@@ -488,62 +622,56 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
           }
         })
         if (mapped === 0 || fieldErrors.length > mapped) {
-          setFormError(err?.message || 'The product could not be saved. Your entries are kept; try again.')
-          requestAnimationFrame(() => errorRef.current?.focus())
+          setFormError(
+            err?.status === 0 || err instanceof TypeError
+              ? 'The catalogue server could not be reached. Your entries are kept; check the connection and try again.'
+              : err?.status >= 500
+                ? `The server could not save the product (${err.message || `error ${err.status}`}). Your entries are kept; try again.`
+                : err?.message || 'The product could not be saved. Your entries are kept; try again.',
+          )
         }
       }
     },
-    () => {
-      // React Hook Form moves focus to the first invalid field; the summary is announced via role="alert".
-      setFormError('Some fields need attention. Check the highlighted fields below.')
-    },
+    // Invalid: the error summary lists each field with a link to it.
+    () => setFormError(''),
   )
 
   return (
     <Form {...form}>
       <UnsavedChangesGuard when={formState.isDirty && !saved} />
-      <form onSubmit={submit} noValidate className="space-y-6">
-        {formError && (
-          <Alert variant="destructive" ref={errorRef} tabIndex={-1} className="outline-none">
-            <CircleAlert aria-hidden="true" />
-            <AlertTitle>Not saved</AlertTitle>
-            <AlertDescription>{formError}</AlertDescription>
-          </Alert>
-        )}
+      <form onSubmit={submit} noValidate className="space-y-6" aria-busy={formState.isSubmitting}>
+        {showSummary && <ErrorSummary errors={formState.errors} message={formError} errorRef={errorRef} />}
 
         <SectionCard
-          title="Standard item name"
-          description="The item description is built from these parts in order and saved in uppercase."
+          headingId="section-name"
+          title="1. Standard item name"
+          description="Built from these parts in order and saved in uppercase. Only the noun is required."
         >
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <NamingField control={control} name="noun" label="Noun" placeholder="e.g. Bleach, Paper" description="Primary item name." required />
-            <NamingField control={control} name="type" label="Type" placeholder="e.g. Liquid, Bond" description="Sub-classification or form." />
-            <NamingField control={control} name="material_composition" label="Material / composition" placeholder="e.g. Sodium hypochlorite 5.25%" description="Active ingredient or material." />
+            <NamingField control={control} name="noun" label="Noun" placeholder="e.g. Gloves, Paper" description="The generic item name, e.g. GLOVES." required />
+            <NamingField control={control} name="type" label="Type" placeholder="e.g. Examination, Bond" description="Sub-classification or form." />
+            <NamingField control={control} name="material_composition" label="Material / composition" placeholder="e.g. Nitrile" description="Active ingredient or material." />
             <div className="sm:col-span-2 lg:col-span-3">
-              <NamingField control={control} name="key_attributes" label="Key attributes" placeholder="e.g. 70 GSM, Multicopy" description="Properties, colour or mechanism. Separate several with commas." />
+              <NamingField control={control} name="key_attributes" label="Key attributes" placeholder="e.g. Powder-free, Non-sterile" description="Properties, colour or mechanism. Separate several with commas." />
             </div>
-            <NamingField control={control} name="size" label="Size" placeholder="e.g. A4, 6 x 9 in" description="Dimensions or size." />
+            <NamingField control={control} name="size" label="Size" placeholder="e.g. Medium, A4" description="Dimensions or size." />
             <FormField
               control={control}
               name="uom"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-field="uom">
                   <FormLabel required>Unit of measure</FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <FormControl required>
-                      <SelectTrigger onBlur={field.onBlur}>
-                        <SelectValue placeholder="Select unit" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="max-h-72">
-                      {unitOptions.map((u) => (
-                        <SelectItem key={u} value={u}>
-                          {u}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>Hospital inventory unit.</FormDescription>
+                  <FormControl required>
+                    <UnitSelect
+                      units={unitOptions}
+                      value={field.value}
+                      onChange={(u) => {
+                        field.onChange(u)
+                        field.onBlur()
+                      }}
+                    />
+                  </FormControl>
+                  <FormDescription>Hospital inventory unit. Type to search, e.g. box.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -564,65 +692,77 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
           </div>
         </SectionCard>
 
-        <SectionCard title="Classification" description="Where the item sits in UNSPSC and in ZCMC's internal categories.">
-          <div className="grid gap-4 sm:grid-cols-2">
+        <SectionCard
+          headingId="section-classification"
+          title="2. Classification"
+          description="Choose the UNSPSC commodity that describes the item, then ZCMC's internal category. Both are required and together set the ERP code."
+        >
+          <div className="grid gap-5">
             <FormField
               control={control}
               name="commodity"
               render={({ field }) => (
-                <FormItem className="sm:col-span-2">
+                <FormItem data-field="commodity">
                   <FormLabel required>UNSPSC commodity</FormLabel>
+                  <FormDescription>
+                    Search by words, the item name or the 8-digit code, or browse Segment → Family → Class. Results are ranked by matching rules
+                    and show why they matched; you make the final choice.
+                  </FormDescription>
                   <FormControl required>
-                    <CommodityCombobox
+                    <UnspscClassifier
                       value={field.value}
+                      hint={builtName || naming[0]}
+                      excludeProductId={product?.id}
                       onChange={(c) => {
-                        field.onChange(c ? { key: c.key, code: c.code, title: c.title } : null)
+                        field.onChange(c)
                         field.onBlur()
                       }}
                     />
                   </FormControl>
-                  <FormDescription>Search by name or 8-digit code. Segment, family and class follow from the commodity.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              control={control}
-              name="internal_category_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel required>Internal category</FormLabel>
-                  <FormControl required>
-                    <InternalCategoryCombobox
-                      value={field.value}
-                      onChange={(c) => {
-                        field.onChange(c ? c.id : null)
-                        field.onBlur()
-                      }}
-                    />
-                  </FormControl>
-                  <FormDescription>ZCMC institutional category, e.g. OF-SUP.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <ErpCodePreview mode={mode} product={product} commodity={commodity} internalCategoryId={internalCategoryId} />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField
+                control={control}
+                name="internal_category_id"
+                render={({ field }) => (
+                  <FormItem data-field="internal_category_id">
+                    <FormLabel required>Internal category</FormLabel>
+                    <FormControl required>
+                      <InternalCategoryCombobox
+                        value={field.value}
+                        onChange={(c) => {
+                          field.onChange(c ? c.id : null)
+                          field.onBlur()
+                        }}
+                      />
+                    </FormControl>
+                    <FormDescription>ZCMC institutional category, e.g. OF-SUP.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <ErpCodePreview mode={mode} product={product} commodity={commodity} internalCategoryId={internalCategoryId} />
+            </div>
           </div>
         </SectionCard>
 
-        <SectionCard title="System codes" description="Codes used by other hospital and government systems.">
+        <SectionCard headingId="section-codes" title="3. System codes" description="Codes used by other hospital and government systems.">
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={control}
               name="bizbox_item_code"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-field="bizbox_item_code">
                   <FormLabel required>BizBox item code</FormLabel>
                   <FormControl required>
-                    <Input {...field} placeholder="e.g. BZ-MED-001" autoComplete="off" spellCheck={false} />
+                    <Input {...field} placeholder="e.g. BZ-MED-001" autoComplete="off" autoCapitalize="characters" spellCheck={false} />
                   </FormControl>
                   <FormDescription>Code from the BizBox hospital system.</FormDescription>
                   <FormMessage />
+                  <BizboxDuplicateCheck code={field.value || ''} excludeId={product?.id} />
                 </FormItem>
               )}
             />
@@ -630,10 +770,10 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
               control={control}
               name="philgeps_code"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-field="philgeps_code">
                   <FormLabel>PhilGEPS code</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="e.g. 14111507-PP-M01" autoComplete="off" spellCheck={false} />
+                    <Input {...field} placeholder="e.g. 14111507-PP-M01" autoComplete="off" autoCapitalize="characters" spellCheck={false} />
                   </FormControl>
                   <FormDescription>
                     Optional. Look it up in the{' '}
@@ -651,25 +791,59 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
           </div>
         </SectionCard>
 
-        <SectionCard title="Specifications">
-          <div className="grid gap-6">
-            <FormField
-              control={control}
-              name="other_specs"
-              render={({ field }) => <SpecsField value={field.value} onChange={field.onChange} />}
-            />
-            <FormField
-              control={control}
-              name="tech_specs_pdf_path"
-              render={({ field }) => (
-                <PdfField path={field.value} initialUrl={product?.tech_specs_pdf_url} onChange={(v) => field.onChange(v)} />
-              )}
-            />
-          </div>
-        </SectionCard>
+        <Collapsible defaultOpen={Boolean(product?.other_specs || product?.tech_specs_pdf_path)}>
+          <Card className="gap-0 py-0">
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                className="group flex w-full items-center justify-between gap-3 rounded-xl px-6 py-5 text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              >
+                <span>
+                  <span className="flex flex-wrap items-center gap-2 text-base font-semibold">
+                    4. Specifications
+                    <Badge variant="secondary" className="font-normal">
+                      Optional
+                    </Badge>
+                  </span>
+                  <span className="text-muted-foreground block text-sm">
+                    {otherSpecs.length || pdfPath
+                      ? [otherSpecs.length && `${otherSpecs.length} specification${otherSpecs.length === 1 ? '' : 's'}`, pdfPath && 'PDF attached']
+                          .filter(Boolean)
+                          .join(' · ')
+                      : 'Extra notes and a manufacturer datasheet.'}
+                  </span>
+                </span>
+                <ChevronDown className="text-muted-foreground size-5 shrink-0 transition-transform group-data-[state=open]:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="grid gap-6 px-6 pb-6">
+                <FormField
+                  control={control}
+                  name="other_specs"
+                  render={({ field }) => (
+                    <div data-field="other_specs">
+                      <SpecsField value={field.value} onChange={field.onChange} />
+                    </div>
+                  )}
+                />
+                <FormField
+                  control={control}
+                  name="tech_specs_pdf_path"
+                  render={({ field }) => (
+                    <div data-field="tech_specs_pdf_path">
+                      <PdfField path={field.value} initialUrl={product?.tech_specs_pdf_url} onChange={(v) => field.onChange(v)} />
+                    </div>
+                  )}
+                />
+              </div>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
         {requirePassword && (
           <SectionCard
+            headingId="section-confirm"
             title="Confirm it's you"
             description="End users must enter their account password to change an existing product. The server checks it before saving."
           >
@@ -677,7 +851,7 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
               control={control}
               name="confirm_password"
               render={({ field }) => (
-                <FormItem className="max-w-sm">
+                <FormItem className="max-w-sm" data-field="confirm_password">
                   <FormLabel required>Account password</FormLabel>
                   <div className="relative">
                     <FormControl required>
@@ -702,14 +876,25 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
           </SectionCard>
         )}
 
-        <div className="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky bottom-0 -mx-4 flex flex-col-reverse gap-2 border-t px-4 py-3 backdrop-blur sm:mx-0 sm:flex-row sm:justify-end sm:rounded-lg sm:border">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={formState.isSubmitting}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={formState.isSubmitting}>
-            {formState.isSubmitting && <LoaderCircle className="animate-spin" aria-hidden="true" />}
-            {formState.isSubmitting ? 'Saving…' : mode === 'edit' ? 'Save product' : 'Create product'}
-          </Button>
+        <div className="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t px-4 py-2.5 sm:py-3 backdrop-blur sm:mx-0 sm:flex-row sm:items-center sm:justify-between sm:rounded-lg sm:border">
+          <p className="text-muted-foreground text-xs sm:text-sm" aria-live="polite">
+            {remaining === 0 ? (
+              <span className="text-success inline-flex items-center gap-1.5">
+                <CircleCheck className="size-4" aria-hidden="true" /> All required fields are filled.
+              </span>
+            ) : (
+              `${remaining} required ${remaining === 1 ? 'field' : 'fields'} left`
+            )}
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:flex">
+            <Button type="button" variant="outline" onClick={onCancel} disabled={formState.isSubmitting}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={formState.isSubmitting}>
+              {formState.isSubmitting && <LoaderCircle className="animate-spin" aria-hidden="true" />}
+              {formState.isSubmitting ? 'Saving…' : mode === 'edit' ? 'Save product' : 'Create product'}
+            </Button>
+          </div>
         </div>
       </form>
     </Form>

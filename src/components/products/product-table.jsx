@@ -41,7 +41,7 @@ export function ProductTable({ products, sort, onSort, onDelete, linkState, busy
             <SortableHead label="ERP code" field="erp_item_code" sort={sort} onSort={onSort} className="w-44 lg:w-52" />
             <SortableHead label="Item description" field="item_description" sort={sort} onSort={onSort} />
             <TableHead className="hidden w-56 lg:table-cell xl:w-72">UNSPSC commodity</TableHead>
-            <TableHead className="hidden w-28 xl:table-cell">Internal</TableHead>
+            <TableHead className="hidden w-32 leading-tight whitespace-normal xl:table-cell">Internal category</TableHead>
             <SortableHead label="UOM" field="uom" sort={sort} onSort={onSort} className="w-24" />
             <SortableHead label="Added" field="created_at" sort={sort} onSort={onSort} className="hidden w-32 xl:table-cell" />
             <TableHead className="w-14">

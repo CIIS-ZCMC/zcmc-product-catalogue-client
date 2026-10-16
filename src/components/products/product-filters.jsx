@@ -6,8 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CommodityCombobox } from './commodity-combobox'
 import { InternalCategoryCombobox } from './internal-category-combobox'
-
-const ALL = '__all__'
+import { UnitSelect } from './unit-select'
 
 /**
  * Filters backed by real query params of GET /products:
@@ -41,19 +40,13 @@ export function ProductFilters({ filters, commodity, onChange, sort, onSortChang
       </div>
       <div className="grid min-w-0 gap-1.5">
         <Label htmlFor={`${id}-uom`}>Unit of measure</Label>
-        <Select value={filters.uom || ALL} onValueChange={(v) => onChange({ uom: v === ALL ? '' : v })}>
-          <SelectTrigger id={`${id}-uom`}>
-            <SelectValue placeholder="All units" />
-          </SelectTrigger>
-          <SelectContent className="max-h-72">
-            <SelectItem value={ALL}>All units</SelectItem>
-            {units.map((u) => (
-              <SelectItem key={u} value={u}>
-                {u}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <UnitSelect
+          id={`${id}-uom`}
+          units={units}
+          value={filters.uom || ''}
+          onChange={(u) => onChange({ uom: u })}
+          placeholder="All units"
+        />
       </div>
       {showSort && (
         <div className="grid min-w-0 gap-1.5">
