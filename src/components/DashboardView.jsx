@@ -1,262 +1,225 @@
-﻿import React from 'react';
+import React from 'react';
 import {
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  Stack,
-  LinearProgress,
-  Chip,
-  Paper,
-  Button,
-} from '@mui/material';
-import Inventory2Icon from '@mui/icons-material/Inventory2';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+  Package,
+  CheckCircle2,
+  FolderTree,
+  Layers,
+  ArrowRight,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
+import { Progress } from './ui/progress';
 
 export default function DashboardView({ stats, onNavigateToProducts }) {
-  if (!stats) return null;
+  if (!stats) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 py-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Card key={i} className="h-28 animate-pulse bg-slate-100/70" />
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <Box sx={{ py: 3 }}>
-      {/* 4 Stat Cards */}
-      <Grid container spacing={2.5} sx={{ mb: 3 }}>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <MetricCard
-            title="Total Catalogue Products"
-            value={stats.total_products || 0}
-            subtitle="Standardized Hospital Items"
-            icon={<Inventory2Icon sx={{ color: '#0f766e' }} />}
-            bgColor="#f0fdfa"
-          />
-        </Grid>
+    <div className="space-y-6">
+      {/* Page Title */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900">
+            SSOT Catalogue Analytics &amp; Overview
+          </h1>
+          <p className="text-xs text-slate-500">
+            Real-time metrics across standardized hospital items, UNSPSC taxonomy, and naming compliance
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={onNavigateToProducts}>
+          <span>Browse Full Catalogue</span>
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Button>
+      </div>
 
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <MetricCard
-            title="Uniform Naming Compliance"
-            value={(stats.compliance_rate || 0) + '%'}
-            subtitle="Compliant Uppercase & Structure"
-            icon={<CheckCircleIcon sx={{ color: '#10b981' }} />}
-            bgColor="#f0fdf4"
-          />
-        </Grid>
+      {/* 4 KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard
+          title="Total Catalogue Products"
+          value={(stats.total_products || 0).toLocaleString()}
+          subtitle="Standardized Hospital Items"
+          icon={Package}
+          iconBg="bg-blue-50 text-blue-600 border-blue-200/60"
+        />
+        <MetricCard
+          title="Uniform Naming Compliance"
+          value={`${stats.compliance_rate || 0}%`}
+          subtitle="Compliant Uppercase & Structure"
+          icon={CheckCircle2}
+          iconBg="bg-emerald-50 text-emerald-600 border-emerald-200/60"
+        />
+        <MetricCard
+          title="Primary UNSPSC Segments"
+          value={stats.total_segments || 58}
+          subtitle="Top-Level Category Groups"
+          icon={FolderTree}
+          iconBg="bg-sky-50 text-sky-600 border-sky-200/60"
+        />
+        <MetricCard
+          title="Total UNSPSC Categories"
+          value={stats.total_categories?.toLocaleString() || '158,519'}
+          subtitle="Segments, Families, Classes & Commodities"
+          icon={Layers}
+          iconBg="bg-indigo-50 text-indigo-600 border-indigo-200/60"
+        />
+      </div>
 
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <MetricCard
-            title="Primary UNSPSC Segments"
-            value={stats.total_segments || 58}
-            subtitle="Top-Level Category Groups"
-            icon={<AccountTreeIcon sx={{ color: '#0284c7' }} />}
-            bgColor="#f0f9ff"
-          />
-        </Grid>
-
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <MetricCard
-            title="Total UNSPSC Categories"
-            value={stats.total_categories?.toLocaleString() || '158,519'}
-            subtitle="Segments, Families, Classes & Commodities"
-            icon={<LocalHospitalIcon sx={{ color: '#6366f1' }} />}
-            bgColor="#eef2ff"
-          />
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={3}>
+      {/* Middle Analytics Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Category Group Distribution */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a', mb: 0.5 }}>
-                Distribution by Category Group
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#64748b', mb: 2, display: 'block' }}>
-                Item count across top-level procurement classifications
-              </Typography>
-
-              <Stack spacing={2} sx={{ mt: 2 }}>
-                {stats.group_distribution?.map((g, idx) => {
-                  const pct = stats.total_products > 0 ? Math.round((g.count / stats.total_products) * 100) : 0;
-                  return (
-                    <Box key={idx}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: '#1e293b' }}>
-                          {g.category_group || 'Unclassified'}
-                        </Typography>
-                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#0f766e' }}>
-                          {g.count} items ({pct}%)
-                        </Typography>
-                      </Box>
-                      <LinearProgress
-                        variant="determinate"
-                        value={pct}
-                        sx={{
-                          height: 8,
-                          borderRadius: 4,
-                          backgroundColor: '#e2e8f0',
-                          '& .MuiLinearProgress-bar': {
-                            backgroundColor: idx % 2 === 0 ? '#0f766e' : '#0d9488',
-                            borderRadius: 4,
-                          },
-                        }}
-                      />
-                    </Box>
-                  );
-                })}
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
+        <Card className="flex flex-col">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Distribution by Category Group</CardTitle>
+            <CardDescription>
+              Item count across top-level procurement classifications
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {stats.group_distribution?.length > 0 ? (
+              stats.group_distribution.map((g, idx) => {
+                const pct =
+                  stats.total_products > 0
+                    ? Math.round((g.count / stats.total_products) * 100)
+                    : 0;
+                return (
+                  <div key={idx} className="space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-medium text-slate-800 truncate pr-3">
+                        {g.category_group || 'Unclassified'}
+                      </span>
+                      <span className="font-mono font-semibold text-blue-600 shrink-0">
+                        {g.count} items ({pct}%)
+                      </span>
+                    </div>
+                    <Progress value={pct} />
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-xs text-slate-400 py-6 text-center">
+                No category distribution data available yet.
+              </p>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Units of Measure (UOM) Breakdown */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a', mb: 0.5 }}>
-                Units of Measure (UOM) Frequency
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#64748b', mb: 2, display: 'block' }}>
-                Standard packaging units used in procurement purchase requests
-              </Typography>
-
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mt: 2 }}>
-                {stats.uom_distribution?.map((u, i) => (
-                  <Paper
+        <Card className="flex flex-col">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Units of Measure (UOM) Frequency</CardTitle>
+            <CardDescription>
+              Standard packaging units used in procurement purchase requests
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {stats.uom_distribution?.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                {stats.uom_distribution.map((u, i) => (
+                  <div
                     key={i}
-                    variant="outlined"
-                    sx={{
-                      p: 1.5,
-                      borderRadius: 2,
-                      minWidth: 110,
-                      backgroundColor: '#f8fafc',
-                      borderColor: '#e2e8f0',
-                      textAlign: 'center',
-                    }}
+                    className="rounded-lg border border-slate-200/80 bg-slate-50/70 p-3 text-center hover:border-blue-300 hover:bg-blue-50/30 transition-colors"
                   >
-                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f766e' }}>
+                    <div className="text-lg font-bold font-mono text-blue-600">
                       {u.count}
-                    </Typography>
-                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', textTransform: 'uppercase' }}>
+                    </div>
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 truncate mt-0.5">
                       {u.uom}
-                    </Typography>
-                  </Paper>
+                    </div>
+                  </div>
                 ))}
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+              </div>
+            ) : (
+              <p className="text-xs text-slate-400 py-6 text-center">
+                No UOM frequency data available yet.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Recently Added Products List */}
-        <Grid size={12}>
-          <Card>
-            <CardContent sx={{ p: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                    Recently Catalogued Hospital Items
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#64748b' }}>
-                    Latest entries verified under uniform naming guidelines
-                  </Typography>
-                </Box>
-                <Button
-                  size="small"
-                  endIcon={<ArrowForwardIcon />}
-                  onClick={onNavigateToProducts}
-                >
-                  View Full Catalogue
-                </Button>
-              </Box>
+      {/* Recently Catalogued Items */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-3">
+          <div className="space-y-1">
+            <CardTitle className="text-base">Recently Catalogued Hospital Items</CardTitle>
+            <CardDescription>
+              Latest entries verified under uniform naming guidelines
+            </CardDescription>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onNavigateToProducts} className="text-blue-600">
+            <span>View All</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {stats.recent_products?.map((item) => (
+              <div
+                key={item.id}
+                className="group rounded-xl border border-slate-200 bg-white p-4 flex flex-col justify-between hover:border-blue-400 hover:shadow-sm transition-all"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="font-mono text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200/60">
+                      {item.erp_item_code}
+                    </span>
+                    <Badge variant="secondary" className="uppercase text-[10px]">
+                      {item.uom}
+                    </Badge>
+                  </div>
+                  <p className="text-sm font-semibold text-slate-900 leading-snug">
+                    {item.item_description}
+                  </p>
+                  {item.full_category_path && (
+                    <p className="text-[11px] text-slate-500 mt-1.5 line-clamp-2">
+                      {item.full_category_path}
+                    </p>
+                  )}
+                </div>
 
-              <Grid container spacing={2}>
-                {stats.recent_products?.map((item) => (
-                  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={item.id}>
-                    <Paper
-                      variant="outlined"
-                      sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        backgroundColor: '#ffffff',
-                        borderColor: '#e2e8f0',
-                        '&:hover': { borderColor: '#0f766e', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' },
-                      }}
-                    >
-                      <Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
-                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#0f766e' }}>
-                            {item.erp_item_code}
-                          </Typography>
-                          <Chip
-                            size="small"
-                            label={item.uom}
-                            sx={{ height: 18, fontSize: '0.65rem', fontWeight: 600, textTransform: 'lowercase' }}
-                          />
-                        </Box>
-                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#0f172a', lineHeight: 1.3 }}>
-                          {item.item_description}
-                        </Typography>
-                        {item.full_category_path && (
-                          <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mt: 0.8, fontStyle: 'italic' }}>
-                            {item.full_category_path}
-                          </Typography>
-                        )}
-                      </Box>
-
-                      <Box sx={{ pt: 1.5, mt: 1.5, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant="caption" sx={{ color: '#94a3b8' }}>Unit Price:</Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 800, color: '#0f766e' }}>
-                          ₱{Number(item.unit_price || 0).toFixed(2)}
-                        </Typography>
-                      </Box>
-                    </Paper>
-                  </Grid>
-                ))}
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </Box>
+                {item.bizbox_item_code && (
+                  <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span className="text-slate-400">BizBox Code:</span>
+                    <span className="font-mono font-medium text-slate-700">
+                      {item.bizbox_item_code}
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
-function MetricCard({ title, value, subtitle, icon, bgColor }) {
+function MetricCard({ title, value, subtitle, icon: Icon, iconBg }) {
   return (
-    <Card sx={{ height: '100%' }}>
-      <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <Box>
-            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+    <Card>
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
               {title}
-            </Typography>
-            <Typography variant="h4" sx={{ fontWeight: 800, color: '#0f172a', my: 0.5 }}>
+            </p>
+            <p className="text-2xl font-bold tracking-tight text-slate-900 font-mono">
               {value}
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#64748b' }}>
-              {subtitle}
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              width: 44,
-              height: 44,
-              borderRadius: 2,
-              backgroundColor: bgColor,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {icon}
-          </Box>
-        </Box>
+            </p>
+            <p className="text-xs text-slate-500">{subtitle}</p>
+          </div>
+          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${iconBg}`}>
+            <Icon className="h-5 w-5" />
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

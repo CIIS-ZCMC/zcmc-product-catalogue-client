@@ -1,58 +1,49 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  ListItemIcon,
-  Button,
-  TextField,
-  Chip,
-  Stack,
-  Paper,
-  CircularProgress,
+  Folder,
+  FolderOpen,
+  ChevronRight,
+  Plus,
+  Pencil,
+  Trash2,
+  FolderTree,
+  Package,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  ArrowUpRight,
+} from 'lucide-react';
+import { Card, CardContent } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Alert, AlertDescription } from './ui/alert';
+import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  IconButton,
-  Alert,
-  Tooltip,
-} from '@mui/material';
-import FolderIcon from '@mui/icons-material/Folder';
-import FolderOpenIcon from '@mui/icons-material/FolderOpen';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import Inventory2Icon from '@mui/icons-material/Inventory2';
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from './ui/dialog';
+import { cn } from '../lib/utils';
 import { api } from '../services/api';
 
 export default function CategoryExplorerView({ onFilterProductsByCategory }) {
-  // Navigation stack: array of category objects [rootSegment, family, class, ...]
   const [navPath, setNavPath] = useState([]);
   const [currentChildren, setCurrentChildren] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Selected leaf or node for right pane details
   const [selectedNode, setSelectedNode] = useState(null);
   const [nodeProducts, setNodeProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
 
-  // Category CRUD dialogs
   const [modalState, setModalState] = useState({ open: false, isEdit: false, data: null });
   const [formFields, setFormFields] = useState({ title: '', code: '', parent_key: null });
   const [savingCategory, setSavingCategory] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
 
-  // Initial load: root segments
   useEffect(() => {
     loadRoots();
   }, []);
@@ -159,7 +150,6 @@ export default function CategoryExplorerView({ onFilterProductsByCategory }) {
         setActionSuccess('Subcategory added successfully.');
       }
       setModalState({ open: false, isEdit: false, data: null });
-      // Refresh current children list
       if (navPath.length > 0) {
         const last = navPath[navPath.length - 1];
         const refreshed = await api.getCategoryChildren(last.key);
@@ -196,290 +186,311 @@ export default function CategoryExplorerView({ onFilterProductsByCategory }) {
   };
 
   return (
-    <Box sx={{ py: 3 }}>
+    <div className="space-y-4">
       {actionSuccess && (
-        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setActionSuccess('')}>
-          {actionSuccess}
+        <Alert variant="success">
+          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          <AlertDescription>{actionSuccess}</AlertDescription>
         </Alert>
       )}
 
       {/* Breadcrumb Navigation Bar */}
-      <Paper variant="outlined" sx={{ p: 1.5, mb: 3, borderRadius: 2, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-        <Button
-          size="small"
-          startIcon={<AccountTreeIcon />}
+      <div className="flex flex-wrap items-center gap-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-2xs">
+        <button
+          type="button"
           onClick={() => handleNavigateToBreadcrumb(-1)}
-          sx={{ fontWeight: 700, color: '#0f766e' }}
+          className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
         >
-          All Segments (Root)
-        </Button>
+          <FolderTree className="h-3.5 w-3.5" />
+          <span>All Segments (Root)</span>
+        </button>
 
         {navPath.map((item, idx) => (
           <React.Fragment key={item.key}>
-            <ChevronRightIcon sx={{ color: '#94a3b8', fontSize: 18 }} />
-            <Button
-              size="small"
+            <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+            <button
+              type="button"
               onClick={() => handleNavigateToBreadcrumb(idx)}
-              sx={{
-                fontWeight: idx === navPath.length - 1 ? 800 : 600,
-                color: idx === navPath.length - 1 ? '#0f172a' : '#475569',
-              }}
+              className={cn(
+                'rounded-md px-2 py-1 text-xs transition-colors cursor-pointer',
+                idx === navPath.length - 1
+                  ? 'font-bold text-slate-900 bg-slate-100'
+                  : 'font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+              )}
             >
-              {item.code ? `[${item.code}] ` : ''}{item.title}
-            </Button>
+              {item.code ? `[${item.code}] ` : ''}
+              {item.title}
+            </button>
           </React.Fragment>
         ))}
-      </Paper>
+      </div>
 
-      <Grid container spacing={3}>
-        {/* Left column: Categories List under current drilldown */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ height: '100%', minHeight: 550, display: 'flex', flexDirection: 'column' }}>
-            <Box sx={{ p: 2, backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Box>
-                <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                  {navPath.length === 0 ? 'Top-Level Segments' : `Subcategories of ${navPath[navPath.length - 1].title}`}
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#64748b' }}>
-                  {currentChildren.length} categories available
-                </Typography>
-              </Box>
-
-              <Button
-                size="small"
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleOpenAdd}
-              >
-                Add Category
-              </Button>
-            </Box>
-
-            <CardContent sx={{ p: 0, flex: 1, overflowY: 'auto', maxHeight: 600 }}>
-              {loading ? (
-                <Box sx={{ p: 4, display: 'flex', justifyContent: 'center' }}>
-                  <CircularProgress size={30} />
-                </Box>
-              ) : currentChildren.length === 0 ? (
-                <Box sx={{ p: 4, textAlign: 'center' }}>
-                  <Typography variant="body2" sx={{ color: '#94a3b8' }}>
-                    No child categories found in this branch. This is a terminal commodity level.
-                  </Typography>
-                </Box>
-              ) : (
-                <List disablePadding>
-                  {currentChildren.map((child) => {
-                    const isSelected = selectedNode && selectedNode.key === child.key;
-
-                    return (
-                      <ListItem
-                        key={child.key}
-                        disablePadding
-                        divider
-                        secondaryAction={
-                          child.children_count > 0 ? (
-                            <IconButton size="small" onClick={() => handleDrilldown(child)} sx={{ color: '#0f766e' }}>
-                              <ChevronRightIcon />
-                            </IconButton>
-                          ) : null
-                        }
-                      >
-                        <ListItemButton
-                          selected={isSelected}
-                          onClick={() => selectNode(child)}
-                          sx={{
-                            py: 1.2,
-                            '&.Mui-selected': {
-                              backgroundColor: '#f0fdfa',
-                              borderLeft: '4px solid #0f766e',
-                            },
-                          }}
-                        >
-                          <ListItemIcon sx={{ minWidth: 36, color: isSelected ? '#0f766e' : '#64748b' }}>
-                            {child.children_count > 0 ? <FolderIcon fontSize="small" /> : <FolderOpenIcon fontSize="small" />}
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={
-                              <Typography variant="body2" sx={{ fontWeight: isSelected ? 700 : 500, color: '#0f172a' }}>
-                                {child.code ? `[${child.code}] ` : ''}{child.title}
-                              </Typography>
-                            }
-                            secondary={
-                              <Typography variant="caption" sx={{ color: '#64748b' }}>
-                                Key: {child.key} • {child.children_count || 0} sub-branches
-                              </Typography>
-                            }
-                          />
-                        </ListItemButton>
-                      </ListItem>
-                    );
-                  })}
-                </List>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Right column: Selected Category Node Details & Associated Products */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ height: '100%', minHeight: 550 }}>
-            {selectedNode ? (
-              <Box>
-                {/* Node details header */}
-                <Box sx={{ p: 2.5, backgroundColor: '#f0fdfa', borderBottom: '1px solid #ccfbf1' }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <Box>
-                      <Chip
-                        size="small"
-                        label={`Level ${selectedNode.level || (navPath.length)}`}
-                        sx={{ backgroundColor: '#0f766e', color: '#fff', fontWeight: 700, mb: 1, fontSize: '0.7rem' }}
-                      />
-                      <Typography variant="h6" sx={{ fontWeight: 800, color: '#134e4a', lineHeight: 1.2 }}>
-                        {selectedNode.title}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#0f766e', fontWeight: 600 }}>
-                        Code: {selectedNode.code || 'N/A'} • Key: {selectedNode.key}
-                      </Typography>
-                    </Box>
-
-                    <Stack direction="row" spacing={1}>
-                      <Tooltip title="Edit this Category">
-                        <IconButton size="small" onClick={handleOpenEdit} sx={{ color: '#0284c7' }}>
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete Category">
-                        <IconButton size="small" onClick={handleDeleteCategory} sx={{ color: '#ef4444' }}>
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
-                  </Box>
-
-                  {/* Action to drill down if children exist */}
-                  {selectedNode.children_count > 0 && (
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      endIcon={<ChevronRightIcon />}
-                      onClick={() => handleDrilldown(selectedNode)}
-                      sx={{ mt: 1.5, borderColor: '#0f766e', color: '#0f766e' }}
-                    >
-                      Browse {selectedNode.children_count} Subcategories
-                    </Button>
-                  )}
-                </Box>
-
-                {/* Products in this category branch */}
-                <CardContent sx={{ p: 2.5 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <Inventory2Icon fontSize="small" sx={{ color: '#0f766e' }} />
-                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f172a' }}>
-                        Products under this category ({nodeProducts.length})
-                      </Typography>
-                    </Stack>
-
-                    <Button
-                      size="small"
-                      onClick={() => onFilterProductsByCategory(selectedNode.key)}
-                      sx={{ textTransform: 'none', fontSize: '0.75rem', fontWeight: 600 }}
-                    >
-                      View All in Catalogue
-                    </Button>
-                  </Box>
-
-                  {loadingProducts ? (
-                    <Box sx={{ py: 3, display: 'flex', justifyContent: 'center' }}>
-                      <CircularProgress size={24} />
-                    </Box>
-                  ) : nodeProducts.length === 0 ? (
-                    <Paper variant="outlined" sx={{ p: 3, textAlign: 'center', backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
-                      <Typography variant="body2" sx={{ color: '#94a3b8' }}>
-                        No catalogue products directly assigned to this category node yet.
-                      </Typography>
-                    </Paper>
-                  ) : (
-                    <Stack spacing={1}>
-                      {nodeProducts.map((p) => (
-                        <Paper
-                          key={p.id}
-                          variant="outlined"
-                          sx={{
-                            p: 1.5,
-                            borderRadius: 1.5,
-                            borderColor: '#e2e8f0',
-                            '&:hover': { borderColor: '#0f766e' },
-                          }}
-                        >
-                          <Typography variant="caption" sx={{ fontWeight: 700, color: '#0f766e' }}>
-                            {p.erp_item_code}
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 700, color: '#0f172a' }}>
-                            {p.item_description}
-                          </Typography>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
-                            <Typography variant="caption" sx={{ color: '#64748b' }}>
-                              UOM: {p.uom}
-                            </Typography>
-                            <Typography variant="caption" sx={{ fontWeight: 700, color: '#0f766e' }}>
-                              ₱{Number(p.unit_price || 0).toFixed(2)}
-                            </Typography>
-                          </Box>
-                        </Paper>
-                      ))}
-                    </Stack>
-                  )}
-                </CardContent>
-              </Box>
-            ) : (
-              <Box sx={{ p: 6, textAlign: 'center' }}>
-                <Typography variant="body2" sx={{ color: '#94a3b8' }}>
-                  Select a category from the left panel to inspect details and associated products.
-                </Typography>
-              </Box>
-            )}
-          </Card>
-        </Grid>
-      </Grid>
-
-      {/* Add / Edit Category Dialog */}
-      <Dialog open={modalState.open} onClose={() => setModalState({ open: false, isEdit: false, data: null })} maxWidth="sm" fullWidth>
-        <form onSubmit={handleSaveCategory}>
-          <DialogTitle sx={{ fontWeight: 800 }}>
-            {modalState.isEdit ? 'Edit Category' : 'Add New Category'}
-          </DialogTitle>
-          <DialogContent dividers sx={{ p: 2.5 }}>
-            {errorMsg && <Alert severity="error" sx={{ mb: 2 }}>{errorMsg}</Alert>}
-            <Stack spacing={2}>
-              <TextField
-                fullWidth
-                size="small"
-                label="Category Title *"
-                required
-                placeholder="e.g. Surgical Instruments, Printing Paper..."
-                value={formFields.title}
-                onChange={(e) => setFormFields({ ...formFields, title: e.target.value })}
-              />
-              <TextField
-                fullWidth
-                size="small"
-                label="UNSPSC Code"
-                placeholder="e.g. 14111500"
-                value={formFields.code}
-                onChange={(e) => setFormFields({ ...formFields, code: e.target.value })}
-                helperText="Official UNSPSC code (optional)"
-              />
-            </Stack>
-          </DialogContent>
-          <DialogActions sx={{ p: 2 }}>
-            <Button onClick={() => setModalState({ open: false, isEdit: false, data: null })}>Cancel</Button>
-            <Button type="submit" variant="contained" disabled={savingCategory}>
-              {savingCategory ? 'Saving...' : modalState.isEdit ? 'Save Changes' : 'Create Category'}
+      {/* Split Pane Explorer */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Pane: Categories List */}
+        <Card className="lg:col-span-6 flex flex-col min-h-[540px] overflow-hidden">
+          <div className="flex items-center justify-between gap-2 px-5 py-3.5 bg-slate-50/80 border-b border-slate-200">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900">
+                {navPath.length === 0
+                  ? 'Top-Level UNSPSC Segments'
+                  : `Subcategories of ${navPath[navPath.length - 1].title}`}
+              </h3>
+              <p className="text-xs text-slate-500">
+                {currentChildren.length} categories available
+              </p>
+            </div>
+            <Button size="sm" onClick={handleOpenAdd}>
+              <Plus className="h-3.5 w-3.5" />
+              <span>Add Category</span>
             </Button>
-          </DialogActions>
-        </form>
+          </div>
+
+          <div className="flex-1 overflow-y-auto max-h-[580px] divide-y divide-slate-100">
+            {loading ? (
+              <div className="py-12 flex items-center justify-center gap-2 text-xs text-slate-500">
+                <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                <span>Loading taxonomy nodes...</span>
+              </div>
+            ) : currentChildren.length === 0 ? (
+              <div className="p-8 text-center text-xs text-slate-400">
+                No child categories found in this branch. This is a terminal commodity level.
+              </div>
+            ) : (
+              currentChildren.map((child) => {
+                const isSelected = selectedNode && selectedNode.key === child.key;
+                return (
+                  <div
+                    key={child.key}
+                    onClick={() => selectNode(child)}
+                    className={cn(
+                      'flex items-center justify-between gap-3 px-4 py-3 cursor-pointer transition-colors',
+                      isSelected
+                        ? 'bg-blue-50/70 border-l-4 border-l-blue-600'
+                        : 'hover:bg-slate-50'
+                    )}
+                  >
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div className="mt-0.5 text-blue-600">
+                        {child.children_count > 0 ? (
+                          <Folder className="h-4 w-4" />
+                        ) : (
+                          <FolderOpen className="h-4 w-4 text-slate-400" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p
+                          className={cn(
+                            'text-xs leading-snug',
+                            isSelected ? 'font-bold text-blue-950' : 'font-medium text-slate-800'
+                          )}
+                        >
+                          {child.code && (
+                            <span className="font-mono text-blue-600 mr-1.5">[{child.code}]</span>
+                          )}
+                          {child.title}
+                        </p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
+                          Key: {child.key} • {child.children_count || 0} sub-branches
+                        </p>
+                      </div>
+                    </div>
+
+                    {child.children_count > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDrilldown(child);
+                        }}
+                        title="Drill down into subcategories"
+                      >
+                        <ChevronRight className="h-4 w-4 text-blue-600" />
+                      </Button>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </Card>
+
+        {/* Right Pane: Selected Category Node Inspector */}
+        <Card className="lg:col-span-6 flex flex-col min-h-[540px] overflow-hidden">
+          {selectedNode ? (
+            <>
+              <div className="p-5 bg-blue-50/50 border-b border-blue-100 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <Badge variant="default" className="text-[10px]">
+                      Level {selectedNode.level || navPath.length}
+                    </Badge>
+                    <h3 className="text-base font-bold text-slate-900 leading-snug pt-1">
+                      {selectedNode.title}
+                    </h3>
+                    <p className="font-mono text-xs text-blue-600 font-semibold">
+                      Code: {selectedNode.code || 'N/A'} • Key: {selectedNode.key}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleOpenEdit}
+                      title="Edit Category"
+                    >
+                      <Pencil className="h-4 w-4 text-blue-600" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleDeleteCategory}
+                      title="Delete Category"
+                      className="hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                </div>
+
+                {selectedNode.children_count > 0 && (
+                  <Button
+                    variant="blueOutline"
+                    size="sm"
+                    onClick={() => handleDrilldown(selectedNode)}
+                  >
+                    <span>Browse {selectedNode.children_count} Subcategories</span>
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
+
+              <CardContent className="p-5 space-y-4 flex-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+                    <Package className="h-4 w-4 text-blue-600" />
+                    <span>Products under this category ({nodeProducts.length})</span>
+                  </div>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() => onFilterProductsByCategory(selectedNode.key)}
+                    className="h-auto p-0 text-xs"
+                  >
+                    <span>View All in Catalogue</span>
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+
+                {loadingProducts ? (
+                  <div className="py-8 flex justify-center">
+                    <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                  </div>
+                ) : nodeProducts.length === 0 ? (
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-6 text-center text-xs text-slate-400">
+                    No catalogue products directly assigned to this category node yet.
+                  </div>
+                ) : (
+                  <div className="space-y-2.5">
+                    {nodeProducts.map((p) => (
+                      <div
+                        key={p.id}
+                        className="rounded-lg border border-slate-200 p-3 hover:border-blue-300 transition-colors"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-mono text-xs font-bold text-blue-600">
+                            {p.erp_item_code}
+                          </span>
+                          <Badge variant="outline" className="text-[10px] font-mono uppercase">
+                            {p.uom}
+                          </Badge>
+                        </div>
+                        <p className="text-xs font-semibold text-slate-900 mt-1">
+                          {p.item_description}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </>
+          ) : (
+            <div className="p-12 text-center text-xs text-slate-400">
+              Select a category from the left panel to inspect details and associated products.
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* Add / Edit Category Modal */}
+      <Dialog
+        open={modalState.open}
+        onOpenChange={(open) => !open && setModalState({ open: false, isEdit: false, data: null })}
+      >
+        <DialogContent className="sm:max-w-md">
+          <form onSubmit={handleSaveCategory} className="space-y-4">
+            <DialogHeader>
+              <DialogTitle>
+                {modalState.isEdit ? 'Edit Category' : 'Add New Category'}
+              </DialogTitle>
+            </DialogHeader>
+
+            {errorMsg && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <AlertDescription>{errorMsg}</AlertDescription>
+              </Alert>
+            )}
+
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="catTitle">Category Title *</Label>
+                <Input
+                  id="catTitle"
+                  required
+                  placeholder="e.g. Surgical Instruments, Printing Paper..."
+                  value={formFields.title}
+                  onChange={(e) => setFormFields({ ...formFields, title: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="catCode">UNSPSC Code</Label>
+                <Input
+                  id="catCode"
+                  placeholder="e.g. 14111500"
+                  value={formFields.code}
+                  onChange={(e) => setFormFields({ ...formFields, code: e.target.value })}
+                  className="font-mono"
+                />
+                <p className="text-[11px] text-slate-400">Official UNSPSC code (optional)</p>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setModalState({ open: false, isEdit: false, data: null })}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={savingCategory}>
+                {savingCategory && <Loader2 className="h-4 w-4 animate-spin" />}
+                <span>
+                  {savingCategory
+                    ? 'Saving...'
+                    : modalState.isEdit
+                    ? 'Save Changes'
+                    : 'Create Category'}
+                </span>
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
       </Dialog>
-    </Box>
+    </div>
   );
 }

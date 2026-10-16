@@ -1,23 +1,22 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
+import {
+  UploadCloud,
+  Download,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  FileSpreadsheet,
+} from 'lucide-react';
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  Button,
-  Box,
-  Typography,
-  Alert,
-  LinearProgress,
-  IconButton,
-  Paper,
-  Stack,
-  Divider,
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from './ui/dialog';
+import { Button } from './ui/button';
+import { Alert, AlertTitle, AlertDescription } from './ui/alert';
 import { api } from '../services/api';
 
 export default function ImportExportModal({ open, onClose, onImportSuccess }) {
@@ -75,104 +74,92 @@ export default function ImportExportModal({ open, onClose, onImportSuccess }) {
   };
 
   return (
-    <Dialog open={open} onClose={handleReset} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6" sx={{ fontWeight: 800 }}>
-          Import / Export Product Catalogue
-        </Typography>
-        <IconButton onClick={handleReset} size="small">
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
+    <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && handleReset()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+              <FileSpreadsheet className="h-5 w-5" />
+            </div>
+            <div>
+              <DialogTitle>Import / Export Product Catalogue</DialogTitle>
+              <DialogDescription>
+                Batch import standardized items or download the ZCMC CSV template
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
 
-      <DialogContent dividers sx={{ p: 3 }}>
         {errorMsg && (
-          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setErrorMsg('')}>
-            {errorMsg}
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <AlertDescription>{errorMsg}</AlertDescription>
           </Alert>
         )}
 
         {result && (
-          <Alert severity="success" sx={{ mb: 2 }} icon={<CheckCircleIcon />}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-              {result.message}
-            </Typography>
-            <Typography variant="caption">
-              Added: {result.imported} new items • Updated: {result.updated} existing items
-            </Typography>
+          <Alert variant="success">
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            <div>
+              <AlertTitle>{result.message}</AlertTitle>
+              <AlertDescription>
+                Added: {result.imported} new items • Updated: {result.updated} existing items
+              </AlertDescription>
+            </div>
           </Alert>
         )}
 
-        <Stack spacing={2.5}>
-          {/* Download template section */}
-          <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, backgroundColor: '#f8fafc' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f172a' }}>
-                  ZCMC Catalogue CSV Template
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#64748b' }}>
-                  Includes PhilGEPS, UNSPSC, and uniform naming columns
-                </Typography>
-              </Box>
-              <Button
-                size="small"
-                variant="outlined"
-                startIcon={<FileDownloadIcon />}
-                onClick={handleDownloadTemplate}
-              >
-                Download CSV
-              </Button>
-            </Box>
-          </Paper>
+        <div className="space-y-4 py-1">
+          {/* Download Template Card */}
+          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 flex items-center justify-between gap-3">
+            <div>
+              <h4 className="text-xs font-bold text-slate-900">
+                ZCMC Catalogue CSV Template
+              </h4>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                Includes PhilGEPS, UNSPSC, and uniform naming columns
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleDownloadTemplate}>
+              <Download className="h-3.5 w-3.5" />
+              <span>Download CSV</span>
+            </Button>
+          </div>
 
-          <Divider />
-
-          {/* Upload drop area */}
-          <Box
-            sx={{
-              border: '2px dashed #cbd5e1',
-              borderRadius: 2,
-              p: 3,
-              textAlign: 'center',
-              backgroundColor: '#fafafa',
-              cursor: 'pointer',
-              '&:hover': { borderColor: '#0f766e', backgroundColor: '#f0fdfa' },
-            }}
-            component="label"
-          >
+          {/* Upload Dropzone */}
+          <label className="group flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/40 p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50/30 transition-colors">
             <input
               type="file"
               accept=".csv,text/csv"
-              style={{ display: 'none' }}
+              className="hidden"
               onChange={handleFileChange}
             />
-            <CloudUploadIcon sx={{ fontSize: 40, color: '#0f766e', mb: 1 }} />
-            <Typography variant="body1" sx={{ fontWeight: 700, color: '#0f172a' }}>
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-50 text-blue-600 mb-2 group-hover:scale-105 transition-transform">
+              <UploadCloud className="h-5 w-5" />
+            </div>
+            <p className="text-sm font-semibold text-slate-900">
               {selectedFile ? selectedFile.name : 'Click to select CSV catalogue file'}
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mt: 0.5 }}>
+            </p>
+            <p className="text-xs text-slate-500 mt-0.5">
               Accepts .csv files up to 10MB
-            </Typography>
-          </Box>
+            </p>
+          </label>
+        </div>
 
-          {uploading && <LinearProgress color="primary" />}
-        </Stack>
+        <DialogFooter>
+          <Button variant="outline" onClick={handleReset}>
+            Close
+          </Button>
+          <Button onClick={handleUpload} disabled={!selectedFile || uploading}>
+            {uploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <UploadCloud className="h-4 w-4" />
+            )}
+            <span>{uploading ? 'Processing Import...' : 'Import to Catalogue'}</span>
+          </Button>
+        </DialogFooter>
       </DialogContent>
-
-      <DialogActions sx={{ p: 2, backgroundColor: '#f8fafc' }}>
-        <Button onClick={handleReset} color="inherit">
-          Close
-        </Button>
-        <Button
-          variant="contained"
-          onClick={handleUpload}
-          disabled={!selectedFile || uploading}
-          startIcon={<CloudUploadIcon />}
-        >
-          {uploading ? 'Processing Import...' : 'Import to Catalogue'}
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 }

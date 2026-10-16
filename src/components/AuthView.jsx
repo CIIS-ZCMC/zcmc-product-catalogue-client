@@ -1,36 +1,35 @@
 import React, { useState } from 'react';
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Button,
-  Tabs,
-  Tab,
-  Alert,
-  CircularProgress,
-  InputAdornment,
-  IconButton,
-  Stack,
+  Lock,
+  KeyRound,
+  Mail,
+  User,
+  BadgeCheck,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  MailCheck,
+  CheckCircle2,
+  XCircle,
+  Building2,
+  Loader2,
+  AlertCircle,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
+import { Alert, AlertDescription } from './ui/alert';
+import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
-  FormHelperText,
-} from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import LockResetIcon from '@mui/icons-material/LockReset';
-import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
-import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
-import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import SecurityIcon from '@mui/icons-material/Security';
-import MarkEmailReadOutlinedIcon from '@mui/icons-material/MarkEmailReadOutlined';
-import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
-import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
-import PasswordIcon from '@mui/icons-material/Password';
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from './ui/dialog';
+import { Badge } from './ui/badge';
 import { api } from '../services/api';
 
 export default function AuthView({ onAuthSuccess }) {
@@ -126,7 +125,6 @@ export default function AuthView({ onAuthSuccess }) {
         setLoading(false);
       }
     } else {
-      // Sign In
       if (!email.trim() || !password) {
         setErrorMsg('Please provide both email and password.');
         return;
@@ -209,267 +207,122 @@ export default function AuthView({ onAuthSuccess }) {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#0f172a',
-        backgroundImage:
-          'radial-gradient(at 0% 0%, rgba(15, 118, 110, 0.25) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(13, 148, 136, 0.2) 0px, transparent 50%)',
-        p: 2,
-      }}
-    >
-      <Card
-        sx={{
-          maxWidth: 480,
-          width: '100%',
-          borderRadius: 3,
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
-          overflow: 'hidden',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          backgroundColor: '#ffffff',
-        }}
-      >
-        {/* Brand Banner */}
-        <Box
-          sx={{
-            p: 3,
-            backgroundColor: '#0f766e',
-            color: '#ffffff',
-            textAlign: 'center',
-            position: 'relative',
-          }}
-        >
-          <Box
-            // sx={{
-            //   display: 'inline-flex',
-            //   p: 1.2,
-            //   borderRadius: '50%',
-            //   backgroundColor: 'rgba(255, 255, 255, 0.15)',
-            //   mb: 1.2,
-            // }}
-          >
-            {/* <LocalHospitalIcon sx={{ fontSize: 32, color: '#ffffff' }} /> */}
-          </Box>
-          {/* <Typography variant="overline" sx={{ display: 'block', letterSpacing: '0.12em', fontWeight: 800, opacity: 0.9 }}>
-            Republic of the Philippines &bull; Department of Health
-          </Typography> */}
-          <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
-            Zamboanga City Medical Center
-          </Typography>
-          <Typography variant="caption" sx={{ opacity: 0.85, fontWeight: 600, display: 'block', mt: 0.5 }}>
-            Product Catalogue Portal
-          </Typography>
-        </Box>
+    <div className="min-h-screen w-full flex items-center justify-center bg-slate-950 relative overflow-hidden p-4">
+      {/* Subtle Blue Ambient Glows */}
+      <div className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-blue-600/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-sky-500/15 blur-3xl" />
 
-        {/* Tab Switcher: Sign In vs Register */}
-        <Box sx={{ borderBottom: 1, borderColor: '#e2e8f0', backgroundColor: '#f8fafc' }}>
-          <Tabs
-            value={tab}
-            onChange={(e, val) => {
-              setTab(val);
-              setErrorMsg('');
-              setSuccessMsg('');
-            }}
-            variant="fullWidth"
-            textColor="primary"
-            indicatorColor="primary"
-          >
-            <Tab label="Sign In" value="login" sx={{ fontWeight: 700, py: 1.5 }} />
-            <Tab label="Create Account" value="register" sx={{ fontWeight: 700, py: 1.5 }} />
-          </Tabs>
-        </Box>
+      <div className="w-full max-w-md z-10">
+        <Card className="border-slate-800/80 shadow-2xl overflow-hidden bg-white">
+          {/* Brand Header Banner */}
+          <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-slate-900 px-6 py-6 text-white text-center">
+            <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-white/15 backdrop-blur-xs border border-white/20 shadow-inner">
+              <Building2 className="h-6 w-6 text-white" />
+            </div>
+            <Badge className="mb-2 bg-white/15 hover:bg-white/20 text-white border-white/20 text-[10px] tracking-wider uppercase">
+              Single Source of Truth (SSOT)
+            </Badge>
+            <h1 className="text-lg font-bold tracking-tight text-white">
+              Zamboanga City Medical Center
+            </h1>
+            <p className="text-xs text-blue-100/90 mt-0.5">
+              Product Catalogue &amp; Procurement Registry Portal
+            </p>
+          </div>
 
-        <CardContent sx={{ p: 3.5 }}>
-          {errorMsg && (
-            <Alert severity="error" sx={{ mb: 2.5 }} onClose={() => setErrorMsg('')}>
-              {errorMsg}
-            </Alert>
-          )}
+          <CardHeader className="pb-3 pt-4 px-6 bg-slate-50/70 border-b border-slate-100">
+            <Tabs
+              value={tab}
+              onValueChange={(val) => {
+                setTab(val);
+                setErrorMsg('');
+                setSuccessMsg('');
+              }}
+              className="w-full"
+            >
+              <TabsList className="grid w-full grid-cols-2 h-9">
+                <TabsTrigger value="login">Sign In</TabsTrigger>
+                <TabsTrigger value="register">Create Account</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </CardHeader>
 
-          {successMsg && (
-            <Alert severity="success" sx={{ mb: 2.5 }} onClose={() => setSuccessMsg('')}>
-              {successMsg}
-            </Alert>
-          )}
+          <CardContent className="p-6">
+            {errorMsg && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                <AlertDescription>{errorMsg}</AlertDescription>
+              </Alert>
+            )}
 
-          <form onSubmit={handleSubmit}>
-            <Stack spacing={2.2}>
-              {/* First Name & Last Name (Create Account Only) */}
+            {successMsg && (
+              <Alert variant="success" className="mb-4">
+                <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+                <AlertDescription>{successMsg}</AlertDescription>
+              </Alert>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
               {tab === 'register' && (
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    label="First Name *"
-                    required
-                    placeholder="e.g. Maria"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    slotProps={{
-                      input: {
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <PersonOutlinedIcon fontSize="small" sx={{ color: '#0f766e' }} />
-                          </InputAdornment>
-                        ),
-                      },
-                    }}
-                  />
-                  <TextField
-                    fullWidth
-                    size="small"
-                    label="Last Name *"
-                    required
-                    placeholder="e.g. Santos"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    slotProps={{
-                      input: {
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <BadgeOutlinedIcon fontSize="small" sx={{ color: '#0f766e' }} />
-                          </InputAdornment>
-                        ),
-                      },
-                    }}
-                  />
-                </Stack>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="firstName">First Name *</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                      <Input
+                        id="firstName"
+                        required
+                        placeholder="e.g. Maria"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="lastName">Last Name *</Label>
+                    <div className="relative">
+                      <BadgeCheck className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                      <Input
+                        id="lastName"
+                        required
+                        placeholder="e.g. Santos"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                  </div>
+                </div>
               )}
 
-              {/* Email Address */}
-              <TextField
-                fullWidth
-                size="small"
-                label="Email Address *"
-                type="email"
-                required
-                placeholder="e.g. procurement@zcmc.gov.ph"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <EmailOutlinedIcon fontSize="small" sx={{ color: '#0f766e' }} />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
+              {/* Email */}
+              <div className="space-y-1.5">
+                <Label htmlFor="email">Email Address *</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Input
+                    id="email"
+                    type="email"
+                    required
+                    placeholder="e.g. procurement@zcmc.gov.ph"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
+                    className="pl-9"
+                  />
+                </div>
+              </div>
 
               {/* Password */}
-              <Box>
-                <TextField
-                  fullWidth
-                  size="small"
-                  label={tab === 'register' ? 'Create Password *' : 'Password *'}
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  placeholder={tab === 'register' ? 'Min 8 chars, 1 number, 1 symbol' : 'Enter your password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
-                  slotProps={{
-                    input: {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LockOutlinedIcon fontSize="small" sx={{ color: '#0f766e' }} />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            size="small"
-                            onClick={() => setShowPassword((prev) => !prev)}
-                            edge="end"
-                          >
-                            {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                />
-
-                {/* Password Policy Indicator for Registration */}
-                {tab === 'register' && password.length > 0 && (
-                  <Box sx={{ mt: 1, p: 1.5, backgroundColor: '#f8fafc', borderRadius: 2, border: '1px solid #e2e8f0' }}>
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#334155', display: 'block', mb: 0.8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      Password Requirements:
-                    </Typography>
-                    <Stack direction="column" spacing={0.7}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {hasMinLength ? (
-                          <CheckCircleOutlinedIcon sx={{ fontSize: 16, color: '#10b981' }} />
-                        ) : (
-                          <CancelOutlinedIcon sx={{ fontSize: 16, color: '#94a3b8' }} />
-                        )}
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            fontWeight: hasMinLength ? 700 : 500,
-                            color: hasMinLength ? '#0f766e' : '#64748b',
-                          }}
-                        >
-                          At least 8 characters
-                        </Typography>
-                      </Box>
-
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {hasNumber ? (
-                          <CheckCircleOutlinedIcon sx={{ fontSize: 16, color: '#10b981' }} />
-                        ) : (
-                          <CancelOutlinedIcon sx={{ fontSize: 16, color: '#94a3b8' }} />
-                        )}
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            fontWeight: hasNumber ? 700 : 500,
-                            color: hasNumber ? '#0f766e' : '#64748b',
-                          }}
-                        >
-                          At least 1 number (0–9)
-                        </Typography>
-                      </Box>
-
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {hasSpecial ? (
-                          <CheckCircleOutlinedIcon sx={{ fontSize: 16, color: '#10b981' }} />
-                        ) : (
-                          <CancelOutlinedIcon sx={{ fontSize: 16, color: '#94a3b8' }} />
-                        )}
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            fontWeight: hasSpecial ? 700 : 500,
-                            color: hasSpecial ? '#0f766e' : '#64748b',
-                          }}
-                        >
-                          At least 1 special character (!@#$%^&*...)
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </Box>
-                )}
-
-                {/* Helper text when password field is empty in register mode */}
-                {tab === 'register' && password.length === 0 && (
-                  <FormHelperText sx={{ color: '#64748b', mt: 0.5 }}>
-                    Must be at least 8 characters with at least 1 number and 1 special character.
-                  </FormHelperText>
-                )}
-
-                {/* Forgot Password Link for Login */}
-                {tab === 'login' && (
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.8 }}>
-                    <Button
-                      variant="text"
-                      size="small"
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">
+                    {tab === 'register' ? 'Create Password *' : 'Password *'}
+                  </Label>
+                  {tab === 'login' && (
+                    <button
+                      type="button"
                       onClick={() => {
                         setForgotOpen(true);
                         setForgotEmail(email.trim());
@@ -480,345 +333,320 @@ export default function AuthView({ onAuthSuccess }) {
                         setForgotNewPass('');
                         setForgotConfirmPass('');
                       }}
-                      sx={{
-                        textTransform: 'none',
-                        fontSize: '0.8rem',
-                        fontWeight: 700,
-                        color: '#0f766e',
-                        p: 0,
-                        '&:hover': { background: 'none', textDecoration: 'underline' },
-                      }}
+                      className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
                     >
                       Forgot password?
-                    </Button>
-                  </Box>
-                )}
-              </Box>
-
-              {/* Confirm Password (Matching Password for Create Account) */}
-              {tab === 'register' && (
-                <Box>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    label="Confirm Password *"
-                    type={showConfirmPassword ? 'text' : 'password'}
+                    </button>
+                  )}
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
                     required
-                    placeholder="Re-type your password to confirm"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    autoComplete="new-password"
-                    error={passwordsMismatch}
-                    slotProps={{
-                      input: {
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <PasswordIcon
-                              fontSize="small"
-                              sx={{
-                                color: passwordsMismatch ? '#ef4444' : passwordsMatch ? '#10b981' : '#0f766e',
-                              }}
-                            />
-                          </InputAdornment>
-                        ),
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {passwordsMatch && (
-                              <CheckCircleOutlinedIcon fontSize="small" sx={{ color: '#10b981', mr: 0.5 }} />
-                            )}
-                            <IconButton
-                              size="small"
-                              onClick={() => setShowConfirmPassword((prev) => !prev)}
-                              edge="end"
-                            >
-                              {showConfirmPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      },
-                    }}
+                    placeholder={tab === 'register' ? 'Min 8 chars, 1 number, 1 symbol' : 'Enter your password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
+                    className="pl-9 pr-9"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+
+                {/* Password requirements checklist */}
+                {tab === 'register' && password.length > 0 && (
+                  <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-1.5">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 block">
+                      Password Requirements
+                    </span>
+                    <div className="space-y-1 text-xs">
+                      <div className="flex items-center gap-2">
+                        {hasMinLength ? (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                        ) : (
+                          <XCircle className="h-3.5 w-3.5 text-slate-400" />
+                        )}
+                        <span className={hasMinLength ? 'text-slate-900 font-medium' : 'text-slate-500'}>
+                          At least 8 characters
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {hasNumber ? (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                        ) : (
+                          <XCircle className="h-3.5 w-3.5 text-slate-400" />
+                        )}
+                        <span className={hasNumber ? 'text-slate-900 font-medium' : 'text-slate-500'}>
+                          At least 1 number (0–9)
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {hasSpecial ? (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                        ) : (
+                          <XCircle className="h-3.5 w-3.5 text-slate-400" />
+                        )}
+                        <span className={hasSpecial ? 'text-slate-900 font-medium' : 'text-slate-500'}>
+                          At least 1 special character (!@#$%^&amp;*...)
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Confirm Password */}
+              {tab === 'register' && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                  <div className="relative">
+                    <KeyRound className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      required
+                      placeholder="Re-type your password to confirm"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      autoComplete="new-password"
+                      className={`pl-9 pr-9 ${
+                        passwordsMismatch
+                          ? 'border-red-400 focus-visible:border-red-500'
+                          : passwordsMatch
+                          ? 'border-emerald-500 focus-visible:border-emerald-600'
+                          : ''
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                   {passwordsMismatch && (
-                    <FormHelperText sx={{ color: '#ef4444', fontWeight: 600, mt: 0.5 }}>
-                      Passwords do not match.
-                    </FormHelperText>
+                    <p className="text-xs font-medium text-red-600">Passwords do not match.</p>
                   )}
                   {passwordsMatch && (
-                    <FormHelperText sx={{ color: '#10b981', fontWeight: 600, mt: 0.5 }}>
-                      Passwords match.
-                    </FormHelperText>
+                    <p className="text-xs font-medium text-emerald-600">Passwords match.</p>
                   )}
-                </Box>
+                </div>
               )}
 
-              {/* Status / Feature Badges */}
-              {tab === 'register' ? (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, pt: 0.5 }}>
-                  <MarkEmailReadOutlinedIcon sx={{ fontSize: 16, color: '#0f766e' }} />
-                  <Typography variant="caption" sx={{ color: '#475569', fontWeight: 600 }}>
-                    A confirmation welcome email will be dispatched to your inbox.
-                  </Typography>
-                </Box>
-              ) : (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, pt: 0.5 }}>
-                  <SecurityIcon sx={{ fontSize: 16, color: '#10b981' }} />
-                  <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
-                    Encrypted authentication & Sanctum token security active
-                  </Typography>
-                </Box>
-              )}
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                variant="contained"
-                size="large"
-                fullWidth
-                disabled={loading}
-                sx={{
-                  py: 1.2,
-                  fontWeight: 800,
-                  backgroundColor: '#0f766e',
-                  '&:hover': { backgroundColor: '#0d9488' },
-                  boxShadow: '0 4px 12px rgba(15, 118, 110, 0.25)',
-                }}
-              >
-                {loading ? (
-                  <CircularProgress size={24} color="inherit" />
-                ) : tab === 'login' ? (
-                  'Sign In to Catalogue'
+              {/* Security Notice */}
+              <div className="flex items-center gap-2 pt-1 text-xs text-slate-500">
+                {tab === 'register' ? (
+                  <>
+                    <MailCheck className="h-4 w-4 text-blue-600 shrink-0" />
+                    <span>A confirmation welcome email will be dispatched to your inbox.</span>
+                  </>
                 ) : (
-                  'Create Catalogue Account'
+                  <>
+                    <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <span>Encrypted authentication &amp; Sanctum token security active</span>
+                  </>
                 )}
+              </div>
+
+              <Button type="submit" size="lg" className="w-full font-semibold" disabled={loading}>
+                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                {tab === 'login' ? 'Sign In to Catalogue' : 'Create Catalogue Account'}
               </Button>
-            </Stack>
-          </form>
-        </CardContent>
-      </Card>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
 
-      {/* Forgot Password / SMTP Reset Dialog */}
-      <Dialog
-        open={forgotOpen}
-        onClose={() => !forgotLoading && setForgotOpen(false)}
-        maxWidth="xs"
-        fullWidth
-        PaperProps={{ sx: { borderRadius: 3, p: 1 } }}
-      >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 1 }}>
-          <LockResetIcon sx={{ color: '#0f766e', fontSize: 26 }} />
-          <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a' }}>
-            Reset Password
-          </Typography>
-        </DialogTitle>
+      {/* Forgot Password Dialog */}
+      <Dialog open={forgotOpen} onOpenChange={(open) => !forgotLoading && setForgotOpen(open)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                <KeyRound className="h-4 w-4" />
+              </div>
+              <div>
+                <DialogTitle>Reset Password</DialogTitle>
+                <DialogDescription>
+                  {forgotStep === 1
+                    ? 'Receive a 6-digit verification code via email'
+                    : 'Enter your verification code and new password'}
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
 
-        <DialogContent dividers>
           {forgotError && (
-            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setForgotError('')}>
-              {forgotError}
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <AlertDescription>{forgotError}</AlertDescription>
             </Alert>
           )}
 
           {forgotSuccess && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              {forgotSuccess}
+            <Alert variant="success">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <AlertDescription>{forgotSuccess}</AlertDescription>
             </Alert>
           )}
 
           {forgotStep === 1 ? (
-            <Stack spacing={2} sx={{ mt: 1 }}>
-              <Typography variant="body2" sx={{ color: '#475569' }}>
-                Enter your registered email address. We will dispatch a <strong>6-digit verification code</strong> via SMTP to reset your password.
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                label="Registered Email Address"
-                type="email"
-                required
-                value={forgotEmail}
-                onChange={(e) => setForgotEmail(e.target.value)}
-                placeholder="e.g. yourname@zcmc.gov.ph"
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <EmailOutlinedIcon fontSize="small" sx={{ color: '#0f766e' }} />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-            </Stack>
-          ) : (
-            <Stack spacing={2} sx={{ mt: 1 }}>
-              <Typography variant="body2" sx={{ color: '#475569' }}>
-                A 6-digit verification code was emailed to <strong>{forgotEmail}</strong>. Enter it below with your new password.
-              </Typography>
-
-              <TextField
-                fullWidth
-                size="small"
-                label="6-Digit Reset Code"
-                required
-                value={forgotCode}
-                onChange={(e) => setForgotCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
-                placeholder="123456"
-                inputProps={{
-                  maxLength: 6,
-                  style: { letterSpacing: '0.25em', fontWeight: 800, textAlign: 'center', fontSize: '1.2rem' },
-                }}
-              />
-
-              <TextField
-                fullWidth
-                size="small"
-                label="New Password"
-                type={forgotShowPass ? 'text' : 'password'}
-                required
-                value={forgotNewPass}
-                onChange={(e) => setForgotNewPass(e.target.value)}
-                placeholder="Min 8 chars, 1 number, 1 special char"
-                helperText="Must be at least 8 characters with at least 1 number and 1 special character."
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockOutlinedIcon fontSize="small" sx={{ color: '#0f766e' }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          size="small"
-                          onClick={() => setForgotShowPass((prev) => !prev)}
-                          edge="end"
-                        >
-                          {forgotShowPass ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-
-              <TextField
-                fullWidth
-                size="small"
-                label="Confirm New Password"
-                type={forgotShowConfirmPass ? 'text' : 'password'}
-                required
-                value={forgotConfirmPass}
-                onChange={(e) => setForgotConfirmPass(e.target.value)}
-                placeholder="Re-type new password"
-                error={forgotPasswordsMismatch}
-                helperText={
-                  forgotPasswordsMismatch
-                    ? 'Passwords do not match.'
-                    : forgotPasswordsMatch
-                    ? 'Passwords match.'
-                    : ''
-                }
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PasswordIcon
-                          fontSize="small"
-                          sx={{
-                            color: forgotPasswordsMismatch
-                              ? '#ef4444'
-                              : forgotPasswordsMatch
-                              ? '#10b981'
-                              : '#0f766e',
-                          }}
-                        />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        {forgotPasswordsMatch && (
-                          <CheckCircleOutlinedIcon fontSize="small" sx={{ color: '#10b981', mr: 0.5 }} />
-                        )}
-                        <IconButton
-                          size="small"
-                          onClick={() => setForgotShowConfirmPass((prev) => !prev)}
-                          edge="end"
-                        >
-                          {forgotShowConfirmPass ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <form onSubmit={handleSendResetCode} className="space-y-4">
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Enter your registered email address. We will dispatch a{' '}
+                <strong className="text-slate-900">6-digit verification code</strong> via SMTP to reset your password.
+              </p>
+              <div className="space-y-1.5">
+                <Label htmlFor="forgotEmail">Registered Email Address</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Input
+                    id="forgotEmail"
+                    type="email"
+                    required
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    placeholder="e.g. yourname@zcmc.gov.ph"
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
                 <Button
-                  size="small"
+                  type="button"
+                  variant="outline"
+                  onClick={() => setForgotOpen(false)}
+                  disabled={forgotLoading}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={forgotLoading || !forgotEmail.trim()}>
+                  {forgotLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Send Code
+                </Button>
+              </DialogFooter>
+            </form>
+          ) : (
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <p className="text-xs text-slate-600">
+                A 6-digit verification code was emailed to <strong className="text-slate-900">{forgotEmail}</strong>.
+              </p>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="forgotCode">6-Digit Reset Code</Label>
+                <Input
+                  id="forgotCode"
+                  required
+                  value={forgotCode}
+                  onChange={(e) => setForgotCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
+                  placeholder="123456"
+                  maxLength={6}
+                  className="text-center font-mono text-lg font-bold tracking-[0.3em] h-11"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="forgotNewPass">New Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Input
+                    id="forgotNewPass"
+                    type={forgotShowPass ? 'text' : 'password'}
+                    required
+                    value={forgotNewPass}
+                    onChange={(e) => setForgotNewPass(e.target.value)}
+                    placeholder="Min 8 chars, 1 number, 1 special char"
+                    className="pl-9 pr-9"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setForgotShowPass((prev) => !prev)}
+                    className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                  >
+                    {forgotShowPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="forgotConfirmPass">Confirm New Password</Label>
+                <div className="relative">
+                  <KeyRound className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Input
+                    id="forgotConfirmPass"
+                    type={forgotShowConfirmPass ? 'text' : 'password'}
+                    required
+                    value={forgotConfirmPass}
+                    onChange={(e) => setForgotConfirmPass(e.target.value)}
+                    placeholder="Re-type new password"
+                    className="pl-9 pr-9"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setForgotShowConfirmPass((prev) => !prev)}
+                    className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                  >
+                    {forgotShowConfirmPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                {forgotPasswordsMismatch && (
+                  <p className="text-xs text-red-600 font-medium">Passwords do not match.</p>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between text-xs pt-1">
+                <button
+                  type="button"
                   onClick={handleSendResetCode}
                   disabled={forgotLoading}
-                  sx={{ textTransform: 'none', color: '#0f766e', fontWeight: 600 }}
+                  className="font-medium text-blue-600 hover:underline cursor-pointer"
                 >
                   Resend code
-                </Button>
-                <Button
-                  size="small"
+                </button>
+                <button
+                  type="button"
                   onClick={() => setForgotStep(1)}
                   disabled={forgotLoading}
-                  sx={{ textTransform: 'none', color: '#64748b' }}
+                  className="text-slate-500 hover:text-slate-800 cursor-pointer"
                 >
                   Change email
+                </button>
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setForgotOpen(false)}
+                  disabled={forgotLoading}
+                >
+                  Cancel
                 </Button>
-              </Box>
-            </Stack>
+                <Button
+                  type="submit"
+                  disabled={
+                    forgotLoading ||
+                    forgotCode.trim().length !== 6 ||
+                    !forgotPassValid ||
+                    !forgotPasswordsMatch
+                  }
+                >
+                  {forgotLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Reset Password
+                </Button>
+              </DialogFooter>
+            </form>
           )}
         </DialogContent>
-
-        <DialogActions sx={{ p: 2 }}>
-          <Button
-            onClick={() => setForgotOpen(false)}
-            disabled={forgotLoading}
-            sx={{ color: '#64748b', fontWeight: 600 }}
-          >
-            Cancel
-          </Button>
-
-          {forgotStep === 1 ? (
-            <Button
-              variant="contained"
-              onClick={handleSendResetCode}
-              disabled={forgotLoading || !forgotEmail.trim()}
-              sx={{
-                backgroundColor: '#0f766e',
-                '&:hover': { backgroundColor: '#0d9488' },
-                fontWeight: 700,
-                minWidth: 140,
-              }}
-            >
-              {forgotLoading ? <CircularProgress size={20} color="inherit" /> : 'Send Code'}
-            </Button>
-          ) : (
-            <Button
-              variant="contained"
-              onClick={handleResetPassword}
-              disabled={
-                forgotLoading ||
-                forgotCode.length !== 6 ||
-                !forgotPassValid ||
-                forgotNewPass !== forgotConfirmPass
-              }
-              sx={{
-                backgroundColor: '#0f766e',
-                '&:hover': { backgroundColor: '#0d9488' },
-                fontWeight: 700,
-                minWidth: 140,
-              }}
-            >
-              {forgotLoading ? <CircularProgress size={20} color="inherit" /> : 'Reset Password'}
-            </Button>
-          )}
-        </DialogActions>
       </Dialog>
-    </Box>
+    </div>
   );
 }

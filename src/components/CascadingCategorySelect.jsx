@@ -1,36 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  Box,
-  Typography,
-  Autocomplete,
-  TextField,
-  CircularProgress,
-  Paper,
-  Grid,
-  Chip,
-  Stack,
-  IconButton,
-  Tooltip,
-} from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ClearIcon from '@mui/icons-material/Clear';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import LayersIcon from '@mui/icons-material/Layers';
+import { CheckCircle2, X, Info, Layers } from 'lucide-react';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
+import { Combobox } from './ui/combobox';
 import { api } from '../services/api';
 
 /**
- * Commodity-first Category Selector.
- * Following user specification:
- * 1. User does not select Segment -> Family -> Class.
- * 2. User selects only the Commodity (Level 3).
- * 3. All parent relations (Segment, Family, Class, Breadcrumbs) auto-appear right away.
- * 4. Separate 'quick search' tab is removed.
+ * Commodity-first Category Selector built with shadcn/ui.
+ * 1. User selects the Commodity (Level 3).
+ * 2. All parent relations (Segment, Family, Class, Breadcrumbs) auto-appear right away.
  */
 export default function CascadingCategorySelect({ selectedKey, onSelectCategory }) {
   const [commodityOptions, setCommodityOptions] = useState([]);
   const [selectedCommodity, setSelectedCommodity] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [inputValue, setInputValue] = useState('');
   const debounceTimer = useRef(null);
 
   // Load initial default commodities on mount
@@ -56,14 +39,13 @@ export default function CascadingCategorySelect({ selectedKey, onSelectCategory 
     };
   }, []);
 
-  // If selectedKey is provided (e.g. editing an existing product), resolve its full commodity details
+  // Resolve full commodity details if selectedKey is provided
   useEffect(() => {
     if (!selectedKey) {
       setSelectedCommodity(null);
       return;
     }
 
-    // If currently selected commodity matches selectedKey, no need to refetch
     if (selectedCommodity && selectedCommodity.key === Number(selectedKey)) {
       return;
     }
@@ -103,7 +85,6 @@ export default function CascadingCategorySelect({ selectedKey, onSelectCategory 
           };
 
           setSelectedCommodity(commodityObj);
-          // Add to options if not present
           setCommodityOptions((prev) => {
             const exists = prev.some((o) => o.key === cat.key);
             return exists ? prev : [commodityObj, ...prev];
@@ -122,10 +103,7 @@ export default function CascadingCategorySelect({ selectedKey, onSelectCategory 
     };
   }, [selectedKey]);
 
-  // Debounced search for commodities as the user types
-  const handleInputChange = (event, newInputValue) => {
-    setInputValue(newInputValue);
-
+  const handleSearchChange = (newInputValue) => {
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
     }
@@ -147,8 +125,7 @@ export default function CascadingCategorySelect({ selectedKey, onSelectCategory 
     }, 250);
   };
 
-  // Commodity selection handler
-  const handleSelect = (event, item) => {
+  const handleSelect = (item) => {
     if (item) {
       setSelectedCommodity(item);
       onSelectCategory({
@@ -165,224 +142,160 @@ export default function CascadingCategorySelect({ selectedKey, onSelectCategory 
 
   const handleClear = () => {
     setSelectedCommodity(null);
-    setInputValue('');
     onSelectCategory(null);
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
-      {/* Label and Guidance */}
-      <Box sx={{ mb: 1.2 }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <LayersIcon sx={{ fontSize: 18, color: '#0f766e' }} />
-          Select UNSPSC Commodity
-        </Typography>
-        <Typography variant="caption" sx={{ color: '#64748b' }}>
-          Select the specific commodity item. Its parent Segment, Family, and Class relations will resolve automatically.
-        </Typography>
-      </Box>
+    <div className="space-y-3">
+      <div>
+        <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-900">
+          <Layers className="h-4 w-4 text-blue-600" />
+          <span>Select UNSPSC Commodity *</span>
+        </div>
+        <p className="text-xs text-slate-500 mt-0.5">
+          Select the specific commodity item. Its parent Segment, Family, and Class relations resolve automatically.
+        </p>
+      </div>
 
-      {/* Direct Commodity Selector Autocomplete */}
-      <Autocomplete
-        fullWidth
-        size="small"
-        value={selectedCommodity}
+      <Combobox
         options={commodityOptions}
-        loading={loading}
-        getOptionLabel={(option) => {
-          if (!option) return '';
-          if (typeof option === 'string') return option;
-          return option.code ? `${option.title} [${option.code}]` : option.title;
-        }}
-        isOptionEqualToValue={(option, val) => option?.key === val?.key}
-        onInputChange={handleInputChange}
+        value={selectedCommodity}
         onChange={handleSelect}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            placeholder="Type commodity name or code (e.g. Paracetamol, Nitrile gloves, Copier paper, 14111507)..."
-            slotProps={{
-              ...params.slotProps,
-              input: {
-                ...(params.slotProps?.input || {}),
-                endAdornment: (
-                  <>
-                    {loading ? <CircularProgress color="primary" size={18} /> : null}
-                    {params.slotProps?.input?.endAdornment}
-                  </>
-                ),
-              },
-            }}
-          />
-        )}
-        renderOption={(props, option) => {
+        onSearchChange={handleSearchChange}
+        loading={loading}
+        getOptionLabel={(opt) => (opt.code ? `${opt.title} [${opt.code}]` : opt.title || '')}
+        getOptionKey={(opt) => opt.key}
+        isOptionEqual={(a, b) => Number(a?.key) === Number(b?.key)}
+        placeholder="Type commodity name or code (e.g. Paracetamol, Nitrile gloves, Copier paper, 14111507)..."
+        searchPlaceholder="Search UNSPSC commodities by name or 8-digit code..."
+        renderOption={(option) => {
           const relations = option.relations || {};
           return (
-            <li {...props} key={option.key}>
-              <Box sx={{ py: 0.8, width: '100%' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#0f172a' }}>
-                    {option.title}
-                  </Typography>
-                  {option.code && (
-                    <Chip
-                      size="small"
-                      label={option.code}
-                      sx={{
-                        fontFamily: 'monospace',
-                        fontWeight: 700,
-                        fontSize: '0.7rem',
-                        backgroundColor: '#f1f5f9',
-                        color: '#0f766e',
-                        height: 20,
-                      }}
-                    />
-                  )}
-                </Box>
-
-                {/* Inline preview of parent class and segment */}
-                {(relations.class || relations.segment) && (
-                  <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mt: 0.3 }}>
-                    {relations.class ? `Class: ${relations.class}` : ''}
-                    {relations.class && relations.segment ? ' • ' : ''}
-                    {relations.segment ? `Segment: ${relations.segment}` : ''}
-                  </Typography>
+            <div className="space-y-0.5 py-0.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-semibold text-slate-900">{option.title}</span>
+                {option.code && (
+                  <span className="font-mono text-[11px] font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200/60 shrink-0">
+                    {option.code}
+                  </span>
                 )}
-              </Box>
-            </li>
+              </div>
+              {(relations.class || relations.segment) && (
+                <p className="text-[11px] text-slate-500">
+                  {relations.class ? `Class: ${relations.class}` : ''}
+                  {relations.class && relations.segment ? ' • ' : ''}
+                  {relations.segment ? `Segment: ${relations.segment}` : ''}
+                </p>
+              )}
+            </div>
           );
         }}
       />
 
-      {/* Auto-Resolved Category Relations Card (Appears right away when commodity is selected) */}
+      {/* Auto-Resolved 4-Tier Hierarchy Breakdown Card */}
       {selectedCommodity && (
-        <Paper
-          variant="outlined"
-          sx={{
-            mt: 2,
-            p: 2,
-            backgroundColor: '#f0fdfa',
-            borderColor: '#99f6e4',
-            borderRadius: 2,
-            boxShadow: '0 2px 8px rgba(15, 118, 110, 0.08)',
-          }}
-        >
-          {/* Header of relations card */}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <CheckCircleIcon sx={{ color: '#0f766e', fontSize: 20 }} />
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#134e4a' }}>
-                Resolved Category Relations
-              </Typography>
-            </Box>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Chip
-                size="small"
-                label={`UNSPSC: ${selectedCommodity.code || 'N/A'}`}
-                sx={{ backgroundColor: '#0f766e', color: '#ffffff', fontWeight: 700, fontSize: '0.72rem' }}
-              />
-              <Tooltip title="Clear Selection">
-                <IconButton size="small" onClick={handleClear} sx={{ color: '#64748b' }}>
-                  <ClearIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </Stack>
-          </Box>
+        <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-blue-600" />
+              <span className="text-xs font-bold uppercase tracking-wider text-blue-900">
+                Resolved UNSPSC Hierarchy Relations
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Badge variant="default" className="font-mono text-[11px]">
+                UNSPSC: {selectedCommodity.code || 'N/A'}
+              </Badge>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={handleClear}
+                className="h-6 w-6 text-slate-500 hover:text-slate-800"
+                title="Clear Selection"
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
 
-          {/* 4-Level Structured Hierarchy Breakdown */}
-          <Grid container spacing={1.5} sx={{ mb: 1.5 }}>
-            {/* Level 0: Segment */}
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Paper sx={{ p: 1.2, backgroundColor: '#ffffff', border: '1px solid #ccfbf1', borderRadius: 1.5 }}>
-                <Typography variant="caption" sx={{ color: '#0d9488', fontWeight: 700, display: 'block', textTransform: 'uppercase', fontSize: '0.68rem' }}>
-                  1. Segment (Group)
-                </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 700, color: '#1e293b', lineHeight: 1.2, mt: 0.2 }}>
-                  {selectedCommodity.relations?.segment || 'Top Level Segment'}
-                </Typography>
-                {selectedCommodity.relations?.segment_code && (
-                  <Typography variant="caption" sx={{ color: '#94a3b8', fontFamily: 'monospace', fontSize: '0.68rem' }}>
-                    Code: {selectedCommodity.relations.segment_code}
-                  </Typography>
-                )}
-              </Paper>
-            </Grid>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            {/* Level 1: Segment */}
+            <div className="rounded-lg border border-blue-100 bg-white p-2.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 block">
+                1. Segment (Group)
+              </span>
+              <p className="text-xs font-semibold text-slate-800 mt-0.5 leading-snug">
+                {selectedCommodity.relations?.segment || 'Top Level Segment'}
+              </p>
+              {selectedCommodity.relations?.segment_code && (
+                <span className="font-mono text-[10px] text-slate-400">
+                  Code: {selectedCommodity.relations.segment_code}
+                </span>
+              )}
+            </div>
 
-            {/* Level 1: Family */}
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Paper sx={{ p: 1.2, backgroundColor: '#ffffff', border: '1px solid #ccfbf1', borderRadius: 1.5 }}>
-                <Typography variant="caption" sx={{ color: '#0d9488', fontWeight: 700, display: 'block', textTransform: 'uppercase', fontSize: '0.68rem' }}>
-                  2. Family
-                </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 700, color: '#1e293b', lineHeight: 1.2, mt: 0.2 }}>
-                  {selectedCommodity.relations?.family || 'Category Family'}
-                </Typography>
-                {selectedCommodity.relations?.family_code && (
-                  <Typography variant="caption" sx={{ color: '#94a3b8', fontFamily: 'monospace', fontSize: '0.68rem' }}>
-                    Code: {selectedCommodity.relations.family_code}
-                  </Typography>
-                )}
-              </Paper>
-            </Grid>
+            {/* Level 2: Family */}
+            <div className="rounded-lg border border-blue-100 bg-white p-2.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 block">
+                2. Family
+              </span>
+              <p className="text-xs font-semibold text-slate-800 mt-0.5 leading-snug">
+                {selectedCommodity.relations?.family || 'Category Family'}
+              </p>
+              {selectedCommodity.relations?.family_code && (
+                <span className="font-mono text-[10px] text-slate-400">
+                  Code: {selectedCommodity.relations.family_code}
+                </span>
+              )}
+            </div>
 
-            {/* Level 2: Class */}
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Paper sx={{ p: 1.2, backgroundColor: '#ffffff', border: '1px solid #ccfbf1', borderRadius: 1.5 }}>
-                <Typography variant="caption" sx={{ color: '#0d9488', fontWeight: 700, display: 'block', textTransform: 'uppercase', fontSize: '0.68rem' }}>
-                  3. Class
-                </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 700, color: '#1e293b', lineHeight: 1.2, mt: 0.2 }}>
-                  {selectedCommodity.relations?.class || 'Category Class'}
-                </Typography>
-                {selectedCommodity.relations?.class_code && (
-                  <Typography variant="caption" sx={{ color: '#94a3b8', fontFamily: 'monospace', fontSize: '0.68rem' }}>
-                    Code: {selectedCommodity.relations.class_code}
-                  </Typography>
-                )}
-              </Paper>
-            </Grid>
+            {/* Level 3: Class */}
+            <div className="rounded-lg border border-blue-100 bg-white p-2.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 block">
+                3. Class
+              </span>
+              <p className="text-xs font-semibold text-slate-800 mt-0.5 leading-snug">
+                {selectedCommodity.relations?.class || 'Category Class'}
+              </p>
+              {selectedCommodity.relations?.class_code && (
+                <span className="font-mono text-[10px] text-slate-400">
+                  Code: {selectedCommodity.relations.class_code}
+                </span>
+              )}
+            </div>
 
-            {/* Level 3: Commodity */}
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Paper sx={{ p: 1.2, backgroundColor: '#ffffff', border: '2px solid #0f766e', borderRadius: 1.5 }}>
-                <Typography variant="caption" sx={{ color: '#0f766e', fontWeight: 800, display: 'block', textTransform: 'uppercase', fontSize: '0.68rem' }}>
-                  4. Commodity (Assigned)
-                </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 800, color: '#0f766e', lineHeight: 1.2, mt: 0.2 }}>
-                  {selectedCommodity.title}
-                </Typography>
-                {selectedCommodity.code && (
-                  <Typography variant="caption" sx={{ color: '#0f766e', fontFamily: 'monospace', fontWeight: 700, fontSize: '0.68rem' }}>
-                    Code: {selectedCommodity.code}
-                  </Typography>
-                )}
-              </Paper>
-            </Grid>
-          </Grid>
+            {/* Level 4: Commodity */}
+            <div className="rounded-lg border-2 border-blue-600 bg-white p-2.5 shadow-2xs">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 block">
+                4. Commodity (Assigned)
+              </span>
+              <p className="text-xs font-bold text-blue-700 mt-0.5 leading-snug">
+                {selectedCommodity.title}
+              </p>
+              {selectedCommodity.code && (
+                <span className="font-mono text-[10px] font-semibold text-blue-600">
+                  Code: {selectedCommodity.code}
+                </span>
+              )}
+            </div>
+          </div>
 
-          {/* Full Path Breadcrumb Trail */}
           {selectedCommodity.full_path && (
-            <Box sx={{ pt: 1, borderTop: '1px dashed #99f6e4' }}>
-              <Typography variant="caption" sx={{ color: '#0f766e', fontWeight: 700, display: 'block' }}>
-                Full Hierarchy Trail:
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#334155', fontWeight: 600 }}>
-                {selectedCommodity.full_path}
-              </Typography>
-            </Box>
+            <div className="pt-2 border-t border-dashed border-blue-200 text-xs">
+              <span className="font-semibold text-blue-700 mr-1.5">Full Hierarchy Trail:</span>
+              <span className="text-slate-700">{selectedCommodity.full_path}</span>
+            </div>
           )}
 
-          {/* UNSPSC Official Definition if available */}
           {selectedCommodity.definition && (
-            <Box sx={{ mt: 1, pt: 1, borderTop: '1px dashed #99f6e4', display: 'flex', alignItems: 'flex-start', gap: 0.8 }}>
-              <InfoOutlinedIcon sx={{ fontSize: 16, color: '#0d9488', mt: 0.2 }} />
-              <Typography variant="caption" sx={{ color: '#475569', fontStyle: 'italic', lineHeight: 1.3 }}>
-                "{selectedCommodity.definition}"
-              </Typography>
-            </Box>
+            <div className="pt-2 border-t border-dashed border-blue-200 flex items-start gap-2 text-xs text-slate-600 italic">
+              <Info className="h-3.5 w-3.5 text-blue-600 shrink-0 mt-0.5" />
+              <span>&ldquo;{selectedCommodity.definition}&rdquo;</span>
+            </div>
           )}
-        </Paper>
+        </div>
       )}
-    </Box>
+    </div>
   );
 }

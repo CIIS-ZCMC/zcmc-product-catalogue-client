@@ -1,52 +1,64 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { api } from '../services/api';
 import {
-  Box,
-  Card,
-  CardContent,
+  Search,
+  X,
+  Eye,
+  Pencil,
+  Trash2,
+  Copy,
+  Check,
+  ExternalLink,
+  FileText,
+  Building2,
+  FolderTree,
+  RotateCcw,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  CheckCircle2,
+  AlertTriangle,
+  PackageSearch,
+} from 'lucide-react';
+import { Card, CardContent } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import {
   Table,
+  TableHeader,
   TableBody,
-  TableCell,
-  TableContainer,
   TableHead,
   TableRow,
-  TablePagination,
-  TextField,
-  InputAdornment,
-  MenuItem,
-  Chip,
-  IconButton,
-  Button,
-  Stack,
-  Typography,
-  Tooltip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  LinearProgress,
-  Grid,
-  Autocomplete,
-  CircularProgress,
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import ClearIcon from '@mui/icons-material/Clear';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import BusinessIcon from '@mui/icons-material/Business';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+  TableCell,
+} from './ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from './ui/alert-dialog';
+import { Combobox } from './ui/combobox';
+import { api } from '../services/api';
 
 const ERP_UNIT_NAMES = [
   'Ampule', 'Account', 'Assembly', 'Bag', 'Bar', 'Bot', 'Bottle', 'Booklet', 'Box', 'Bundle', 'Can', 'Capsule', 'Card',
   'Cart', 'Cartridge', 'Case', 'Cycle', 'Drum', 'Ft2', 'Gallon', 'GBq', 'Jar', 'Kg', 'Kilo', 'Kit', 'Kits', 'Liter', 'Loaf',
   'Lot', 'mCi', 'Meter', 'Month', 'Nebule', 'Pack', 'Pad', 'Pail', 'Pair', 'Pax', 'Pfs', 'Piece',
-  'Plate', 'Rack', 'Ream', 'Roll', 'Sachet', 'Sack', 'Seat', 'Set', 'Sheet', 'Spool', 'System', 'Solution', 
+  'Plate', 'Rack', 'Ream', 'Roll', 'Sachet', 'Sack', 'Seat', 'Set', 'Sheet', 'Spool', 'System', 'Solution',
   'Tablet', 'Tank', 'Test', 'Tin', 'Tray', 'Tube', 'Unit', 'Vial', 'Inhaler', 'MDI', 'Prefilled Syringe', 'Syringe', 'Length', 'Letter', 'Infusion set'
 ].sort((a, b) => a.localeCompare(b));
 
@@ -86,7 +98,6 @@ export default function ProductsView({
   useEffect(() => {
     let mounted = true;
 
-    // Load UOMs
     api.getItemUnits()
       .then((res) => {
         if (mounted && Array.isArray(res.data) && res.data.length > 0) {
@@ -95,7 +106,6 @@ export default function ProductsView({
       })
       .catch((err) => console.error('Failed to load item units filter:', err));
 
-    // Load Internal Categories
     setLoadingInternalCats(true);
     api.getInternalCategories()
       .then((res) => {
@@ -108,7 +118,6 @@ export default function ProductsView({
         if (mounted) setLoadingInternalCats(false);
       });
 
-    // Load Initial Commodities
     setLoadingCommodities(true);
     api.getCommodities('')
       .then((data) => {
@@ -138,7 +147,6 @@ export default function ProductsView({
     if (existing) {
       setSelectedCommodity(existing);
     } else {
-      // Fetch details for this category key
       api.getCategory(filters.category_key)
         .then((cat) => {
           if (cat) {
@@ -204,531 +212,574 @@ export default function ProductsView({
     setSelectedCommodity(null);
   };
 
+  const totalPages = Math.max(1, Math.ceil((pagination.total || 0) / (pagination.perPage || 15)));
+  const currentPage = pagination.currentPage || 1;
+  const startRow = pagination.total === 0 ? 0 : (currentPage - 1) * (pagination.perPage || 15) + 1;
+  const endRow = Math.min(pagination.total || 0, currentPage * (pagination.perPage || 15));
+
   return (
-    <Box sx={{ width: '100%' }}>
-      {/* Search & Multi-Filter Card */}
-      <Card sx={{ mb: 2, borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-        <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-          <Stack spacing={1.5}>
-            {/* Row 1: Keyword Search Bar */}
-            <TextField
-              fullWidth
-              size="small"
-              placeholder="Search catalogue by description, ERP code, BizBox, PhilGEPS, noun, material, specs..."
+    <div className="space-y-4">
+      {/* Multi-Faceted Search & Filter Command Card */}
+      <Card>
+        <CardContent className="p-4 space-y-3.5">
+          {/* Row 1: Keyword Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-blue-600" />
+            <Input
+              placeholder="Search SSOT catalogue by description, ERP code, BizBox, PhilGEPS, noun, material, specs..."
               value={filters.search || ''}
               onChange={(e) => onFilterChange('search', e.target.value)}
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon fontSize="small" sx={{ color: '#0f766e' }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: filters.search ? (
-                    <InputAdornment position="end">
-                      <IconButton size="small" onClick={() => onFilterChange('search', '')}>
-                        <ClearIcon fontSize="small" />
-                      </IconButton>
-                    </InputAdornment>
-                  ) : null,
-                },
-              }}
+              className="pl-9 pr-9 h-10 bg-slate-50/50 focus:bg-white"
             />
+            {filters.search && (
+              <button
+                type="button"
+                onClick={() => onFilterChange('search', '')}
+                className="absolute right-2.5 top-2.5 rounded p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
+                title="Clear keyword"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
 
-            {/* Row 2: Category, Internal Category, and UOM Filters */}
-            <Grid container spacing={1.5} alignItems="center">
-              {/* Internal Category Filter */}
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                <Autocomplete
-                  size="small"
-                  options={internalCategories}
-                  getOptionLabel={(option) => `${option.name} (${option.code})`}
-                  value={selectedInternalCat}
-                  onChange={(e, val) => onFilterChange('internal_category_id', val ? val.id : '')}
-                  loading={loadingInternalCats}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      size="small"
-                      label="Internal Institutional Category"
-                      placeholder="All Internal Categories"
-                      slotProps={{
-                        ...params.slotProps,
-                        input: {
-                          ...(params.slotProps?.input || {}),
-                          startAdornment: (
-                            <>
-                              <InputAdornment position="start">
-                                <BusinessIcon fontSize="small" sx={{ color: '#0f766e' }} />
-                              </InputAdornment>
-                              {params.slotProps?.input?.startAdornment}
-                            </>
-                          ),
-                          endAdornment: (
-                            <>
-                              {loadingInternalCats ? <CircularProgress color="inherit" size={16} /> : null}
-                              {params.slotProps?.input?.endAdornment}
-                            </>
-                          ),
-                        },
-                      }}
-                    />
-                  )}
-                  renderOption={(props, option) => (
-                    <li {...props} key={option.id}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {option.name}
-                        </Typography>
-                        <Chip
-                          size="small"
-                          label={option.code}
-                          sx={{
-                            ml: 1,
-                            fontSize: '0.68rem',
-                            height: 20,
-                            backgroundColor: '#f1f5f9',
-                            fontWeight: 700,
-                            color: '#0f766e',
-                          }}
-                        />
-                      </Box>
-                    </li>
-                  )}
-                />
-              </Grid>
+          {/* Row 2: Faceted Filters */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
+            {/* Internal Institutional Category */}
+            <div className="lg:col-span-4 space-y-1">
+              <Label className="text-[11px] text-slate-500">
+                Internal Institutional Category
+              </Label>
+              <Combobox
+                options={internalCategories}
+                value={selectedInternalCat}
+                onChange={(val) => onFilterChange('internal_category_id', val ? val.id : '')}
+                getOptionLabel={(opt) => `${opt.name} (${opt.code})`}
+                getOptionKey={(opt) => opt.id}
+                isOptionEqual={(a, b) => String(a?.id) === String(b?.id)}
+                loading={loadingInternalCats}
+                icon={Building2}
+                placeholder="All Internal Categories"
+                searchPlaceholder="Filter ZCMC internal category..."
+                renderOption={(opt) => (
+                  <div className="flex items-center justify-between gap-2 w-full">
+                    <span className="font-medium text-slate-800 truncate">{opt.name}</span>
+                    <Badge variant="blue" className="font-mono text-[10px] shrink-0">
+                      {opt.code}
+                    </Badge>
+                  </div>
+                )}
+              />
+            </div>
 
-              {/* UNSPSC Categories Filter (Commodity Search) */}
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                <Autocomplete
-                  size="small"
-                  options={commodityOptions}
-                  getOptionLabel={(option) => option.code ? `[${option.code}] ${option.title}` : option.title || ''}
-                  value={selectedCommodity}
-                  loading={loadingCommodities}
-                  onInputChange={(e, value, reason) => {
-                    if (reason === 'input') {
-                      handleCommoditySearch(value);
-                    }
-                  }}
-                  onChange={(e, val) => {
-                    setSelectedCommodity(val);
-                    onFilterChange('category_key', val ? val.key : '');
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      size="small"
-                      label="UNSPSC Category Filter"
-                      placeholder="Type to search UNSPSC category..."
-                      slotProps={{
-                        ...params.slotProps,
-                        input: {
-                          ...(params.slotProps?.input || {}),
-                          startAdornment: (
-                            <>
-                              <InputAdornment position="start">
-                                <AccountTreeIcon fontSize="small" sx={{ color: '#0f766e' }} />
-                              </InputAdornment>
-                              {params.slotProps?.input?.startAdornment}
-                            </>
-                          ),
-                          endAdornment: (
-                            <>
-                              {loadingCommodities ? <CircularProgress color="inherit" size={16} /> : null}
-                              {params.slotProps?.input?.endAdornment}
-                            </>
-                          ),
-                        },
-                      }}
-                    />
-                  )}
-                  renderOption={(props, option) => (
-                    <li {...props} key={option.key}>
-                      <Box sx={{ py: 0.3, width: '100%' }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: '#0f172a' }}>
-                          [{option.code}] {option.title}
-                        </Typography>
-                        {option.ancestors && option.ancestors.length > 0 && (
-                          <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.7rem' }}>
-                            {option.ancestors.map((a) => a.title).join(' › ')}
-                          </Typography>
-                        )}
-                      </Box>
-                    </li>
-                  )}
-                />
-              </Grid>
+            {/* UNSPSC Commodity Category */}
+            <div className="lg:col-span-4 space-y-1">
+              <Label className="text-[11px] text-slate-500">
+                UNSPSC Commodity Classification
+              </Label>
+              <Combobox
+                options={commodityOptions}
+                value={selectedCommodity}
+                onChange={(val) => {
+                  setSelectedCommodity(val);
+                  onFilterChange('category_key', val ? val.key : '');
+                }}
+                onSearchChange={handleCommoditySearch}
+                getOptionLabel={(opt) => (opt.code ? `[${opt.code}] ${opt.title}` : opt.title || '')}
+                getOptionKey={(opt) => opt.key}
+                isOptionEqual={(a, b) => Number(a?.key) === Number(b?.key)}
+                loading={loadingCommodities}
+                icon={FolderTree}
+                placeholder="All UNSPSC Categories"
+                searchPlaceholder="Type commodity name or 8-digit code..."
+                renderOption={(opt) => (
+                  <div className="space-y-0.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium text-slate-900">{opt.title}</span>
+                      {opt.code && (
+                        <span className="font-mono text-[11px] font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                          {opt.code}
+                        </span>
+                      )}
+                    </div>
+                    {opt.ancestors && opt.ancestors.length > 0 && (
+                      <p className="text-[11px] text-slate-500 truncate">
+                        {opt.ancestors.map((a) => a.title).join(' › ')}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
 
-              {/* UOM Filter */}
-              <Grid size={{ xs: 12, sm: 6, md: 2.5 }}>
-                <TextField
-                  select
-                  fullWidth
-                  size="small"
-                  label="Unit of Measure (UOM)"
-                  value={filters.uom || 'all'}
-                  onChange={(e) => onFilterChange('uom', e.target.value === 'all' ? '' : e.target.value)}
-                >
+            {/* Unit of Measure (UOM) */}
+            <div className="lg:col-span-2.5 space-y-1 sm:col-span-1 lg:col-span-3">
+              <Label className="text-[11px] text-slate-500">
+                Unit of Measure (UOM)
+              </Label>
+              <Select
+                value={filters.uom || 'all'}
+                onValueChange={(val) => onFilterChange('uom', val === 'all' ? '' : val)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="All Units" />
+                </SelectTrigger>
+                <SelectContent>
                   {unitFilterOptions.map((u) => (
-                    <MenuItem key={u} value={u}>
+                    <SelectItem key={u} value={u}>
                       {u === 'all' ? 'All Units' : u}
-                    </MenuItem>
+                    </SelectItem>
                   ))}
-                </TextField>
-              </Grid>
+                </SelectContent>
+              </Select>
+            </div>
 
-              {/* Reset Filters Action Button */}
-              <Grid size={{ xs: 12, sm: 6, md: 1.5 }}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  size="small"
-                  startIcon={<FilterAltOffIcon />}
-                  disabled={!hasActiveFilters}
-                  onClick={handleClearAll}
-                  sx={{
-                    height: 40,
-                    borderColor: hasActiveFilters ? '#0f766e' : '#e2e8f0',
-                    color: hasActiveFilters ? '#0f766e' : '#94a3b8',
-                    fontWeight: 700,
-                    textTransform: 'none',
-                    '&:hover': {
-                      borderColor: '#0d9488',
-                      backgroundColor: '#f0fdfa',
-                    },
-                  }}
-                >
-                  Reset
-                </Button>
-              </Grid>
-            </Grid>
+            {/* Reset Button */}
+            <div className="lg:col-span-1">
+              <Button
+                variant={hasActiveFilters ? 'blueOutline' : 'outline'}
+                onClick={handleClearAll}
+                disabled={!hasActiveFilters}
+                className="w-full h-9"
+                title="Reset all filters"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span className="lg:sr-only xl:not-sr-only">Reset</span>
+              </Button>
+            </div>
+          </div>
 
-            {/* Active Filters Pill Bar */}
-            {hasActiveFilters && (
-              <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ gap: 1, pt: 1, borderTop: '1px dashed #e2e8f0', alignItems: 'center' }}>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
-                  Active Filters:
-                </Typography>
+          {/* Active Filters Pill Bar */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap items-center gap-1.5 pt-2.5 border-t border-dashed border-slate-200">
+              <span className="text-[11px] font-semibold text-slate-500 mr-1">
+                Active Filters:
+              </span>
 
-                {filters.search && (
-                  <Chip
-                    size="small"
-                    label={`Keyword: "${filters.search}"`}
-                    onDelete={() => onFilterChange('search', '')}
-                    color="primary"
-                    variant="outlined"
-                    sx={{ fontWeight: 600, fontSize: '0.72rem' }}
-                  />
-                )}
+              {filters.search && (
+                <Badge variant="blue" className="gap-1.5 pr-1">
+                  <span>Keyword: &ldquo;{filters.search}&rdquo;</span>
+                  <button
+                    type="button"
+                    onClick={() => onFilterChange('search', '')}
+                    className="rounded-full p-0.5 hover:bg-blue-200/60 cursor-pointer"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
 
-                {selectedInternalCat && (
-                  <Chip
-                    size="small"
-                    icon={<BusinessIcon sx={{ fontSize: '13px !important' }} />}
-                    label={`Internal: ${selectedInternalCat.name} (${selectedInternalCat.code})`}
-                    onDelete={() => onFilterChange('internal_category_id', '')}
-                    sx={{ backgroundColor: '#f0fdfa', color: '#0f766e', borderColor: '#99f6e4', fontWeight: 700, fontSize: '0.72rem' }}
-                    variant="outlined"
-                  />
-                )}
+              {selectedInternalCat && (
+                <Badge variant="blue" className="gap-1.5 pr-1">
+                  <Building2 className="h-3 w-3" />
+                  <span>
+                    Internal: {selectedInternalCat.name} ({selectedInternalCat.code})
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onFilterChange('internal_category_id', '')}
+                    className="rounded-full p-0.5 hover:bg-blue-200/60 cursor-pointer"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
 
-                {(selectedCommodity || filters.category_key) && (
-                  <Chip
-                    size="small"
-                    icon={<AccountTreeIcon sx={{ fontSize: '13px !important' }} />}
-                    label={
-                      selectedCommodity
-                        ? `UNSPSC: [${selectedCommodity.code}] ${selectedCommodity.title}`
-                        : `UNSPSC Key: ${filters.category_key}`
-                    }
-                    onDelete={() => {
+              {(selectedCommodity || filters.category_key) && (
+                <Badge variant="blue" className="gap-1.5 pr-1">
+                  <FolderTree className="h-3 w-3" />
+                  <span>
+                    {selectedCommodity
+                      ? `UNSPSC: [${selectedCommodity.code}] ${selectedCommodity.title}`
+                      : `UNSPSC Key: ${filters.category_key}`}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
                       setSelectedCommodity(null);
                       onFilterChange('category_key', '');
                     }}
-                    color="primary"
-                    variant="outlined"
-                    sx={{ fontWeight: 700, fontSize: '0.72rem' }}
-                  />
-                )}
+                    className="rounded-full p-0.5 hover:bg-blue-200/60 cursor-pointer"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
 
-                {filters.uom && filters.uom !== 'all' && (
-                  <Chip
-                    size="small"
-                    label={`UOM: ${filters.uom}`}
-                    onDelete={() => onFilterChange('uom', '')}
-                    variant="outlined"
-                    sx={{ fontWeight: 600, fontSize: '0.72rem' }}
-                  />
-                )}
+              {filters.uom && filters.uom !== 'all' && (
+                <Badge variant="secondary" className="gap-1.5 pr-1">
+                  <span>UOM: {filters.uom}</span>
+                  <button
+                    type="button"
+                    onClick={() => onFilterChange('uom', '')}
+                    className="rounded-full p-0.5 hover:bg-slate-200 cursor-pointer"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
 
-                <Button
-                  size="small"
-                  onClick={handleClearAll}
-                  sx={{ textTransform: 'none', fontSize: '0.72rem', color: '#dc2626', fontWeight: 700, p: 0.3 }}
-                >
-                  Clear All
-                </Button>
-              </Stack>
-            )}
-          </Stack>
+              <button
+                type="button"
+                onClick={handleClearAll}
+                className="ml-1 text-xs font-semibold text-red-600 hover:text-red-700 hover:underline cursor-pointer"
+              >
+                Clear All
+              </button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Products Table Card */}
-      <Card sx={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-        {loading && <LinearProgress color="primary" />}
-        <TableContainer sx={{ width: '100%' }}>
-          <Table sx={{ minWidth: 900 }}>
-            <TableHead>
+      {/* Main SSOT Data Table Card */}
+      <Card className="overflow-hidden">
+        {loading && (
+          <div className="h-1 w-full bg-blue-100 overflow-hidden">
+            <div className="h-full w-1/3 bg-blue-600 animate-pulse rounded-r" />
+          </div>
+        )}
+
+        <Table className="min-w-[920px]">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[23%]">Item Code / References</TableHead>
+              <TableHead className="w-[35%]">Standard Item Description</TableHead>
+              <TableHead className="w-[24%]">Category Hierarchy (UNSPSC)</TableHead>
+              <TableHead className="w-[8%] text-center">UOM</TableHead>
+              <TableHead className="w-[10%] text-center">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {products.length === 0 && !loading ? (
               <TableRow>
-                <TableCell sx={{ fontWeight: 700, width: '22%' }}>Item Code / References</TableCell>
-                <TableCell sx={{ fontWeight: 700, width: '32%' }}>Standard Item Description</TableCell>
-                <TableCell sx={{ fontWeight: 700, width: '26%' }}>Category Hierarchy (UNSPSC)</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 700, width: '8%' }}>UOM</TableCell>
-                {/* <TableCell align="right" sx={{ fontWeight: 700, width: '12%' }}>Unit Price (PHP)</TableCell> */}
-                <TableCell align="center" sx={{ fontWeight: 700, width: '10%' }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {products.length === 0 && !loading ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
-                    <Typography variant="subtitle1" sx={{ color: '#64748b', fontWeight: 600 }}>
-                      No catalogue products found matching criteria.
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#94a3b8', mt: 0.5 }}>
-                      Try adjusting your search filters or add a new standardized product.
-                    </Typography>
-                    <Stack direction="row" spacing={1} justifyContent="center" sx={{ mt: 2 }}>
+                <TableCell colSpan={5} className="py-14 text-center">
+                  <div className="mx-auto flex max-w-md flex-col items-center justify-center space-y-2">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                      <PackageSearch className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-slate-800">
+                      No catalogue products found matching criteria
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Try adjusting your search filters or register a new standardized product in the SSOT library.
+                    </p>
+                    <div className="flex items-center gap-2 pt-2">
                       {hasActiveFilters && (
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          onClick={handleClearAll}
-                        >
+                        <Button variant="outline" size="sm" onClick={handleClearAll}>
                           Reset Filters
                         </Button>
                       )}
-                      <Button
-                        variant="contained"
-                        size="small"
-                        onClick={onOpenNewProduct}
-                      >
+                      <Button size="sm" onClick={onOpenNewProduct}>
+                        <Plus className="h-3.5 w-3.5" />
                         Add Product
                       </Button>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                products.map((row) => {
-                  const rawSpecs = row.other_specs || row.specifications || '';
-                  const specs = rawSpecs ? rawSpecs.split(';').map((s) => s.trim()).filter(Boolean) : [];
-                  const isCompliant = row.item_description === row.item_description?.toUpperCase() && row.item_description?.includes(',');
+                    </div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              products.map((row) => {
+                const rawSpecs = row.other_specs || row.specifications || '';
+                const specs = rawSpecs
+                  ? rawSpecs.split(';').map((s) => s.trim()).filter(Boolean)
+                  : [];
+                const isCompliant =
+                  row.item_description === row.item_description?.toUpperCase() &&
+                  row.item_description?.includes(',');
 
-                  return (
-                    <TableRow key={row.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                      {/* Item Codes */}
-                      <TableCell sx={{ verticalAlign: 'top' }}>
-                        <Stack spacing={0.5}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f766e', fontFamily: 'monospace' }}>
-                              {row.erp_item_code}
-                            </Typography>
-                            <Tooltip title={copiedId === row.id ? 'Copied!' : 'Copy Code'}>
-                              <IconButton size="small" onClick={() => handleCopyCode(row.erp_item_code, row.id)} sx={{ p: 0.2 }}>
-                                <ContentCopyIcon sx={{ fontSize: 13, color: copiedId === row.id ? '#0f766e' : '#94a3b8' }} />
-                              </IconButton>
-                            </Tooltip>
-                          </Box>
-
-                          {(row.internal_category?.code || row.internal_category_code) && (
-                            <Chip
-                              size="small"
-                              label={`ZCMC: ${row.internal_category?.code || row.internal_category_code}`}
-                              title={row.internal_category?.name || 'ZCMC Category'}
-                              sx={{
-                                height: 18,
-                                fontSize: '0.65rem',
-                                backgroundColor: '#f0fdfa',
-                                color: '#0f766e',
-                                fontWeight: 800,
-                                border: '1px solid #99f6e4',
-                                alignSelf: 'flex-start',
-                              }}
-                            />
-                          )}
-                          {row.bizbox_item_code && (
-                            <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
-                              <strong>Bizbox:</strong> {row.bizbox_item_code}
-                            </Typography>
-                          )}
-                          {row.philgeps_code && (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              <Typography variant="caption" sx={{ color: '#64748b' }}>
-                                <strong>PhilGEPS:</strong> {row.philgeps_code}
-                              </Typography>
-                              <Tooltip title="View PS-PhilGEPS portal">
-                                <IconButton
-                                  size="small"
-                                  component="a"
-                                  href="https://ps-philgeps.gov.ph/home/index.php/what-we-sell/common-use-items"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  sx={{ p: 0.1, color: '#0f766e' }}
-                                >
-                                  <OpenInNewIcon sx={{ fontSize: 11 }} />
-                                </IconButton>
-                              </Tooltip>
-                            </Box>
-                          )}
-                          {row.unspsc_code && (
-                            <Typography variant="caption" sx={{ color: '#0284c7', display: 'block', fontWeight: 600 }}>
-                              <strong>UNSPSC:</strong> {row.unspsc_code}
-                            </Typography>
-                          )}
-                        </Stack>
-                      </TableCell>
-
-                      {/* Standard Description */}
-                      <TableCell sx={{ verticalAlign: 'top' }}>
-                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#0f172a', lineHeight: 1.4 }}>
-                          {row.item_description}
-                        </Typography>
-
-                        {/* Specs preview chips */}
-                        {specs.length > 0 && (
-                          <Stack direction="row" spacing={0.5} flexWrap="wrap" sx={{ gap: 0.5, mt: 0.8 }}>
-                            {specs.slice(0, 3).map((s, idx) => (
-                              <Chip key={idx} label={s} size="small" sx={{ fontSize: '0.65rem', height: 18, backgroundColor: '#f1f5f9' }} />
-                            ))}
-                            {specs.length > 3 && (
-                              <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.65rem', alignSelf: 'center' }}>
-                                +{specs.length - 3} more
-                              </Typography>
+                return (
+                  <TableRow
+                    key={row.id}
+                    className="align-top group cursor-pointer"
+                    onClick={() => onViewProduct(row)}
+                  >
+                    {/* Column 1: Item Codes & System References */}
+                    <TableCell className="align-top">
+                      <div className="space-y-1.5" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono text-xs font-bold text-blue-600 bg-blue-50/80 border border-blue-200/70 px-2 py-0.5 rounded">
+                            {row.erp_item_code}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyCode(row.erp_item_code, row.id)}
+                            className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
+                            title={copiedId === row.id ? 'Copied!' : 'Copy ERP Code'}
+                          >
+                            {copiedId === row.id ? (
+                              <Check className="h-3.5 w-3.5 text-emerald-600" />
+                            ) : (
+                              <Copy className="h-3.5 w-3.5" />
                             )}
-                          </Stack>
+                          </button>
+                        </div>
+
+                        {(row.internal_category?.code || row.internal_category_code) && (
+                          <div>
+                            <Badge
+                              variant="secondary"
+                              className="text-[10px] py-0 px-1.5 font-semibold"
+                              title={row.internal_category?.name || 'ZCMC Category'}
+                            >
+                              ZCMC: {row.internal_category?.code || row.internal_category_code}
+                            </Badge>
+                          </div>
                         )}
 
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.8, flexWrap: 'wrap' }}>
-                          <Chip
-                            size="small"
-                            label={isCompliant ? 'Uniform Naming' : 'Check Standard'}
-                            color={isCompliant ? 'success' : 'warning'}
-                            variant="outlined"
-                            sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700 }}
-                          />
+                        <div className="space-y-0.5 text-[11px] text-slate-500">
+                          {row.bizbox_item_code && (
+                            <div className="truncate">
+                              <span className="font-medium text-slate-600">BizBox:</span>{' '}
+                              <span className="font-mono">{row.bizbox_item_code}</span>
+                            </div>
+                          )}
+                          {row.philgeps_code && (
+                            <div className="flex items-center gap-1">
+                              <span className="font-medium text-slate-600">PhilGEPS:</span>
+                              <span className="font-mono">{row.philgeps_code}</span>
+                              <a
+                                href="https://ps-philgeps.gov.ph/home/index.php/what-we-sell/common-use-items"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-700 inline-flex items-center"
+                                title="Open PS-PhilGEPS portal"
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            </div>
+                          )}
+                          {row.unspsc_code && (
+                            <div>
+                              <span className="font-medium text-slate-600">UNSPSC:</span>{' '}
+                              <span className="font-mono text-blue-600 font-semibold">
+                                {row.unspsc_code}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    {/* Column 2: Standard Item Description & Specs */}
+                    <TableCell className="align-top">
+                      <div className="space-y-2">
+                        <p className="text-sm font-semibold text-slate-900 leading-snug">
+                          {row.item_description}
+                        </p>
+
+                        {specs.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {specs.slice(0, 3).map((s, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-flex items-center rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-600"
+                              >
+                                {s}
+                              </span>
+                            ))}
+                            {specs.length > 3 && (
+                              <span className="text-[11px] text-slate-400 self-center">
+                                +{specs.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                          <Badge
+                            variant={isCompliant ? 'success' : 'warning'}
+                            className="text-[10px] py-0 px-1.5"
+                          >
+                            {isCompliant ? (
+                              <CheckCircle2 className="h-3 w-3" />
+                            ) : (
+                              <AlertTriangle className="h-3 w-3" />
+                            )}
+                            {isCompliant ? 'Uniform Naming' : 'Check Standard'}
+                          </Badge>
+
                           {row.tech_specs_pdf_url && (
-                            <Chip
-                              size="small"
-                              icon={<PictureAsPdfIcon sx={{ fontSize: '12px !important' }} />}
-                              label="PDF Specs"
-                              color="info"
-                              variant="outlined"
-                              component="a"
+                            <a
                               href={row.tech_specs_pdf_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              clickable
                               onClick={(e) => e.stopPropagation()}
-                              sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700 }}
-                            />
+                              className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50/70 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700 hover:bg-blue-100 transition-colors"
+                            >
+                              <FileText className="h-3 w-3" />
+                              PDF Specs
+                            </a>
                           )}
-                        </Box>
-                      </TableCell>
+                        </div>
+                      </div>
+                    </TableCell>
 
-                      {/* UNSPSC Hierarchy Path */}
-                      <TableCell sx={{ verticalAlign: 'top' }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: '#1e293b' }}>
+                    {/* Column 3: UNSPSC Hierarchy */}
+                    <TableCell className="align-top">
+                      <div className="space-y-1">
+                        <p className="text-xs font-semibold text-slate-800 leading-snug">
                           {row.categoryRelation?.title || row.subcategory || 'Uncategorized'}
-                        </Typography>
+                        </p>
                         {row.category_group && (
-                          <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mt: 0.3 }}>
+                          <p className="text-[11px] text-slate-500 leading-snug">
                             {row.category_group}
-                          </Typography>
+                          </p>
                         )}
                         {row.category_hierarchy?.length > 0 && (
-                          <Typography variant="caption" sx={{ color: '#0f766e', fontWeight: 600, display: 'block', mt: 0.2 }}>
+                          <span className="inline-block text-[11px] font-medium text-blue-600">
                             Level {row.category_hierarchy.length} Commodity
-                          </Typography>
+                          </span>
                         )}
-                      </TableCell>
+                      </div>
+                    </TableCell>
 
-                      {/* UOM */}
-                      <TableCell align="center" sx={{ verticalAlign: 'top' }}>
-                        <Chip
-                          size="small"
-                          label={row.uom}
-                          sx={{ textTransform: 'uppercase', fontWeight: 700, fontSize: '0.7rem' }}
-                        />
-                      </TableCell>
+                    {/* Column 4: UOM */}
+                    <TableCell className="align-top text-center">
+                      <Badge variant="outline" className="uppercase font-mono text-[11px] bg-slate-50">
+                        {row.uom}
+                      </Badge>
+                    </TableCell>
 
-                      {/* Unit Price */}
-                      {/* <TableCell align="right" sx={{ verticalAlign: 'top' }}>
-                        <Typography variant="body2" sx={{ fontWeight: 800, color: '#0f766e' }}>
-                          ₱{Number(row.unit_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
-                        </Typography>
-                      </TableCell> */}
+                    {/* Column 5: Actions */}
+                    <TableCell className="align-top text-center" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onViewProduct(row)}
+                          title="Inspect Product Details"
+                        >
+                          <Eye className="h-4 w-4 text-slate-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onEditProduct(row)}
+                          title="Edit Product"
+                        >
+                          <Pencil className="h-4 w-4 text-blue-600" />
+                        </Button>
+                        {isAdmin && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeleteDialog({ open: true, product: row })}
+                            title="Delete Product (Admin Only)"
+                            className="hover:bg-red-50 hover:text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
 
-                      {/* Actions */}
-                      <TableCell align="center" sx={{ verticalAlign: 'top' }}>
-                        <Stack direction="row" spacing={0.5} justifyContent="center">
-                          <Tooltip title="View Details">
-                            <IconButton size="small" onClick={() => onViewProduct(row)}>
-                              <VisibilityIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Edit Product">
-                            <IconButton size="small" onClick={() => onEditProduct(row)}>
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                          {isAdmin && (
-                            <Tooltip title="Delete Product (Admin Only)">
-                              <IconButton size="small" color="error" onClick={() => setDeleteDialog({ open: true, product: row })}>
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        {/* Table Footer Pagination Bar */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-200 bg-slate-50/60 px-4 py-3 text-xs text-slate-600">
+          <div className="flex items-center gap-2">
+            <span>Rows per page:</span>
+            <Select
+              value={String(pagination.perPage || 15)}
+              onValueChange={(val) => onRowsPerPageChange(parseInt(val, 10))}
+            >
+              <SelectTrigger className="h-8 w-[72px] text-xs bg-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[10, 15, 25, 50].map((size) => (
+                  <SelectItem key={size} value={String(size)}>
+                    {size}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <span className="text-slate-400 ml-2">
+              Showing <strong className="text-slate-800">{startRow}</strong>–
+              <strong className="text-slate-800">{endRow}</strong> of{' '}
+              <strong className="text-slate-800">{pagination.total || 0}</strong> items
+            </span>
+          </div>
 
-        <TablePagination
-          rowsPerPageOptions={[10, 15, 25, 50]}
-          component="div"
-          count={pagination.total || 0}
-          rowsPerPage={pagination.perPage || 15}
-          page={(pagination.currentPage || 1) - 1}
-          onPageChange={(e, newPage) => onPageChange(newPage + 1)}
-          onRowsPerPageChange={(e) => onRowsPerPageChange(parseInt(e.target.value, 10))}
-        />
+          <div className="flex items-center gap-1.5">
+            <span className="mr-2 font-medium text-slate-700">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-7 w-7"
+              disabled={currentPage <= 1}
+              onClick={() => onPageChange(1)}
+              title="First Page"
+            >
+              <ChevronsLeft className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-7 w-7"
+              disabled={currentPage <= 1}
+              onClick={() => onPageChange(currentPage - 1)}
+              title="Previous Page"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-7 w-7"
+              disabled={currentPage >= totalPages}
+              onClick={() => onPageChange(currentPage + 1)}
+              title="Next Page"
+            >
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-7 w-7"
+              disabled={currentPage >= totalPages}
+              onClick={() => onPageChange(totalPages)}
+              title="Last Page"
+            >
+              <ChevronsRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialog.open} onClose={() => setDeleteDialog({ open: false, product: null })}>
-        <DialogTitle sx={{ fontWeight: 800 }}>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to remove <strong>{deleteDialog.product?.item_description}</strong> (
-            {deleteDialog.product?.erp_item_code}) from the product catalogue?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setDeleteDialog({ open: false, product: null })} color="inherit">
-            Cancel
-          </Button>
-          <Button onClick={confirmDelete} color="error" variant="contained">
-            Delete Product
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+      {/* Delete Confirmation Alert Dialog */}
+      <AlertDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => !open && setDeleteDialog({ open: false, product: null })}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Product from Catalogue?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete{' '}
+              <strong className="text-slate-900">
+                {deleteDialog.product?.item_description}
+              </strong>{' '}
+              (<span className="font-mono text-blue-600">{deleteDialog.product?.erp_item_code}</span>) from the SSOT product catalogue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete Product
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }

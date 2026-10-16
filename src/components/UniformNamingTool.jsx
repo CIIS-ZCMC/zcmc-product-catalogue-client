@@ -1,33 +1,29 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  TextField,
-  Button,
-  Stack,
-  Paper,
-  Divider,
-  Alert,
-} from '@mui/material';
-import RuleIcon from '@mui/icons-material/Rule';
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+  Sparkles,
+  Wand2,
+  Copy,
+  Check,
+  PlusCircle,
+  CheckCircle2,
+  AlertTriangle,
+  Info,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Textarea } from './ui/textarea';
+import { Badge } from './ui/badge';
+import { Alert, AlertDescription } from './ui/alert';
 import { api } from '../services/api';
 
 export default function UniformNamingTool({ onSendToProductModal }) {
-  // Wizard parts
   const [genericNoun, setGenericNoun] = useState('');
   const [modifiers, setModifiers] = useState('');
   const [specs, setSpecs] = useState('');
   const [packaging, setPackaging] = useState('');
 
-  // Generated text & audit
   const [generatedText, setGeneratedText] = useState('');
   const [auditResult, setAuditResult] = useState(null);
   const [copied, setCopied] = useState(false);
@@ -71,194 +67,193 @@ export default function UniformNamingTool({ onSendToProductModal }) {
   };
 
   return (
-    <Box sx={{ py: 3 }}>
-      <Grid container spacing={3}>
-        {/* Left: Interactive Generator Form */}
-        <Grid size={{ xs: 12, md: 7 }}>
-          <Card>
-            <CardContent sx={{ p: 3 }}>
-              <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
-                <Box sx={{ p: 0.8, borderRadius: 1.5, backgroundColor: '#0f766e', color: '#fff' }}>
-                  <RuleIcon fontSize="small" />
-                </Box>
-                <Box>
-                  <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                    Uniform Naming Standardizer
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#64748b' }}>
-                    ZCMC Procurement Guideline: [NOUN], [MODIFIERS], [SPECIFICATIONS], [PACKAGING]
-                  </Typography>
-                </Box>
-              </Stack>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 py-2">
+      {/* Left: Interactive Generator Form */}
+      <Card className="lg:col-span-7">
+        <CardHeader className="border-b border-slate-100 bg-slate-50/50 rounded-t-xl">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs">
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <div>
+              <CardTitle className="text-base">Uniform Naming Standardizer</CardTitle>
+              <CardDescription>
+                ZCMC Procurement Guideline: [NOUN], [MODIFIERS], [SPECIFICATIONS], [PACKAGING]
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
 
-              <Divider sx={{ my: 2 }} />
-
-              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#334155', mb: 1.5 }}>
-                Component Generator
-              </Typography>
-
-              <Stack spacing={2}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="1. Generic Noun / Item Category *"
-                  placeholder="e.g. PAPER, GLOVES, SYRINGE, PARACETAMOL, CATHETER"
-                  value={genericNoun}
-                  onChange={(e) => setGenericNoun(e.target.value)}
-                  helperText="Primary object noun without brand"
-                />
-
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="2. Primary Modifiers / Type"
-                  placeholder="e.g. MULTICOPY, EXAMINATION, SURGICAL, DISPOSABLE"
-                  value={modifiers}
-                  onChange={(e) => setModifiers(e.target.value)}
-                />
-
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="3. Technical Size / Material / Dosage"
-                  placeholder="e.g. A4, NITRILE POWDER-FREE, 500MG, 5ML 21G"
-                  value={specs}
-                  onChange={(e) => setSpecs(e.target.value)}
-                />
-
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="4. Packaging / Unit Form"
-                  placeholder="e.g. 500 SHEETS/REAM, 100 PIECES/BOX, 100 CAPSULES/BOX"
-                  value={packaging}
-                  onChange={(e) => setPackaging(e.target.value)}
-                />
-
-                <Button
-                  variant="contained"
-                  startIcon={<AutoFixHighIcon />}
-                  onClick={handleGenerate}
-                  sx={{ py: 1 }}
-                >
-                  Generate Uniform Description
-                </Button>
-              </Stack>
-
-              <Divider sx={{ my: 2.5 }} />
-
-              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#334155', mb: 1 }}>
-                Or Direct Text Validation:
-              </Typography>
-              <TextField
-                fullWidth
-                multiline
-                rows={2}
-                placeholder="Type or paste any draft description to audit..."
-                value={generatedText}
-                onChange={(e) => handleDirectAudit(e.target.value)}
+        <CardContent className="p-6 space-y-5">
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="genericNoun">1. Generic Noun / Item Category *</Label>
+              <Input
+                id="genericNoun"
+                placeholder="e.g. PAPER, GLOVES, SYRINGE, PARACETAMOL, CATHETER"
+                value={genericNoun}
+                onChange={(e) => setGenericNoun(e.target.value)}
+                className="uppercase"
               />
-            </CardContent>
-          </Card>
-        </Grid>
+              <p className="text-[11px] text-slate-400">Primary object noun without brand</p>
+            </div>
 
-        {/* Right: Validation & Audit Result */}
-        <Grid size={{ xs: 12, md: 5 }}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a', mb: 1.5 }}>
-                Standardization Preview
-              </Typography>
+            <div className="space-y-1.5">
+              <Label htmlFor="modifiers">2. Primary Modifiers / Type</Label>
+              <Input
+                id="modifiers"
+                placeholder="e.g. MULTICOPY, EXAMINATION, SURGICAL, DISPOSABLE"
+                value={modifiers}
+                onChange={(e) => setModifiers(e.target.value)}
+                className="uppercase"
+              />
+            </div>
 
-              {generatedText ? (
-                <Paper variant="outlined" sx={{ p: 2, mb: 2, backgroundColor: '#f8fafc', borderColor: '#cbd5e1' }}>
-                  <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
-                    Normalized Naming:
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 800, color: '#0f172a', mt: 0.5 }}>
-                    {generatedText}
-                  </Typography>
+            <div className="space-y-1.5">
+              <Label htmlFor="specs">3. Technical Size / Material / Dosage</Label>
+              <Input
+                id="specs"
+                placeholder="e.g. A4, NITRILE POWDER-FREE, 500MG, 5ML 21G"
+                value={specs}
+                onChange={(e) => setSpecs(e.target.value)}
+                className="uppercase"
+              />
+            </div>
 
-                  <Stack direction="row" spacing={1} sx={{ mt: 1.5 }}>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<ContentCopyIcon />}
-                      onClick={handleCopy}
-                    >
-                      {copied ? 'Copied!' : 'Copy Name'}
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      startIcon={<AddCircleIcon />}
-                      onClick={() => onSendToProductModal(generatedText)}
-                    >
-                      Use in Product Form
-                    </Button>
-                  </Stack>
-                </Paper>
-              ) : (
-                <Alert severity="info" sx={{ mb: 2 }}>
-                  Use the component generator on the left or type a description to see live compliance analysis.
-                </Alert>
+            <div className="space-y-1.5">
+              <Label htmlFor="packaging">4. Packaging / Unit Form</Label>
+              <Input
+                id="packaging"
+                placeholder="e.g. 500 SHEETS/REAM, 100 PIECES/BOX, 100 CAPSULES/BOX"
+                value={packaging}
+                onChange={(e) => setPackaging(e.target.value)}
+                className="uppercase"
+              />
+            </div>
+
+            <Button onClick={handleGenerate} className="w-full sm:w-auto">
+              <Wand2 className="h-4 w-4" />
+              <span>Generate Uniform Description</span>
+            </Button>
+          </div>
+
+          <div className="pt-5 border-t border-slate-200 space-y-2">
+            <Label htmlFor="directAudit">Or Direct Text Validation:</Label>
+            <Textarea
+              id="directAudit"
+              rows={3}
+              placeholder="Type or paste any draft description to audit against ZCMC naming standards..."
+              value={generatedText}
+              onChange={(e) => handleDirectAudit(e.target.value)}
+              className="font-mono text-xs"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Right: Standardization Preview & Audit Result */}
+      <Card className="lg:col-span-5 flex flex-col">
+        <CardHeader className="border-b border-slate-100 bg-slate-50/50 rounded-t-xl">
+          <CardTitle className="text-base">Standardization Preview &amp; Compliance</CardTitle>
+          <CardDescription>
+            Live validation score and duplicate detection against existing SSOT entries
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="p-6 space-y-4">
+          {generatedText ? (
+            <div className="rounded-xl border-2 border-blue-600/80 bg-blue-50/30 p-4 space-y-3">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 block">
+                Normalized Naming
+              </span>
+              <p className="font-mono text-sm font-bold text-slate-900 leading-relaxed">
+                {generatedText}
+              </p>
+
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <Button variant="outline" size="sm" onClick={handleCopy}>
+                  {copied ? (
+                    <Check className="h-3.5 w-3.5 text-emerald-600" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
+                  <span>{copied ? 'Copied!' : 'Copy Name'}</span>
+                </Button>
+                <Button size="sm" onClick={() => onSendToProductModal(generatedText)}>
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  <span>Use in Product Form</span>
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Alert variant="info">
+              <Info className="h-4 w-4 shrink-0" />
+              <AlertDescription>
+                Use the component generator on the left or type a description to see live compliance analysis.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {auditResult && (
+            <div
+              className={`rounded-xl border p-4 space-y-3 ${
+                auditResult.is_valid
+                  ? 'border-emerald-200 bg-emerald-50/70'
+                  : 'border-amber-200 bg-amber-50/70'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  {auditResult.is_valid ? (
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  ) : (
+                    <AlertTriangle className="h-4 w-4 text-amber-600" />
+                  )}
+                  <span
+                    className={`text-xs font-bold ${
+                      auditResult.is_valid ? 'text-emerald-900' : 'text-amber-900'
+                    }`}
+                  >
+                    Compliance Score: {auditResult.score}%
+                  </span>
+                </div>
+                <Badge variant={auditResult.is_valid ? 'success' : 'warning'}>
+                  {auditResult.is_valid ? 'Compliant' : 'Needs Review'}
+                </Badge>
+              </div>
+
+              {auditResult.feedback?.length > 0 && (
+                <div className="space-y-1">
+                  <span className="text-xs font-semibold text-slate-700 block">
+                    Observations &amp; Recommendations:
+                  </span>
+                  <ul className="list-disc pl-4 space-y-1 text-xs text-slate-600">
+                    {auditResult.feedback.map((item, idx) => (
+                      <li key={idx}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
               )}
 
-              {auditResult && (
-                <Box
-                  sx={{
-                    p: 2,
-                    borderRadius: 2,
-                    backgroundColor: auditResult.is_valid ? '#f0fdf4' : '#fffbeb',
-                    border: `1px solid ${auditResult.is_valid ? '#86efac' : '#fde047'}`,
-                  }}
-                >
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      {auditResult.is_valid ? (
-                        <CheckCircleIcon color="success" />
-                      ) : (
-                        <WarningAmberIcon color="warning" />
-                      )}
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: auditResult.is_valid ? '#15803d' : '#a16207' }}>
-                        Compliance Score: {auditResult.score}%
-                      </Typography>
-                    </Stack>
-                  </Box>
-
-                  {auditResult.feedback?.length > 0 && (
-                    <Box sx={{ mt: 1 }}>
-                      <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155' }}>
-                        Observations & Recommendations:
-                      </Typography>
-                      <Box component="ul" sx={{ m: 0, pl: 2, fontSize: '0.8rem', color: '#475569' }}>
-                        {auditResult.feedback.map((item, idx) => (
-                          <li key={idx}>{item}</li>
-                        ))}
-                      </Box>
-                    </Box>
-                  )}
-
-                  {auditResult.similar_items?.length > 0 && (
-                    <Box sx={{ mt: 2, pt: 1.5, borderTop: '1px dashed #cbd5e1' }}>
-                      <Typography variant="caption" sx={{ fontWeight: 800, color: '#b91c1c' }}>
-                        Existing Similar Items in Database:
-                      </Typography>
-                      <Stack spacing={0.5} sx={{ mt: 0.5 }}>
-                        {auditResult.similar_items.map((sim) => (
-                          <Typography key={sim.id} variant="caption" sx={{ color: '#334155' }}>
-                            • <strong>[{sim.erp_item_code}]</strong> {sim.item_description} ({sim.uom})
-                          </Typography>
-                        ))}
-                      </Stack>
-                    </Box>
-                  )}
-                </Box>
+              {auditResult.similar_items?.length > 0 && (
+                <div className="pt-3 border-t border-dashed border-slate-300 space-y-1.5">
+                  <span className="text-xs font-bold text-red-700 block">
+                    Existing Similar Items in Database:
+                  </span>
+                  <div className="space-y-1">
+                    {auditResult.similar_items.map((sim) => (
+                      <p key={sim.id} className="text-xs text-slate-700">
+                        • <strong className="font-mono text-blue-600">[{sim.erp_item_code}]</strong>{' '}
+                        {sim.item_description} ({sim.uom})
+                      </p>
+                    ))}
+                  </div>
+                </div>
               )}
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </Box>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

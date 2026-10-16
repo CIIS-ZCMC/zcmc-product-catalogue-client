@@ -1,40 +1,38 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Grid,
-  MenuItem,
-  Box,
-  Typography,
-  Chip,
-  Alert,
-  IconButton,
-  Stack,
-  InputAdornment,
-  Divider,
-  Autocomplete,
-  Link,
-  Tooltip,
-  CircularProgress,
-  Paper,
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import LockIcon from '@mui/icons-material/Lock';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import BusinessIcon from '@mui/icons-material/Business';
-import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+  ArrowLeft,
+  Plus,
+  X,
+  AlertTriangle,
+  CheckCircle2,
+  Lock,
+  ExternalLink,
+  Building2,
+  Sparkles,
+  FileText,
+  Upload,
+  Trash2,
+  Eye,
+  EyeOff,
+  Loader2,
+  AlertCircle,
+  Hash,
+  Save,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Badge } from './ui/badge';
+import { Alert, AlertDescription } from './ui/alert';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select';
+import { Combobox } from './ui/combobox';
 import CascadingCategorySelect from './CascadingCategorySelect';
 import { api } from '../services/api';
 
@@ -42,12 +40,12 @@ const ERP_UNIT_NAMES = [
   'Ampule', 'Account', 'Assembly', 'Bag', 'Bar', 'Bot', 'Bottle', 'Booklet', 'Box', 'Bundle', 'Can', 'Capsule', 'Card',
   'Cart', 'Cartridge', 'Case', 'Cycle', 'Drum', 'Ft2', 'Gallon', 'GBq', 'Jar', 'Kg', 'Kilo', 'Kit', 'Kits', 'Liter', 'Loaf',
   'Lot', 'mCi', 'Meter', 'Month', 'Nebule', 'Pack', 'Pad', 'Pail', 'Pair', 'Pax', 'Pfs', 'Piece',
-  'Plate', 'Rack', 'Ream', 'Roll', 'Sachet', 'Sack', 'Seat', 'Set', 'Sheet', 'Spool', 'System', 'Solution', 
+  'Plate', 'Rack', 'Ream', 'Roll', 'Sachet', 'Sack', 'Seat', 'Set', 'Sheet', 'Spool', 'System', 'Solution',
   'Tablet', 'Tank', 'Test', 'Tin', 'Tray', 'Tube', 'Unit', 'Vial', 'Inhaler', 'MDI', 'Prefilled Syringe', 'Syringe', 'Length', 'Letter', 'Infusion set'
 ].sort((a, b) => a.localeCompare(b));
 
 export default function ProductModal({
-  open,
+  open = true,
   onClose,
   onSave,
   product = null,
@@ -56,7 +54,6 @@ export default function ProductModal({
   const isEdit = Boolean(product && product.id);
   const fileInputRef = useRef(null);
 
-  // Form state
   const [formData, setFormData] = useState({
     noun: '',
     type: '',
@@ -92,7 +89,6 @@ export default function ProductModal({
 
   // Uniform naming live audit
   const [namingAudit, setNamingAudit] = useState(null);
-  const [_validatingNaming, setValidatingNaming] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -102,7 +98,7 @@ export default function ProductModal({
   const [passwordError, setPasswordError] = useState('');
   const isAdmin = currentUser?.is_admin === true;
 
-  // Helper to build standard name from: [Noun], [Type], [Material / Composition], [Key Attributes], [Size]
+  // Compute standard name from: [Noun], [Type], [Material / Composition], [Key Attributes], [Size]
   const computeStandardName = (data) => {
     const parts = [
       data.noun,
@@ -117,7 +113,7 @@ export default function ProductModal({
       .join(', ');
   };
 
-  // Load internal categories on mount
+  // Load internal categories & UOMs on mount
   useEffect(() => {
     let mounted = true;
     const fetchInternalCategories = async () => {
@@ -153,24 +149,21 @@ export default function ProductModal({
     };
   }, []);
 
-  // Debounced live naming validation
+  // Live naming validation
   const validateNaming = async (text) => {
     if (!text || text.trim().length < 2) {
       setNamingAudit(null);
       return;
     }
-    setValidatingNaming(true);
     try {
       const result = await api.validateNaming(text);
       setNamingAudit(result);
     } catch (err) {
       console.error('Validation error', err);
-    } finally {
-      setValidatingNaming(false);
     }
   };
 
-  // Form initialization
+  // Initialize form from product prop
   useEffect(() => {
     if (product) {
       const initialData = {
@@ -190,7 +183,7 @@ export default function ProductModal({
         unspsc_code: product.unspsc_code || '',
         uom: (() => {
           if (!product.uom) return 'Piece';
-          const match = ERP_UNIT_NAMES.find(u => u.toLowerCase() === product.uom.toLowerCase());
+          const match = ERP_UNIT_NAMES.find((u) => u.toLowerCase() === product.uom.toLowerCase());
           return match || product.uom;
         })(),
         other_specs: product.other_specs || product.specifications || '',
@@ -205,7 +198,8 @@ export default function ProductModal({
 
       if (product.tech_specs_pdf_url || product.tech_specs_pdf_path) {
         setPdfPreviewUrl(product.tech_specs_pdf_url || '');
-        const filename = (product.tech_specs_pdf_path || '').split('/').pop() || 'Existing Technical Specs.pdf';
+        const filename =
+          (product.tech_specs_pdf_path || '').split('/').pop() || 'Existing Technical Specs.pdf';
         setPdfFileName(filename);
       } else {
         setPdfPreviewUrl('');
@@ -222,9 +216,6 @@ export default function ProductModal({
       if (initialData.item_description) {
         validateNaming(initialData.item_description);
       }
-      setConfirmPassword('');
-      setShowPassword(false);
-      setPasswordError('');
     } else {
       setFormData({
         noun: '',
@@ -274,7 +265,6 @@ export default function ProductModal({
       setGeneratingErpCode(false);
     }
   };
-
 
   // Structured field change handler - strictly uppercase
   const handleStructuredFieldChange = (field, value) => {
@@ -358,7 +348,12 @@ export default function ProductModal({
           unspsc_code: newCatCode || prev.unspsc_code,
         };
         if (!isEdit && updated.internal_category_code) {
-          updateNextErpCode(newCatCode, updated.internal_category_code, updated.internal_category_id, newCatKey);
+          updateNextErpCode(
+            newCatCode,
+            updated.internal_category_code,
+            updated.internal_category_id,
+            newCatKey
+          );
         }
         return updated;
       });
@@ -449,7 +444,9 @@ export default function ProductModal({
         ...formData,
         noun: formData.noun.trim().toUpperCase(),
         type: formData.type ? formData.type.trim().toUpperCase() : null,
-        material_composition: formData.material_composition ? formData.material_composition.trim().toUpperCase() : null,
+        material_composition: formData.material_composition
+          ? formData.material_composition.trim().toUpperCase()
+          : null,
         key_attributes: formData.key_attributes ? formData.key_attributes.trim().toUpperCase() : null,
         size: formData.size ? formData.size.trim().toUpperCase() : null,
         item_description: builtName,
@@ -464,7 +461,6 @@ export default function ProductModal({
       }
 
       await onSave(payload, isEdit ? product.id : null);
-      onClose();
     } catch (err) {
       if (err.errors?.confirm_password) {
         setPasswordError(err.errors.confirm_password[0]);
@@ -476,591 +472,613 @@ export default function ProductModal({
     }
   };
 
+  if (!open) return null;
+
   const selectedInternalCat =
     internalCategories.find((c) => c.id === formData.internal_category_id) || null;
 
-
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
-      <form onSubmit={handleSubmit}>
-        <DialogTitle
-          sx={{
-            m: 0,
-            p: 2,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            backgroundColor: '#f8fafc',
-            borderBottom: '1px solid #e2e8f0',
-          }}
-        >
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a' }}>
-              {isEdit ? 'Edit Catalogue Product' : 'Add New Product to Catalogue'}
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#64748b' }}>
-              Hospital Uniform Naming & Structured Classification Builder
-            </Typography>
-          </Box>
-          <IconButton onClick={onClose} size="small">
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
+    <form onSubmit={handleSubmit} className="space-y-6 pb-8">
+      {/* Page Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onClose}
+            className="gap-1.5"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Catalogue</span>
+          </Button>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold tracking-tight text-slate-900">
+                {isEdit ? 'Edit Catalogue Product' : 'Register New SSOT Product'}
+              </h1>
+              {isEdit && formData.erp_item_code && (
+                <Badge variant="blue" className="font-mono text-xs">
+                  {formData.erp_item_code}
+                </Badge>
+              )}
+            </div>
+            <p className="text-xs text-slate-500">
+              Hospital Uniform Naming &amp; Structured UNSPSC Classification Builder
+            </p>
+          </div>
+        </div>
 
-        <DialogContent dividers sx={{ p: 3 }}>
-          {errorMsg && (
-            <Alert severity="error" sx={{ mb: 2.5 }} onClose={() => setErrorMsg('')}>
-              {errorMsg}
-            </Alert>
-          )}
+        <div className="flex items-center gap-2">
+          <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={saving}>
+            {saving ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
+            <span>{saving ? 'Saving...' : isEdit ? 'Update Product' : 'Save to Catalogue'}</span>
+          </Button>
+        </div>
+      </div>
 
-          <Grid container spacing={2.5}>
-            {/* Standard Naming Specification Builder Card */}
-            <Grid size={12}>
-              <Paper
-                variant="outlined"
-                sx={{
-                  p: 2.5,
-                  borderRadius: 2,
-                  backgroundColor: '#f8fafc',
-                  borderColor: '#cbd5e1',
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <FormatQuoteIcon sx={{ color: '#0f766e', fontSize: 22 }} />
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                      Standard Naming Specification Builder
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#64748b' }}>
-                      All inputs automatically capitalize as you type. UOM is paired with specification components.
-                    </Typography>
-                  </Box>
-                </Box>
+      {errorMsg && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <AlertDescription>{errorMsg}</AlertDescription>
+        </Alert>
+      )}
 
-                <Grid container spacing={2}>
-                  {/* Noun (Required) */}
-                  <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      required
-                      label="Noun (Primary Item Name) *"
-                      placeholder="e.g. BLEACH, DETERGENT, PAPER"
-                      value={formData.noun}
-                      onChange={(e) => handleStructuredFieldChange('noun', e.target.value)}
-                      slotProps={{ htmlInput: { style: { textTransform: 'uppercase' } } }}
-                      helperText="Core item noun (Required)"
-                    />
-                  </Grid>
+      {/* Two-Column In-Page Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left 8 Columns: Structured Form Cards */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* Section 1: Standard Naming Specification Builder */}
+          <Card>
+            <CardHeader className="pb-4 border-b border-slate-100 bg-slate-50/50 rounded-t-xl">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 border border-blue-200/60">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <div>
+                  <CardTitle className="text-base">
+                    1. Standard Naming Specification Builder
+                  </CardTitle>
+                  <CardDescription>
+                    All inputs automatically convert to uppercase. Assembles into: [NOUN], [TYPE], [MATERIAL], [ATTRIBUTES], [SIZE]
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Noun */}
+              <div className="space-y-1.5">
+                <Label htmlFor="noun">
+                  Noun (Primary Item Name) <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="noun"
+                  required
+                  placeholder="e.g. BLEACH, DETERGENT, PAPER"
+                  value={formData.noun}
+                  onChange={(e) => handleStructuredFieldChange('noun', e.target.value)}
+                  className="uppercase font-medium"
+                />
+                <p className="text-[11px] text-slate-400">Core item noun (Required)</p>
+              </div>
 
-                  {/* Type */}
-                  <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="Type"
-                      placeholder="e.g. LIQUID, POWDER, BOND"
-                      value={formData.type}
-                      onChange={(e) => handleStructuredFieldChange('type', e.target.value)}
-                      slotProps={{ htmlInput: { style: { textTransform: 'uppercase' } } }}
-                      helperText="Sub-classification or form"
-                    />
-                  </Grid>
+              {/* Type */}
+              <div className="space-y-1.5">
+                <Label htmlFor="type">Type</Label>
+                <Input
+                  id="type"
+                  placeholder="e.g. LIQUID, POWDER, BOND"
+                  value={formData.type}
+                  onChange={(e) => handleStructuredFieldChange('type', e.target.value)}
+                  className="uppercase"
+                />
+                <p className="text-[11px] text-slate-400">Sub-classification or form</p>
+              </div>
 
-                  {/* Material / Composition */}
-                  <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="Material / Composition"
-                      placeholder="e.g. SODIUM HYPOCHLORITE 5.25%, NYLON"
-                      value={formData.material_composition}
-                      onChange={(e) => handleStructuredFieldChange('material_composition', e.target.value)}
-                      slotProps={{ htmlInput: { style: { textTransform: 'uppercase' } } }}
-                      helperText="Active ingredient or material"
-                    />
-                  </Grid>
+              {/* Material / Composition */}
+              <div className="space-y-1.5">
+                <Label htmlFor="material">Material / Composition</Label>
+                <Input
+                  id="material"
+                  placeholder="e.g. SODIUM HYPOCHLORITE 5.25%, NYLON"
+                  value={formData.material_composition}
+                  onChange={(e) =>
+                    handleStructuredFieldChange('material_composition', e.target.value)
+                  }
+                  className="uppercase"
+                />
+                <p className="text-[11px] text-slate-400">Active ingredient or material</p>
+              </div>
 
-                  {/* Key Attributes */}
-                  <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="Key Attributes"
-                      placeholder="e.g. MULTICOPY, 70 GSM, 0.5 MM"
-                      value={formData.key_attributes}
-                      onChange={(e) => handleStructuredFieldChange('key_attributes', e.target.value)}
-                      slotProps={{ htmlInput: { style: { textTransform: 'uppercase' } } }}
-                      helperText="Properties, color, mechanism"
-                    />
-                  </Grid>
+              {/* Key Attributes */}
+              <div className="space-y-1.5">
+                <Label htmlFor="attributes">Key Attributes</Label>
+                <Input
+                  id="attributes"
+                  placeholder="e.g. MULTICOPY, 70 GSM, 0.5 MM"
+                  value={formData.key_attributes}
+                  onChange={(e) => handleStructuredFieldChange('key_attributes', e.target.value)}
+                  className="uppercase"
+                />
+                <p className="text-[11px] text-slate-400">Properties, color, mechanism</p>
+              </div>
 
-                  {/* Size */}
-                  <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="Size"
-                      placeholder="e.g. A4, LONG, 6 X 9 IN, LARGE"
-                      value={formData.size}
-                      onChange={(e) => handleStructuredFieldChange('size', e.target.value)}
-                      slotProps={{ htmlInput: { style: { textTransform: 'uppercase' } } }}
-                      helperText="Physical dimensions or size"
-                    />
-                  </Grid>
+              {/* Size */}
+              <div className="space-y-1.5">
+                <Label htmlFor="size">Size</Label>
+                <Input
+                  id="size"
+                  placeholder="e.g. A4, LONG, 6 X 9 IN, LARGE"
+                  value={formData.size}
+                  onChange={(e) => handleStructuredFieldChange('size', e.target.value)}
+                  className="uppercase"
+                />
+                <p className="text-[11px] text-slate-400">Physical dimensions or size</p>
+              </div>
 
-                  {/* Unit of Measure (UOM) - Positioned with naming */}
-                  <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                    <TextField
-                      select
-                      fullWidth
-                      size="small"
-                      label="Unit of Measure (UOM) *"
-                      required
-                      value={formData.uom}
-                      onChange={(e) => setFormData({ ...formData, uom: e.target.value })}
-                      helperText="Standard hospital inventory unit"
-                    >
-                      {unitOptions.map((uom) => (
-                        <MenuItem key={uom} value={uom}>
-                          {uom}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                </Grid>
-
-                {/* Built Standard Name Live Display */}
-                <Box
-                  sx={{
-                    mt: 2.5,
-                    p: 2,
-                    borderRadius: 2,
-                    backgroundColor: '#ffffff',
-                    border: '2px solid #0f766e',
-                    boxShadow: '0 2px 8px rgba(15, 118, 110, 0.08)',
-                  }}
+              {/* Unit of Measure */}
+              <div className="space-y-1.5">
+                <Label>
+                  Unit of Measure (UOM) <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={formData.uom}
+                  onValueChange={(val) => setFormData({ ...formData, uom: val })}
                 >
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.8 }}>
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#0f766e', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      Standard Name (Built Counterpart):
-                    </Typography>
-                    <Chip
-                      size="small"
-                      label="Auto-Assembled Standard"
-                      sx={{ backgroundColor: '#f0fdfa', color: '#0f766e', fontWeight: 700, fontSize: '0.68rem', height: 20 }}
-                    />
-                  </Box>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select UOM" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {unitOptions.map((uom) => (
+                      <SelectItem key={uom} value={uom}>
+                        {uom}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-slate-400">Standard hospital inventory unit</p>
+              </div>
+            </CardContent>
+          </Card>
 
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      fontWeight: 800,
-                      color: formData.item_description ? '#0f172a' : '#94a3b8',
-                      fontFamily: 'monospace',
-                      fontSize: '1rem',
-                      lineHeight: 1.4,
-                    }}
-                  >
-                    {formData.item_description || 'Type Noun, Type, etc. above to see live built name...'}
-                  </Typography>
-
-                  {/* Real-time Uniform Naming Guidance Box */}
-                  {namingAudit && (
-                    <Box sx={{ mt: 1.5, pt: 1.5, borderTop: '1px dashed #cbd5e1' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                        <Stack direction="row" spacing={1} alignItems="center">
-                          {namingAudit.is_valid ? (
-                            <CheckCircleIcon sx={{ color: '#16a34a', fontSize: 18 }} />
-                          ) : (
-                            <WarningAmberIcon sx={{ color: '#d97706', fontSize: 18 }} />
-                          )}
-                          <Typography
-                            variant="caption"
-                            sx={{ fontWeight: 800, color: namingAudit.is_valid ? '#166534' : '#92400e' }}
-                          >
-                            Naming Compliance: {namingAudit.is_valid ? 'Standard Compliant' : 'Improvement Recommended'}
-                          </Typography>
-                        </Stack>
-                        <Chip
-                          size="small"
-                          label={`Score: ${namingAudit.score}%`}
-                          color={namingAudit.is_valid ? 'success' : 'warning'}
-                          sx={{ fontWeight: 800, height: 20, fontSize: '0.7rem' }}
-                        />
-                      </Box>
-
-                      {namingAudit.feedback?.length > 0 && (
-                        <Box component="ul" sx={{ m: 0, pl: 2, fontSize: '0.75rem', color: '#475569' }}>
-                          {namingAudit.feedback.map((tip, i) => (
-                            <li key={i}>{tip}</li>
-                          ))}
-                        </Box>
-                      )}
-                    </Box>
-                  )}
-                </Box>
-              </Paper>
-            </Grid>
-
-            {/* Technical Specifications PDF Upload Box */}
-            <Grid size={12}>
-              <Paper
-                variant="outlined"
-                sx={{
-                  p: 2,
-                  borderRadius: 2,
-                  backgroundColor: '#f0fdfa',
-                  borderColor: '#99f6e4',
-                  display: 'flex',
-                  flexDirection: { xs: 'column', sm: 'row' },
-                  alignItems: { xs: 'flex-start', sm: 'center' },
-                  justifyContent: 'space-between',
-                  gap: 2,
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <PictureAsPdfIcon sx={{ color: '#0f766e', fontSize: 32 }} />
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                      Technical Specification Document (PDF)
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#64748b' }}>
-                      Upload manufacturer brochure, technical datasheet, or standard specification PDF (Max 20MB).
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: { xs: '100%', sm: 'auto' } }}>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    accept=".pdf,application/pdf"
-                    style={{ display: 'none' }}
-                    onChange={handlePdfUpload}
-                  />
-
-                  {formData.tech_specs_pdf_path ? (
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <Chip
-                        icon={<PictureAsPdfIcon />}
-                        label={pdfFileName || 'Tech_Specs.pdf'}
-                        color="success"
-                        variant="outlined"
-                        component={pdfPreviewUrl ? 'a' : 'div'}
-                        href={pdfPreviewUrl || '#'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        clickable={Boolean(pdfPreviewUrl)}
-                        sx={{ fontWeight: 700 }}
-                      />
-                      <IconButton size="small" color="error" onClick={handleRemovePdf} title="Remove PDF">
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Stack>
-                  ) : (
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      startIcon={pdfUploading ? <CircularProgress size={16} /> : <CloudUploadIcon />}
-                      disabled={pdfUploading}
-                      onClick={() => fileInputRef.current?.click()}
-                      sx={{
-                        borderColor: '#0f766e',
-                        color: '#0f766e',
-                        fontWeight: 700,
-                        '&:hover': { borderColor: '#0d9488', backgroundColor: '#e6fffa' },
-                      }}
-                    >
-                      {pdfUploading ? 'Uploading PDF...' : 'Upload PDF Document'}
-                    </Button>
-                  )}
-                </Box>
-              </Paper>
-            </Grid>
-
-            {/* UNSPSC Commodity Category Selection */}
-            <Grid size={12}>
-              <Divider sx={{ my: 0.5 }} />
+          {/* Section 2: Taxonomy & Institutional Classification */}
+          <Card>
+            <CardHeader className="pb-4 border-b border-slate-100 bg-slate-50/50 rounded-t-xl">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 border border-blue-200/60">
+                  <Building2 className="h-4 w-4" />
+                </div>
+                <div>
+                  <CardTitle className="text-base">
+                    2. Taxonomy &amp; Institutional Classification
+                  </CardTitle>
+                  <CardDescription>
+                    Assign UNSPSC commodity hierarchy and ZCMC internal category to auto-generate the ERP item code
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-5 space-y-5">
               <CascadingCategorySelect
                 selectedKey={formData.category_key}
                 onSelectCategory={handleCategorySelect}
               />
-              <Divider sx={{ my: 0.5 }} />
-            </Grid>
 
-            {/* Institutional Internal Category */}
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <Autocomplete
-                options={internalCategories}
-                getOptionLabel={(option) => `${option.name} (${option.code})`}
-                value={selectedInternalCat}
-                onChange={(e, val) => handleInternalCategorySelect(val)}
-                loading={loadingInternalCats}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    size="small"
-                    required
-                    label="Internal Institutional Category *"
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+                {/* Internal Institutional Category */}
+                <div className="space-y-1.5">
+                  <Label>
+                    Internal Institutional Category <span className="text-red-500">*</span>
+                  </Label>
+                  <Combobox
+                    options={internalCategories}
+                    value={selectedInternalCat}
+                    onChange={handleInternalCategorySelect}
+                    getOptionLabel={(opt) => `${opt.name} (${opt.code})`}
+                    getOptionKey={(opt) => opt.id}
+                    isOptionEqual={(a, b) => a?.id === b?.id}
+                    loading={loadingInternalCats}
+                    icon={Building2}
                     placeholder="Select ZCMC Internal Category..."
-                    helperText="Institution classification for ZCMC procurement"
-                    slotProps={{
-                      ...params.slotProps,
-                      input: {
-                        ...(params.slotProps?.input || {}),
-                        startAdornment: (
-                          <>
-                            <InputAdornment position="start">
-                              <BusinessIcon fontSize="small" sx={{ color: '#0f766e' }} />
-                            </InputAdornment>
-                            {params.slotProps?.input?.startAdornment}
-                          </>
-                        ),
-                        endAdornment: (
-                          <>
-                            {loadingInternalCats ? <CircularProgress color="inherit" size={18} /> : null}
-                            {params.slotProps?.input?.endAdornment}
-                          </>
-                        ),
-                      },
-                    }}
+                    searchPlaceholder="Search ZCMC internal category..."
+                    renderOption={(opt) => (
+                      <div className="flex items-center justify-between gap-2 w-full">
+                        <span className="font-medium text-slate-900">{opt.name}</span>
+                        <Badge variant="blue" className="font-mono text-[10px]">
+                          {opt.code}
+                        </Badge>
+                      </div>
+                    )}
                   />
-                )}
-                renderOption={(props, option) => (
-                  <li {...props} key={option.id}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        {option.name}
-                      </Typography>
-                      <Chip
-                        size="small"
-                        label={option.code}
-                        sx={{
-                          ml: 1,
-                          fontSize: '0.68rem',
-                          height: 20,
-                          backgroundColor: '#f1f5f9',
-                          fontWeight: 700,
-                          color: '#0f766e',
-                        }}
-                      />
-                    </Box>
-                  </li>
-                )}
-              />
-            </Grid>
+                  <p className="text-[11px] text-slate-400">
+                    Institution classification for ZCMC procurement
+                  </p>
+                </div>
 
-            {/* ERP Item Code (Auto-generated & Locked) */}
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField
-                fullWidth
-                size="small"
-                label="ERP Item Code (System Generated)"
-                value={
-                  generatingErpCode
-                    ? 'Generating...'
-                    : formData.erp_item_code || 'Auto-generated upon Category & Internal Category selection'
-                }
-                helperText="Rule: [category_code]-[internal category code]-[seq starting at 01] (Read-only)"
-                slotProps={{
-                  input: {
-                    readOnly: true,
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockIcon fontSize="small" sx={{ color: '#0f766e' }} />
-                      </InputAdornment>
-                    ),
-                    sx: {
-                      backgroundColor: '#f8fafc',
-                      fontFamily: 'monospace',
-                      fontWeight: 700,
-                      color: formData.erp_item_code ? '#0f766e' : '#94a3b8',
-                    },
-                  },
-                }}
-              />
-            </Grid>
+                {/* Auto-generated ERP Item Code */}
+                <div className="space-y-1.5">
+                  <Label>ERP Item Code (System Generated)</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-2.5 h-4 w-4 text-blue-600" />
+                    <Input
+                      readOnly
+                      value={
+                        generatingErpCode
+                          ? 'Generating...'
+                          : formData.erp_item_code || 'Select UNSPSC & Internal Category'
+                      }
+                      className="pl-9 bg-slate-50 font-mono font-semibold text-blue-700"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    Format: [UNSPSC]-[Internal Code]-[Seq]
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* BizBox Item Code */}
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField
-                fullWidth
-                size="small"
-                required
-                label="BizBox Item Code *"
-                placeholder="e.g. BZ-MED-001"
-                value={formData.bizbox_item_code}
-                onChange={(e) => setFormData({ ...formData, bizbox_item_code: e.target.value })}
-                helperText="Required Bizbox hospital system item code"
-              />
-            </Grid>
+          {/* Section 3: Cross-System Reference Codes & Technical Documents */}
+          <Card>
+            <CardHeader className="pb-4 border-b border-slate-100 bg-slate-50/50 rounded-t-xl">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 border border-blue-200/60">
+                  <Hash className="h-4 w-4" />
+                </div>
+                <div>
+                  <CardTitle className="text-base">
+                    3. System Codes, Specifications &amp; Datasheet
+                  </CardTitle>
+                  <CardDescription>
+                    Cross-reference codes for BizBox and PhilGEPS, plus optional technical specifications
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-5 space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* BizBox Item Code */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="bizbox">
+                    BizBox Item Code <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="bizbox"
+                    required
+                    placeholder="e.g. BZ-MED-001"
+                    value={formData.bizbox_item_code}
+                    onChange={(e) =>
+                      setFormData({ ...formData, bizbox_item_code: e.target.value })
+                    }
+                    className="font-mono"
+                  />
+                  <p className="text-[11px] text-slate-400">
+                    Required BizBox hospital system item code
+                  </p>
+                </div>
 
-            {/* PhilGEPS Code */}
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField
-                fullWidth
-                size="small"
-                required
-                label="PhilGEPS Code *"
-                placeholder="e.g. 14111507-PP-M01"
-                value={formData.philgeps_code}
-                onChange={(e) => setFormData({ ...formData, philgeps_code: e.target.value })}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Tooltip title="Open PS-PhilGEPS Common-Use Items Directory in new tab">
-                          <IconButton
-                            size="small"
-                            component="a"
-                            href="https://ps-philgeps.gov.ph/home/index.php/what-we-sell/common-use-items"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            sx={{ color: '#0f766e' }}
-                          >
-                            <OpenInNewIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-                helperText={
-                  <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.3 }}>
-                    <span>Find code in:</span>
-                    <Link
+                {/* PhilGEPS Code */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="philgeps">
+                      PhilGEPS Code <span className="text-red-500">*</span>
+                    </Label>
+                    <a
                       href="https://ps-philgeps.gov.ph/home/index.php/what-we-sell/common-use-items"
                       target="_blank"
                       rel="noopener noreferrer"
-                      sx={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        fontWeight: 700,
-                        color: '#0f766e',
-                        textDecoration: 'underline',
-                        '&:hover': { color: '#0d9488' },
-                      }}
+                      className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:underline"
                     >
-                      PS-PhilGEPS Common-Use Items ↗
-                    </Link>
-                  </Box>
-                }
-              />
-            </Grid>
-
-
-
-            {/* End User Password Authorization Section */}
-            {isEdit && !isAdmin && (
-              <Grid size={12}>
-                <Paper
-                  variant="outlined"
-                  sx={{
-                    p: 2,
-                    borderRadius: 2,
-                    backgroundColor: '#fffbeb',
-                    borderColor: '#fde68a',
-                  }}
-                >
-                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
-                    <LockIcon sx={{ color: '#d97706', fontSize: 20 }} />
-                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#92400e' }}>
-                      Security Verification Required
-                    </Typography>
-                  </Stack>
-                  <Typography variant="caption" sx={{ color: '#78350f', display: 'block', mb: 1.5 }}>
-                    As an institutional end user, please enter your account password to authorize modifications to this catalogue product.
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    type={showPassword ? 'text' : 'password'}
+                      <span>PS-PhilGEPS Directory</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                  <Input
+                    id="philgeps"
                     required
-                    label="Confirm Account Password to Save *"
-                    placeholder="Enter your current login password"
-                    value={confirmPassword}
-                    onChange={(e) => {
-                      setConfirmPassword(e.target.value);
-                      setPasswordError('');
-                    }}
-                    error={Boolean(passwordError)}
-                    helperText={passwordError || 'Your password will be verified by the server before committing changes.'}
-                    slotProps={{
-                      input: {
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton size="small" onClick={() => setShowPassword(!showPassword)}>
-                              {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      },
+                    placeholder="e.g. 14111507-PP-M01"
+                    value={formData.philgeps_code}
+                    onChange={(e) =>
+                      setFormData({ ...formData, philgeps_code: e.target.value })
+                    }
+                    className="font-mono"
+                  />
+                  <p className="text-[11px] text-slate-400">
+                    Official PhilGEPS common-use or item reference code
+                  </p>
+                </div>
+              </div>
+
+              {/* PDF Technical Specification Upload */}
+              <div className="rounded-xl border border-blue-200/80 bg-blue-50/40 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white">
+                    <FileText className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-900">
+                      Technical Specification Document (PDF)
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Upload manufacturer brochure, technical datasheet, or standard specification PDF (Max 20MB).
+                    </p>
+                  </div>
+                </div>
+
+                <div className="shrink-0">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept=".pdf,application/pdf"
+                    className="hidden"
+                    onChange={handlePdfUpload}
+                  />
+                  {formData.tech_specs_pdf_path ? (
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={pdfPreviewUrl || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
+                      >
+                        <FileText className="h-3.5 w-3.5" />
+                        <span className="max-w-[180px] truncate">
+                          {pdfFileName || 'Tech_Specs.pdf'}
+                        </span>
+                      </a>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleRemovePdf}
+                        className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                        title="Remove PDF"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="blueOutline"
+                      size="sm"
+                      disabled={pdfUploading}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      {pdfUploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Upload className="h-4 w-4" />
+                      )}
+                      <span>{pdfUploading ? 'Uploading PDF...' : 'Upload PDF Document'}</span>
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Optional Specifications Tag Builder */}
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <Label>Other Specifications (Optional tags)</Label>
+                <p className="text-xs text-slate-500">
+                  Add supplementary specifications or certifications (e.g. Sterile, Heavy Duty, ISO Certified).
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Type an optional specification and press Enter or Add..."
+                    value={newSpecInput}
+                    onChange={(e) => setNewSpecInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddSpec();
+                      }
                     }}
                   />
-                </Paper>
-              </Grid>
-            )}
+                  <Button type="button" variant="outline" onClick={handleAddSpec}>
+                    <Plus className="h-4 w-4" />
+                    <span>Add Spec</span>
+                  </Button>
+                </div>
 
-            {/* Other Specifications (other_specs - Optional) */}
-            <Grid size={12}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f172a', mb: 0.5 }}>
-                Other Specifications (Optional, separated by semicolon ;)
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mb: 1 }}>
-                Optional tags or notes (e.g. Sterile, Heavy Duty, CE Certified).
-              </Typography>
-              <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  placeholder="Type an optional specification and press Add..."
-                  value={newSpecInput}
-                  onChange={(e) => setNewSpecInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddSpec();
-                    }
-                  }}
-                />
-                <Button
-                  variant="outlined"
-                  onClick={handleAddSpec}
-                  startIcon={<AddCircleIcon />}
-                  sx={{ whiteSpace: 'nowrap' }}
-                >
-                  Add Spec
-                </Button>
-              </Stack>
+                {specTags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-2">
+                    {specTags.map((spec, idx) => (
+                      <Badge key={idx} variant="secondary" className="gap-1.5 pr-1 py-1">
+                        <span>{spec}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSpec(idx)}
+                          className="rounded-full p-0.5 hover:bg-slate-200 cursor-pointer"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
-              {specTags.length > 0 && (
-                <Stack direction="row" spacing={0.8} flexWrap="wrap" sx={{ gap: 0.8 }}>
-                  {specTags.map((spec, idx) => (
-                    <Chip
-                      key={idx}
-                      label={spec}
-                      size="small"
-                      onDelete={() => handleRemoveSpec(idx)}
-                      sx={{ backgroundColor: '#e2e8f0', color: '#334155' }}
+          {/* Non-Admin Password Confirmation Card (when editing) */}
+          {isEdit && !isAdmin && (
+            <Card className="border-amber-300 bg-amber-50/50">
+              <CardContent className="p-5 space-y-3">
+                <div className="flex items-center gap-2 text-amber-900">
+                  <Lock className="h-4 w-4 text-amber-600" />
+                  <h4 className="text-sm font-bold">Security Verification Required</h4>
+                </div>
+                <p className="text-xs text-amber-800">
+                  As an institutional end user, please enter your account password to authorize modifications to this catalogue product.
+                </p>
+                <div className="space-y-1.5 max-w-md">
+                  <Label htmlFor="confirmEditPassword" className="text-amber-900">
+                    Confirm Account Password to Save *
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="confirmEditPassword"
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      placeholder="Enter your current login password"
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        setPasswordError('');
+                      }}
+                      className="bg-white pr-9"
                     />
-                  ))}
-                </Stack>
-              )}
-            </Grid>
-          </Grid>
-        </DialogContent>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {passwordError && (
+                    <p className="text-xs font-semibold text-red-600">{passwordError}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
-        <DialogActions sx={{ px: 3, py: 2, backgroundColor: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
-          <Button onClick={onClose} disabled={saving} color="inherit">
-            Cancel
-          </Button>
-          <Button type="submit" variant="contained" disabled={saving}>
-            {saving ? 'Saving...' : isEdit ? 'Update Product' : 'Add to Catalogue'}
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
+        {/* Right 4 Columns: Sticky Live Preview & Compliance Sidebar */}
+        <div className="lg:col-span-4 lg:sticky lg:top-20 space-y-4">
+          <Card className="border-blue-200 shadow-sm overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-3.5 text-white flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider">
+                Live Standard Name Preview
+              </span>
+              <Badge className="bg-white/20 text-white border-white/20 text-[10px]">
+                Auto-Assembled
+              </Badge>
+            </div>
+            <CardContent className="p-5 space-y-4">
+              <div className="rounded-lg border-2 border-blue-600/80 bg-slate-50 p-3.5 min-h-[72px] flex items-center">
+                <p
+                  className={`font-mono text-sm font-bold leading-relaxed break-words ${
+                    formData.item_description ? 'text-slate-900' : 'text-slate-400 font-normal'
+                  }`}
+                >
+                  {formData.item_description ||
+                    'Type Noun, Type, Material, etc. to preview assembled SSOT description...'}
+                </p>
+              </div>
+
+              {/* Live Compliance Audit */}
+              {namingAudit && (
+                <div
+                  className={`rounded-lg border p-3.5 space-y-2 ${
+                    namingAudit.is_valid
+                      ? 'border-emerald-200 bg-emerald-50/70'
+                      : 'border-amber-200 bg-amber-50/70'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5">
+                      {namingAudit.is_valid ? (
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                      ) : (
+                        <AlertTriangle className="h-4 w-4 text-amber-600" />
+                      )}
+                      <span
+                        className={`text-xs font-bold ${
+                          namingAudit.is_valid ? 'text-emerald-900' : 'text-amber-900'
+                        }`}
+                      >
+                        {namingAudit.is_valid ? 'Standard Compliant' : 'Improvement Recommended'}
+                      </span>
+                    </div>
+                    <Badge variant={namingAudit.is_valid ? 'success' : 'warning'}>
+                      Score: {namingAudit.score}%
+                    </Badge>
+                  </div>
+
+                  {namingAudit.feedback?.length > 0 && (
+                    <ul className="list-disc pl-4 space-y-1 text-xs text-slate-600">
+                      {namingAudit.feedback.map((tip, i) => (
+                        <li key={i}>{tip}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+
+              {/* Summary Metadata */}
+              <div className="space-y-2 pt-2 border-t border-slate-100 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">ERP Item Code:</span>
+                  <span className="font-mono font-bold text-blue-600">
+                    {generatingErpCode
+                      ? 'Generating...'
+                      : formData.erp_item_code || 'Pending classification'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Unit of Measure:</span>
+                  <Badge variant="outline" className="font-mono uppercase text-[10px]">
+                    {formData.uom}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">UNSPSC Code:</span>
+                  <span className="font-mono font-medium text-slate-800">
+                    {formData.unspsc_code || '—'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Internal Category:</span>
+                  <span className="font-medium text-slate-800">
+                    {selectedInternalCat ? selectedInternalCat.code : '—'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">BizBox Code:</span>
+                  <span className="font-mono text-slate-800">
+                    {formData.bizbox_item_code || '—'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">PhilGEPS Code:</span>
+                  <span className="font-mono text-slate-800">
+                    {formData.philgeps_code || '—'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
+                <Button type="submit" className="w-full" disabled={saving}>
+                  {saving ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
+                  <span>{saving ? 'Saving...' : isEdit ? 'Update Product' : 'Save to Catalogue'}</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={onClose}
+                  disabled={saving}
+                >
+                  Cancel &amp; Return
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </form>
   );
 }

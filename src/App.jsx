@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  ThemeProvider,
-  CssBaseline,
-  Box,
-  Snackbar,
-  Alert,
-  Typography,
-} from '@mui/material';
-import { theme } from './theme';
+import { Toaster, toast } from 'sonner';
 import Header from './components/Header';
 import ProductsView from './components/ProductsView';
 import ProductModal from './components/ProductModal';
@@ -38,16 +30,24 @@ export default function App() {
     sort_order: 'desc',
   });
 
-  // Modals & drawers
-  const [productModal, setProductModal] = useState({ open: false, product: null });
+  // In-page Product Form state (Add / Edit Product as an in-page view instead of a modal)
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [returnTab, setReturnTab] = useState('products');
+
+  // Drawers & Import Modal
   const [detailDrawer, setDetailDrawer] = useState({ open: false, product: null });
   const [importModalOpen, setImportModalOpen] = useState(false);
 
-  // Notifications
-  const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
-
   const notify = (message, severity = 'success') => {
-    setNotification({ open: true, message, severity });
+    if (severity === 'error') {
+      toast.error(message);
+    } else if (severity === 'warning') {
+      toast.warning(message);
+    } else if (severity === 'info') {
+      toast.info(message);
+    } else {
+      toast.success(message);
+    }
   };
 
   // Load stats
@@ -84,8 +84,10 @@ export default function App() {
   }, [filters, pagination.perPage]);
 
   useEffect(() => {
-    fetchStats();
-    fetchProducts(1, filters);
+    if (currentUser) {
+      fetchStats();
+      fetchProducts(1, filters);
+    }
   }, []);
 
   // Filter change handler
@@ -117,6 +119,28 @@ export default function App() {
     fetchProducts(1, filters, newPerPage);
   };
 
+  // Navigate to in-page Add / Edit Product view
+  const handleOpenNewProduct = () => {
+    if (currentTab !== 'product-form') {
+      setReturnTab(currentTab);
+    }
+    setEditingProduct(null);
+    setCurrentTab('product-form');
+  };
+
+  const handleOpenEditProduct = (product) => {
+    if (currentTab !== 'product-form') {
+      setReturnTab(currentTab);
+    }
+    setEditingProduct(product);
+    setCurrentTab('product-form');
+  };
+
+  const handleCloseProductForm = () => {
+    setEditingProduct(null);
+    setCurrentTab(returnTab || 'products');
+  };
+
   // Product CRUD handlers
   const handleSaveProduct = async (payload, id) => {
     if (id) {
@@ -128,6 +152,8 @@ export default function App() {
     }
     fetchProducts(pagination.currentPage, filters);
     fetchStats();
+    setEditingProduct(null);
+    setCurrentTab('products');
   };
 
   const handleDeleteProduct = async (id) => {
@@ -147,23 +173,29 @@ export default function App() {
   };
 
   const handleSendToProductModal = (uniformDescription) => {
-    setProductModal({
-      open: true,
-      product: {
-        item_description: uniformDescription,
-      },
+    const parts = (uniformDescription || '').split(',').map((s) => s.trim());
+    setReturnTab('naming');
+    setEditingProduct({
+      noun: parts[0] || '',
+      type: parts[1] || '',
+      material_composition: parts[2] || '',
+      key_attributes: parts[3] || '',
+      size: parts[4] || '',
+      item_description: uniformDescription,
     });
+    setCurrentTab('product-form');
   };
 
   const handleExport = async () => {
     try {
       if (api.downloadExportCsv) {
         await api.downloadExportCsv(filters);
+        notify('Exported catalogue CSV successfully.');
       } else {
         window.location.href = api.getExportUrl(filters);
       }
     } catch (err) {
-      alert(err.message || 'Failed to export CSV');
+      notify(err.message || 'Failed to export CSV', 'error');
     }
   };
 
@@ -181,7 +213,7 @@ export default function App() {
 
   const handleAuthSuccess = (user) => {
     setCurrentUser(user);
-    notify(`Welcome back, ${user.email}!`);
+    notify(`Welcome back, ${user.first_name || user.email}!`);
     fetchStats();
     fetchProducts(1, filters);
   };
@@ -198,135 +230,115 @@ export default function App() {
 
   if (!currentUser) {
     return (
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
+      <>
         <AuthView onAuthSuccess={handleAuthSuccess} />
-        <Snackbar
-          open={notification.open}
-          autoHideDuration={4000}
-          onClose={() => setNotification((prev) => ({ ...prev, open: false }))}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        >
-          <Alert
-            severity={notification.severity}
-            onClose={() => setNotification((prev) => ({ ...prev, open: false }))}
-            sx={{ width: '100%', fontWeight: 600, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-          >
-            {notification.message}
-          </Alert>
-        </Snackbar>
-      </ThemeProvider>
+        <Toaster richColors position="bottom-right" />
+      </>
     );
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box sx={{ minHeight: '100vh', width: '100%', backgroundColor: '#f8fafc', display: 'flex', flexDirection: 'column' }}>
-        <Header
-          currentTab={currentTab}
-          onTabChange={setCurrentTab}
-          onOpenNewProduct={() => setProductModal({ open: true, product: null })}
-          onOpenImport={() => setImportModalOpen(true)}
-          onExport={handleExport}
-          stats={stats}
-          currentUser={currentUser}
-          onLogout={handleLogout}
-        />
+    <div className="min-h-screen w-full bg-slate-50/80 flex flex-col text-slate-900">
+      <Header
+        currentTab={currentTab}
+        onTabChange={setCurrentTab}
+        onOpenNewProduct={handleOpenNewProduct}
+        onOpenImport={() => setImportModalOpen(true)}
+        onExport={handleExport}
+        stats={stats}
+        currentUser={currentUser}
+        onLogout={handleLogout}
+      />
 
-        {/* Full-width content wrapper consuming the entire page */}
-        <Box sx={{ flex: 1, width: '100%', px: { xs: 2, sm: 2.5, md: 3 }, py: 2 }}>
-          {currentTab === 'products' && (
-            <ProductsView
-              products={products}
-              currentUser={currentUser}
-              loading={loadingProducts}
-              pagination={pagination}
-              filters={filters}
-              onFilterChange={handleFilterChange}
-              onResetFilters={handleResetFilters}
-              onPageChange={handlePageChange}
-              onRowsPerPageChange={handleRowsPerPageChange}
-              onViewProduct={(p) => setDetailDrawer({ open: true, product: p })}
-              onEditProduct={(p) => setProductModal({ open: true, product: p })}
-              onDeleteProduct={handleDeleteProduct}
-              onOpenNewProduct={() => setProductModal({ open: true, product: null })}
-            />
-          )}
+      {/* Main Content Container */}
+      <main className="flex-1 w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-5">
+        {currentTab === 'products' && (
+          <ProductsView
+            products={products}
+            currentUser={currentUser}
+            loading={loadingProducts}
+            pagination={pagination}
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onResetFilters={handleResetFilters}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
+            onViewProduct={(p) => setDetailDrawer({ open: true, product: p })}
+            onEditProduct={handleOpenEditProduct}
+            onDeleteProduct={handleDeleteProduct}
+            onOpenNewProduct={handleOpenNewProduct}
+          />
+        )}
 
-          {currentTab === 'categories' && (
-            <CategoryExplorerView
-              onFilterProductsByCategory={handleFilterByCategory}
-            />
-          )}
+        {currentTab === 'product-form' && (
+          <ProductModal
+            open={true}
+            asPage={true}
+            onClose={handleCloseProductForm}
+            onSave={handleSaveProduct}
+            product={editingProduct}
+            currentUser={currentUser}
+          />
+        )}
 
-          {currentTab === 'naming' && (
-            <UniformNamingTool
-              onSendToProductModal={handleSendToProductModal}
-            />
-          )}
+        {currentTab === 'categories' && (
+          <CategoryExplorerView
+            onFilterProductsByCategory={handleFilterByCategory}
+          />
+        )}
 
-          {currentTab === 'dashboard' && (
-            <DashboardView
-              stats={stats}
-              onNavigateToProducts={() => setCurrentTab('products')}
-            />
-          )}
+        {currentTab === 'naming' && (
+          <UniformNamingTool
+            onSendToProductModal={handleSendToProductModal}
+          />
+        )}
 
-          {currentTab === 'logs' && (
-            <ActivityLogsView />
-          )}
-        </Box>
+        {currentTab === 'dashboard' && (
+          <DashboardView
+            stats={stats}
+            onNavigateToProducts={() => setCurrentTab('products')}
+          />
+        )}
 
-        {/* Clean Slim Footer */}
-        <Box sx={{ py: 1.5, px: 3, borderTop: '1px solid #e2e8f0', backgroundColor: '#ffffff', textAlign: 'center', mt: 'auto', width: '100%' }}>
-          <Typography variant="caption" sx={{ color: '#64748b' }}>
-            Zamboanga City Medical Center (ZCMC) • Procurement Management Unit • Uniform Naming Standards
-          </Typography>
-        </Box>
+        {currentTab === 'logs' && (
+          <ActivityLogsView />
+        )}
+      </main>
 
-        {/* Modals and Drawers */}
-        <ProductModal
-          open={productModal.open}
-          onClose={() => setProductModal({ open: false, product: null })}
-          onSave={handleSaveProduct}
-          product={productModal.product}
-          currentUser={currentUser}
-        />
+      {/* Enterprise Footer */}
+      <footer className="mt-auto border-t border-slate-200/80 bg-white py-3 px-6">
+        <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+          <div className="flex items-center gap-2">
+            <span className="inline-block h-2 w-2 rounded-full bg-blue-600" />
+            <span className="font-medium text-slate-700">Zamboanga City Medical Center (ZCMC)</span>
+            <span>•</span>
+            <span>Single Source of Truth (SSOT) Product Catalogue Library</span>
+          </div>
+          <div className="text-slate-400">
+            Procurement Management Unit • Uniform Naming &amp; UNSPSC Standards
+          </div>
+        </div>
+      </footer>
 
-        <ProductDetailDrawer
-          open={detailDrawer.open}
-          onClose={() => setDetailDrawer({ open: false, product: null })}
-          product={detailDrawer.product}
-          onEdit={(p) => setProductModal({ open: true, product: p })}
-        />
+      {/* Product Detail Slide-Over Sheet & Import CSV Dialog */}
+      <ProductDetailDrawer
+        open={detailDrawer.open}
+        onClose={() => setDetailDrawer({ open: false, product: null })}
+        product={detailDrawer.product}
+        onEdit={handleOpenEditProduct}
+      />
 
-        <ImportExportModal
-          open={importModalOpen}
-          onClose={() => setImportModalOpen(false)}
-          onImportSuccess={() => {
-            fetchProducts(1, filters);
-            fetchStats();
-            notify('Import completed successfully.');
-          }}
-        />
+      <ImportExportModal
+        open={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        onImportSuccess={() => {
+          fetchProducts(1, filters);
+          fetchStats();
+          notify('Import completed successfully.');
+        }}
+      />
 
-        {/* Toast notifications */}
-        <Snackbar
-          open={notification.open}
-          autoHideDuration={4000}
-          onClose={() => setNotification((prev) => ({ ...prev, open: false }))}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        >
-          <Alert
-            severity={notification.severity}
-            onClose={() => setNotification((prev) => ({ ...prev, open: false }))}
-            sx={{ width: '100%', fontWeight: 600, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-          >
-            {notification.message}
-          </Alert>
-        </Snackbar>
-      </Box>
-    </ThemeProvider>
+      <Toaster richColors position="bottom-right" />
+    </div>
   );
 }

@@ -1,25 +1,37 @@
 import React from 'react';
 import {
-  AppBar,
-  Toolbar,
-  Box,
-  Tabs,
-  Tab,
-  Button,
-  Chip,
-  Stack,
-  IconButton,
-  Tooltip,
-} from '@mui/material';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import LogoutIcon from '@mui/icons-material/Logout';
-import Inventory2Icon from '@mui/icons-material/Inventory2';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import AddIcon from '@mui/icons-material/Add';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
-import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
-import HistoryIcon from '@mui/icons-material/History';
+  Package,
+  LayoutDashboard,
+  History,
+  FolderTree,
+  Sparkles,
+  Plus,
+  Download,
+  Upload,
+  LogOut,
+  ShieldCheck,
+  User,
+  Building2,
+} from 'lucide-react';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
+import { cn } from '../lib/utils';
+
+const NAV_ITEMS = [
+  { id: 'products', label: 'Product Catalogue', icon: Package },
+  { id: 'categories', label: 'UNSPSC Explorer', icon: FolderTree },
+  { id: 'naming', label: 'Uniform Naming', icon: Sparkles },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'logs', label: 'Activity Logs', icon: History },
+];
 
 export default function Header({
   currentTab,
@@ -31,174 +43,200 @@ export default function Header({
   currentUser = null,
   onLogout = () => {},
 }) {
+  const displayName = currentUser?.first_name
+    ? `${currentUser.first_name} ${currentUser.last_name || ''}`.trim()
+    : currentUser?.name || currentUser?.email || 'User';
+
+  const initials = displayName
+    .split(' ')
+    .map((part) => part[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
   return (
-    <AppBar
-      position="sticky"
-      elevation={0}
-      sx={{
-        backgroundColor: '#ffffff',
-        borderBottom: '1px solid #e2e8f0',
-        zIndex: 1100,
-        width: '100%',
-      }}
-    >
-      <Box sx={{ width: '100%', px: { xs: 2, sm: 3, md: 3 } }}>
-        <Toolbar
-          disableGutters
-          sx={{
-            minHeight: { xs: 54, md: 58 },
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: { xs: 'wrap', lg: 'nowrap' },
-            gap: 2,
-            py: 0.5,
-          }}
-        >
-          {/* Brand Logo & Tag */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-            <Box
-              sx={{
-                width: 34,
-                height: 34,
-                borderRadius: 1.8,
-                background: 'linear-gradient(135deg, #0f766e 0%, #0d9488 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#ffffff',
-                boxShadow: '0 2px 8px rgba(15, 118, 110, 0.25)',
-              }}
+    <header className="sticky top-0 z-40 w-full border-b border-slate-200/90 bg-white/95 backdrop-blur-md">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between gap-4">
+          {/* Left: Brand Identity & Navigation */}
+          <div className="flex items-center gap-6 min-w-0">
+            <div
+              onClick={() => onTabChange('products')}
+              className="flex items-center gap-2.5 cursor-pointer group shrink-0"
             >
-              <LocalHospitalIcon sx={{ fontSize: 20 }} />
-            </Box>
-            <Chip
-              label="ZCMC"
-              size="small"
-              sx={{
-                backgroundColor: '#0f766e',
-                color: '#ffffff',
-                fontWeight: 800,
-                letterSpacing: '0.06em',
-                fontSize: '0.75rem',
-                height: 24,
-              }}
-            />
-          </Box>
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-sm shadow-blue-600/20 group-hover:from-blue-700 group-hover:to-blue-800 transition-all">
+                <Building2 className="h-5 w-5" />
+              </div>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-sm tracking-tight text-slate-900">
+                    ZCMC SSOT
+                  </span>
+                  <Badge variant="blue" className="px-1.5 py-0 text-[10px] font-semibold">
+                    REGISTRY
+                  </Badge>
+                </div>
+                <span className="text-[11px] text-slate-500 leading-none">
+                  Product Catalogue Library
+                </span>
+              </div>
+            </div>
 
-          {/* Navigation Tabs */}
-          <Tabs
-            value={currentTab}
-            onChange={(e, val) => onTabChange(val)}
-            textColor="primary"
-            indicatorColor="primary"
-            sx={{
-              minHeight: 46,
-              '& .MuiTab-root': {
-                minHeight: 46,
-                fontWeight: 600,
-                fontSize: '0.85rem',
-                textTransform: 'none',
-                gap: 0.8,
-                px: 2,
-              },
-            }}
-          >
-            <Tab icon={<Inventory2Icon fontSize="small" />} iconPosition="start" label="Product Catalogue" value="products" />
-            <Tab icon={<DashboardIcon fontSize="small" />} iconPosition="start" label="Dashboard" value="dashboard" />
-            <Tab icon={<HistoryIcon fontSize="small" />} iconPosition="start" label="Activity Logs" value="logs" />
-          </Tabs>
+            {/* Desktop Navigation Pills */}
+            <nav className="hidden lg:flex items-center gap-1 rounded-lg bg-slate-100/80 p-1 border border-slate-200/60">
+              {NAV_ITEMS.map((item) => {
+                const Icon = item.icon;
+                const active = currentTab === item.id || (item.id === 'products' && currentTab === 'product-form');
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => onTabChange(item.id)}
+                    className={cn(
+                      'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all cursor-pointer whitespace-nowrap',
+                      active
+                        ? 'bg-white text-blue-600 shadow-2xs font-semibold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                    )}
+                  >
+                    <Icon className={cn('h-3.5 w-3.5', active ? 'text-blue-600' : 'text-slate-500')} />
+                    {item.label}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
 
-          {/* Right Section: Stats & Action Buttons */}
-          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* Right: Live Telemetry Pills, Quick Actions & User Profile */}
+          <div className="flex items-center gap-2 shrink-0">
             {stats && (
-              <Stack direction="row" spacing={1} sx={{ alignItems: 'center', display: { xs: 'none', xl: 'flex' } }}>
-                <Chip
-                  size="small"
-                  label={`Items: ${stats.total_products || 0}`}
-                  variant="outlined"
-                  sx={{ borderColor: '#cbd5e1', fontWeight: 600, fontSize: '0.75rem', height: 24 }}
-                />
-                <Chip
-                  size="small"
-                  label={`UNSPSC: ${stats.total_categories?.toLocaleString() || '158,519'}`}
-                  variant="outlined"
-                  sx={{ borderColor: '#cbd5e1', fontWeight: 600, fontSize: '0.75rem', height: 24 }}
-                />
-                <Chip
-                  size="small"
-                  label={`Naming: ${stats.compliance_rate || 100}%`}
-                  color={stats.compliance_rate >= 80 ? 'success' : 'warning'}
-                  sx={{ fontWeight: 700, fontSize: '0.75rem', height: 24 }}
-                />
-              </Stack>
+              <div className="hidden 2xl:flex items-center gap-1.5 mr-2 pr-2 border-r border-slate-200">
+                <Badge variant="outline" className="font-mono text-[11px] py-0.5 px-2 bg-slate-50">
+                  Items: <strong className="ml-1 text-slate-900">{stats.total_products || 0}</strong>
+                </Badge>
+                <Badge variant="outline" className="font-mono text-[11px] py-0.5 px-2 bg-slate-50">
+                  UNSPSC: <strong className="ml-1 text-slate-900">{stats.total_categories?.toLocaleString() || '158,519'}</strong>
+                </Badge>
+                <Badge
+                  variant={(stats.compliance_rate ?? 100) >= 80 ? 'success' : 'warning'}
+                  className="text-[11px] py-0.5 px-2"
+                >
+                  Naming: {stats.compliance_rate ?? 100}%
+                </Badge>
+              </div>
             )}
 
             <Button
-              variant="outlined"
-              size="small"
-              startIcon={<FileDownloadIcon />}
+              variant="outline"
+              size="sm"
               onClick={onExport}
-              sx={{ borderColor: '#cbd5e1', color: '#334155', '&:hover': { borderColor: '#94a3b8', backgroundColor: '#f8fafc' }, textTransform: 'none', fontWeight: 600 }}
+              className="hidden sm:inline-flex"
             >
-              Export CSV
-            </Button>
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<FileUploadIcon />}
-              onClick={onOpenImport}
-              sx={{ borderColor: '#cbd5e1', color: '#334155', '&:hover': { borderColor: '#94a3b8', backgroundColor: '#f8fafc' }, textTransform: 'none', fontWeight: 600 }}
-            >
-              Import CSV
-            </Button>
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={<AddIcon />}
-              onClick={onOpenNewProduct}
-              sx={{ px: 2, textTransform: 'none', fontWeight: 700 }}
-            >
-              Add Product
+              <Download className="h-3.5 w-3.5 text-slate-500" />
+              <span>Export CSV</span>
             </Button>
 
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onOpenImport}
+              className="hidden sm:inline-flex"
+            >
+              <Upload className="h-3.5 w-3.5 text-slate-500" />
+              <span>Import CSV</span>
+            </Button>
+
+            <Button size="sm" onClick={onOpenNewProduct} className="shadow-xs">
+              <Plus className="h-4 w-4" />
+              <span>Add Product</span>
+            </Button>
+
+            {/* User Profile Dropdown */}
             {currentUser && (
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ pl: 0.5 }}>
-                <Chip
-                  icon={<AccountCircleIcon fontSize="small" />}
-                  label={currentUser.first_name ? `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() : (currentUser.name || currentUser.email)}
-                  variant="outlined"
-                  size="small"
-                  sx={{
-                    fontWeight: 700,
-                    borderColor: '#99f6e4',
-                    backgroundColor: '#f0fdfa',
-                    color: '#0f766e',
-                    height: 28,
-                  }}
-                />
-                <Chip
-                  label={currentUser.is_admin ? 'Administrator' : 'End User'}
-                  size="small"
-                  sx={{
-                    fontWeight: 800,
-                    fontSize: '0.68rem',
-                    height: 22,
-                    backgroundColor: currentUser.is_admin ? '#0f766e' : '#f1f5f9',
-                    color: currentUser.is_admin ? '#ffffff' : '#475569',
-                    border: currentUser.is_admin ? 'none' : '1px solid #cbd5e1',
-                  }}
-                />
-                <Tooltip title="Sign Out">
-                  <IconButton size="small" onClick={onLogout} sx={{ color: '#64748b', '&:hover': { color: '#dc2626' } }}>
-                    <LogoutIcon fontSize="small" />
-                    Log out
-                  </IconButton>
-                </Tooltip>
-              </Stack>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="ml-1 flex items-center gap-2 rounded-lg border border-slate-200 bg-white pl-1.5 pr-2.5 py-1 text-left hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600/20 cursor-pointer"
+                  >
+                    <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-50 text-blue-700 font-semibold text-xs border border-blue-200/80">
+                      {initials || <User className="h-3.5 w-3.5" />}
+                    </div>
+                    <div className="hidden md:flex flex-col">
+                      <span className="text-xs font-semibold text-slate-800 leading-none truncate max-w-[130px]">
+                        {displayName}
+                      </span>
+                      <span className="text-[10px] text-slate-500 leading-tight mt-0.5">
+                        {currentUser.is_admin ? 'Administrator' : 'End User'}
+                      </span>
+                    </div>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-semibold text-slate-900 leading-none">
+                        {displayName}
+                      </p>
+                      <p className="text-xs text-slate-500 truncate">
+                        {currentUser.email}
+                      </p>
+                      <div className="pt-1">
+                        <Badge variant={currentUser.is_admin ? 'blue' : 'secondary'} className="text-[10px]">
+                          <ShieldCheck className="h-3 w-3 mr-1" />
+                          {currentUser.is_admin ? 'System Administrator' : 'Institutional End User'}
+                        </Badge>
+                      </div>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="sm:hidden" />
+                  <DropdownMenuItem onClick={onExport} className="sm:hidden">
+                    <Download className="h-4 w-4 text-slate-500" />
+                    <span>Export Catalogue CSV</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onOpenImport} className="sm:hidden">
+                    <Upload className="h-4 w-4 text-slate-500" />
+                    <span>Import Catalogue CSV</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={onLogout}
+                    className="text-red-600 focus:bg-red-50 focus:text-red-700"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Sign Out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
-          </Stack>
-        </Toolbar>
-      </Box>
-    </AppBar>
+          </div>
+        </div>
+
+        {/* Mobile / Tablet Navigation Bar */}
+        <div className="flex lg:hidden items-center gap-1 overflow-x-auto py-2 border-t border-slate-100 no-scrollbar">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const active = currentTab === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => onTabChange(item.id)}
+                className={cn(
+                  'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer',
+                  active
+                    ? 'bg-blue-50 text-blue-600 font-semibold border border-blue-200/70'
+                    : 'text-slate-600 hover:bg-slate-100'
+                )}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </header>
   );
 }

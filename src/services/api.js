@@ -1,4 +1,4 @@
-﻿const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `http://${window.location.hostname}:7000/api`;
+﻿const API_BASE_URL = "http://192.168.36.162:7000/api"; // Default backend API endpoint (falls back dynamically to window.location.hostname:8000/api for LAN access)
 
 export const authStorage = {
   getToken: () => localStorage.getItem('zcmc_catalogue_token'),
