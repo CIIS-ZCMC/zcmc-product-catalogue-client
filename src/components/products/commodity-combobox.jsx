@@ -1,115 +1,43 @@
-import { useEffect, useState } from 'react'
-import { Check, ChevronsUpDown, LoaderCircle } from 'lucide-react'
+import { commodityText, parentPath } from '@/lib/unspsc'
+import { searchCommodities } from '@/services/unspsc-service'
+import { SearchableSelect } from '@/components/ui/searchable-select'
 
-import { cn } from '@/lib/utils'
-import { api } from '@/services/api'
-import { commodityText } from '@/lib/product'
-import { useDebouncedValue } from '@/hooks/use-debounced-value'
-import { Button } from '@/components/ui/button'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+const getValue = (c) => String(c.key)
 
-function commodityPath(c) {
-  const r = c.relations
-  if (r) return [r.segment, r.family, r.class].filter(Boolean).join(' › ')
-  if (Array.isArray(c.hierarchy)) return c.hierarchy.slice(0, -1).map((h) => h.title).join(' › ')
-  return ''
+// Module-level so its identity is stable for SearchableSelect's request effect.
+async function loadCommodities(query, { signal }) {
+  const { results } = await searchCommodities(query, { signal })
+  return results.map((r) => ({ ...r.item, match: { strength: r.strength, reasons: r.reasons } }))
 }
 
 /**
- * Searchable UNSPSC commodity picker backed by GET /categories/commodities.
- * `value` is { key, code, title } or null. Extra props go to the trigger button
- * so it can be used inside <FormControl>.
+ * Compact UNSPSC commodity picker for filters. Uses the same ranked search as the
+ * classification assistant. `value` is { key, code, title } or null.
  */
-export function CommodityCombobox({ value, onChange, placeholder = 'Search UNSPSC commodity…', className, ...props }) {
-  const [open, setOpen] = useState(false)
-  const [search, setSearch] = useState('')
-  const debounced = useDebouncedValue(search.trim(), 300)
-  const [result, setResult] = useState({ status: 'idle', items: [] })
-
-  useEffect(() => {
-    if (!open) return undefined
-    const controller = new AbortController()
-    setResult((prev) => ({ ...prev, status: 'loading' }))
-    api
-      .getCommodities(debounced, { signal: controller.signal })
-      .then((items) => setResult({ status: 'success', items: Array.isArray(items) ? items : [] }))
-      .catch((error) => {
-        if (error?.name !== 'AbortError') setResult({ status: 'error', items: [] })
-      })
-    return () => controller.abort()
-  }, [debounced, open])
-
+export function CommodityCombobox({ value, onChange, placeholder = 'Search UNSPSC commodity…', ...props }) {
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={cn(
-            'h-auto min-h-9 w-full justify-between bg-card px-3 py-2 text-left font-normal whitespace-normal',
-            !value && 'text-muted-foreground',
-            className,
-          )}
-          {...props}
-        >
-          <span className="min-w-0 flex-1 break-words">{value ? commodityText(value) : placeholder}</span>
-          <ChevronsUpDown className="opacity-50" aria-hidden="true" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-(--radix-popover-trigger-width) min-w-[min(20rem,calc(100vw-2rem))] p-0" align="start">
-        <Command shouldFilter={false}>
-          <CommandInput
-            placeholder="Type a commodity name or code"
-            value={search}
-            onValueChange={setSearch}
-            aria-label="Search UNSPSC commodities"
-          />
-          <CommandList>
-            {result.status === 'loading' && (
-              <div className="text-muted-foreground flex items-center justify-center gap-2 py-6 text-sm" role="status">
-                <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
-                Searching…
-              </div>
-            )}
-            {result.status === 'error' && (
-              <div className="text-destructive py-6 text-center text-sm" role="alert">
-                Commodities could not be loaded. Try typing again.
-              </div>
-            )}
-            {result.status === 'success' && (
-              <>
-                <CommandEmpty>No commodity matches “{debounced}”.</CommandEmpty>
-                <CommandGroup heading={debounced ? 'Matches' : 'Common commodities'}>
-                  {result.items.map((c) => {
-                    const path = commodityPath(c)
-                    const selected = value?.key === c.key
-                    return (
-                      <CommandItem
-                        key={c.key}
-                        value={String(c.key)}
-                        onSelect={() => {
-                          onChange(c)
-                          setOpen(false)
-                        }}
-                        className="items-start"
-                      >
-                        <Check className={cn('mt-0.5', selected ? 'opacity-100' : 'opacity-0')} aria-hidden="true" />
-                        <span className="min-w-0 flex-1">
-                          <span className="block font-medium break-words">{commodityText(c)}</span>
-                          {path && <span className="text-muted-foreground block text-xs break-words">{path}</span>}
-                        </span>
-                      </CommandItem>
-                    )
-                  })}
-                </CommandGroup>
-              </>
-            )}
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+    <SearchableSelect
+      value={value}
+      onChange={(c) => onChange(c ? { key: c.key, code: c.code, title: c.title } : null)}
+      loadOptions={loadCommodities}
+      getOptionValue={getValue}
+      getOptionLabel={commodityText}
+      renderOption={(c) => {
+        const path = parentPath(c)
+        return (
+          <>
+            <span className="block font-medium">{commodityText(c)}</span>
+            {path && <span className="text-muted-foreground block text-xs">{path}</span>}
+          </>
+        )
+      }}
+      groupHeading={(q) => (q ? 'Best matches first' : 'Common commodities')}
+      placeholder={placeholder}
+      searchPlaceholder="Commodity words or code, e.g. nitrile gloves"
+      searchLabel="Search UNSPSC commodities"
+      emptyMessage={(q) => `No commodity matches “${q}”. Try fewer or more general words.`}
+      clearLabel="Clear UNSPSC category"
+      {...props}
+    />
   )
 }

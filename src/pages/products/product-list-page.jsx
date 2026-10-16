@@ -78,6 +78,19 @@ export default function ProductListPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch])
 
+  // "/" jumps to the search box from anywhere on the list, unless the user is typing elsewhere.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return
+      const el = document.activeElement
+      if (el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))) return
+      e.preventDefault()
+      document.getElementById('product-search')?.focus()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   // Keep the box in step when the URL changes from outside (back/forward, chip removal).
   useEffect(() => {
     setSearchInput((current) => (current.trim() === query.search ? current : query.search))
@@ -200,11 +213,16 @@ export default function ProductListPage() {
               type="search"
               inputMode="search"
               autoComplete="off"
-              placeholder="Search description or any code"
+              placeholder="Search by description, ERP, BizBox, PhilGEPS or UNSPSC code"
+              aria-keyshortcuts="/"
+              aria-describedby="product-search-help"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="h-10 pr-9 pl-9"
             />
+            <span id="product-search-help" className="sr-only">
+              Matches any part of the description or codes. Press slash to jump here.
+            </span>
             {searchInput && (
               <Button
                 variant="ghost"
