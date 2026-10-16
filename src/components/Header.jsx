@@ -9,7 +9,11 @@ import {
   Button,
   Chip,
   Stack,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LogoutIcon from '@mui/icons-material/Logout';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import RuleIcon from '@mui/icons-material/Rule';
@@ -18,6 +22,7 @@ import AddIcon from '@mui/icons-material/Add';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+import HistoryIcon from '@mui/icons-material/History';
 
 export default function Header({
   currentTab,
@@ -26,6 +31,8 @@ export default function Header({
   onOpenImport,
   onExport,
   stats,
+  currentUser = null,
+  onLogout = () => {},
 }) {
   return (
     <AppBar
@@ -100,9 +107,8 @@ export default function Header({
             }}
           >
             <Tab icon={<Inventory2Icon fontSize="small" />} iconPosition="start" label="Product Catalogue" value="products" />
-            <Tab icon={<AccountTreeIcon fontSize="small" />} iconPosition="start" label="Category Hierarchy" value="categories" />
-            <Tab icon={<RuleIcon fontSize="small" />} iconPosition="start" label="Uniform Naming Tool" value="naming" />
             <Tab icon={<DashboardIcon fontSize="small" />} iconPosition="start" label="Dashboard" value="dashboard" />
+            <Tab icon={<HistoryIcon fontSize="small" />} iconPosition="start" label="Activity Logs" value="logs" />
           </Tabs>
 
           {/* Right Section: Stats & Action Buttons */}
@@ -157,6 +163,42 @@ export default function Header({
             >
               Add Product
             </Button>
+
+            {currentUser && (
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ pl: 0.5 }}>
+                <Chip
+                  icon={<AccountCircleIcon fontSize="small" />}
+                  label={currentUser.first_name ? `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() : (currentUser.name || currentUser.email)}
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    fontWeight: 700,
+                    borderColor: '#99f6e4',
+                    backgroundColor: '#f0fdfa',
+                    color: '#0f766e',
+                    height: 28,
+                  }}
+                />
+                <Chip
+                  label={currentUser.is_admin ? 'Administrator' : 'End User'}
+                  size="small"
+                  sx={{
+                    fontWeight: 800,
+                    fontSize: '0.68rem',
+                    height: 22,
+                    backgroundColor: currentUser.is_admin ? '#0f766e' : '#f1f5f9',
+                    color: currentUser.is_admin ? '#ffffff' : '#475569',
+                    border: currentUser.is_admin ? 'none' : '1px solid #cbd5e1',
+                  }}
+                />
+                <Tooltip title="Sign Out">
+                  <IconButton size="small" onClick={onLogout} sx={{ color: '#64748b', '&:hover': { color: '#dc2626' } }}>
+                    <LogoutIcon fontSize="small" />
+                    Log out
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            )}
           </Stack>
         </Toolbar>
       </Box>

@@ -55,8 +55,16 @@ export default function ImportExportModal({ open, onClose, onImportSuccess }) {
     }
   };
 
-  const handleDownloadTemplate = () => {
-    window.location.href = api.getExportUrl();
+  const handleDownloadTemplate = async () => {
+    try {
+      if (api.downloadExportCsv) {
+        await api.downloadExportCsv();
+      } else {
+        window.location.href = api.getExportUrl();
+      }
+    } catch (err) {
+      setErrorMsg(err.message || 'Failed to download template');
+    }
   };
 
   const handleReset = () => {

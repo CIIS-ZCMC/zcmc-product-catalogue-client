@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Drawer,
   Box,
@@ -11,6 +11,12 @@ import {
   Button,
   Grid,
   Link,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  CircularProgress,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
@@ -18,6 +24,13 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import RemoveIcon from '@mui/icons-material/Remove';
+import HistoryIcon from '@mui/icons-material/History';
+import { api } from '../services/api';
 
 export default function ProductDetailDrawer({
   open,
@@ -25,13 +38,85 @@ export default function ProductDetailDrawer({
   product,
   onEdit,
 }) {
+  const [priceHistory, setPriceHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [loadingAuditLogs, setLoadingAuditLogs] = useState(false);
+
+  useEffect(() => {
+    if (product && product.id && open) {
+      // Check if price_history is already passed or fetch it
+      if (Array.isArray(product.price_history) && product.price_history.length > 0) {
+        setPriceHistory(product.price_history);
+      } else {
+        setLoadingHistory(true);
+        api.getPriceHistory(product.id)
+          .then((res) => {
+            setPriceHistory(res.history || []);
+          })
+          .catch((err) => {
+            console.error('Failed to load price history', err);
+            setPriceHistory([]);
+          })
+          .finally(() => {
+            setLoadingHistory(false);
+          });
+      }
+
+      // Fetch product audit logs
+      setLoadingAuditLogs(true);
+      api.getProductActivityLogs(product.id)
+        .then((res) => {
+          const list = Array.isArray(res) ? res : (res?.logs || []);
+          setAuditLogs(list);
+        })
+        .catch((err) => {
+          console.error('Failed to load audit logs', err);
+          setAuditLogs([]);
+        })
+        .finally(() => {
+          setLoadingAuditLogs(false);
+        });
+    } else {
+      setPriceHistory([]);
+      setAuditLogs([]);
+    }
+  }, [product, open]);
+
   if (!product) return null;
 
-  const specs = product.specifications ? product.specifications.split(';').map((s) => s.trim()).filter(Boolean) : [];
+  const rawSpecs = product.other_specs || product.specifications || '';
+  const specs = rawSpecs ? rawSpecs.split(';').map((s) => s.trim()).filter(Boolean) : [];
   const hierarchy = product.category_hierarchy || [];
 
+  // Structured attributes breakdown without Net Content or Pack
+  const structuredFields = [
+    { label: 'Noun', value: product.noun, highlight: true },
+    { label: 'Type', value: product.type },
+    { label: 'Material / Composition', value: product.material_composition },
+    { label: 'Key Attributes', value: product.key_attributes },
+    { label: 'Size', value: product.size },
+    { label: 'Unit of Measure', value: product.uom?.toUpperCase() },
+  ].filter((item) => Boolean(item.value));
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-PH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
   return (
-    <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{ sx: { width: { xs: '100%', sm: 500 }, p: 0 } }}>
+    <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{ sx: { width: { xs: '100%', sm: 560 }, p: 0 } }}>
       <Box sx={{ p: 2.5, backgroundColor: '#0f766e', color: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
           <Typography variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.85, fontWeight: 700 }}>
@@ -47,10 +132,10 @@ export default function ProductDetailDrawer({
       </Box>
 
       <Box sx={{ p: 3, overflowY: 'auto' }}>
-        {/* Item Description (Uniform Standard) */}
+        {/* Item Description (Standard Built Name) */}
         <Box sx={{ mb: 3 }}>
           <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
-            Uniform Item Description
+            Standard Item Description (Built Counterpart)
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', mt: 0.5, lineHeight: 1.3 }}>
             {product.item_description}
@@ -64,17 +149,98 @@ export default function ProductDetailDrawer({
                 sx={{ fontWeight: 700, backgroundColor: '#f0fdfa', color: '#0f766e', border: '1px solid #99f6e4' }}
               />
             )}
+            {product.tech_specs_pdf_url && (
+              <Chip
+                size="small"
+                icon={<PictureAsPdfIcon sx={{ fontSize: 14 }} />}
+                label="PDF Specs Attached"
+                color="success"
+                variant="outlined"
+                sx={{ fontWeight: 700 }}
+              />
+            )}
           </Stack>
         </Box>
 
-        <Divider sx={{ my: 2 }} />
+        {/* Structured Naming Attributes Card */}
+        {structuredFields.length > 0 && (
+          <Paper variant="outlined" sx={{ p: 2, mb: 3, backgroundColor: '#f8fafc', borderColor: '#cbd5e1', borderRadius: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+              <FormatQuoteIcon sx={{ color: '#0f766e', fontSize: 20 }} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
+                Standard Naming Attributes Breakdown
+              </Typography>
+            </Box>
 
-        {/* Pricing & Units */}
+            <Table size="small" sx={{ '& td': { py: 0.7, px: 1, borderBottom: '1px solid #e2e8f0' } }}>
+              <TableBody>
+                {structuredFields.map((field, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell sx={{ width: '42%', color: '#64748b', fontWeight: 600, fontSize: '0.78rem' }}>
+                      {field.label}:
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 700, color: field.highlight ? '#0f766e' : '#1e293b', fontSize: '0.82rem' }}>
+                      {field.value}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Paper>
+        )}
+
+        {/* Technical Specification PDF Document Card */}
+        {product.tech_specs_pdf_url && (
+          <Paper
+            variant="outlined"
+            sx={{
+              p: 2,
+              mb: 3,
+              backgroundColor: '#f0fdfa',
+              borderColor: '#99f6e4',
+              borderRadius: 2,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <PictureAsPdfIcon sx={{ color: '#0f766e', fontSize: 28 }} />
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
+                  Technical Specifications Document
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#64748b' }}>
+                  Manufacturer datasheet / PDF specification
+                </Typography>
+              </Box>
+            </Box>
+            <Button
+              size="small"
+              variant="contained"
+              startIcon={<OpenInNewIcon />}
+              component="a"
+              href={product.tech_specs_pdf_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                backgroundColor: '#0f766e',
+                fontWeight: 700,
+                textTransform: 'none',
+                '&:hover': { backgroundColor: '#0d9488' },
+              }}
+            >
+              View PDF
+            </Button>
+          </Paper>
+        )}
+
+        {/* Current Pricing & Units */}
         <Paper variant="outlined" sx={{ p: 2, mb: 3, backgroundColor: '#f8fafc', borderColor: '#e2e8f0', borderRadius: 2 }}>
           <Grid container spacing={2}>
             <Grid size={6}>
               <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>
-                Unit Price
+                Current Unit Price
               </Typography>
               <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f766e' }}>
                 ₱{Number(product.unit_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
@@ -91,64 +257,177 @@ export default function ProductDetailDrawer({
           </Grid>
         </Paper>
 
-        {/* Multi-level Flexible Category Hierarchy */}
+        {/* Unit Price History Table (Tracking Inflation Over Time) */}
         <Box sx={{ mb: 3 }}>
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-            <AccountTreeIcon fontSize="small" sx={{ color: '#0f766e' }} />
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f172a' }}>
-              UNSPSC Category Hierarchy ({hierarchy.length} Levels)
-            </Typography>
-          </Stack>
-
-          {hierarchy.length > 0 ? (
-            <Stack spacing={1} sx={{ mt: 1.5 }}>
-              {hierarchy.map((lvl, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    p: 1.2,
-                    borderRadius: 1.5,
-                    border: '1px solid #e2e8f0',
-                    backgroundColor: index === hierarchy.length - 1 ? '#f0fdfa' : '#ffffff',
-                    borderColor: index === hierarchy.length - 1 ? '#99f6e4' : '#e2e8f0',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <Box>
-                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
-                      Level {index + 1} {index === 0 ? '(Category Group / Segment)' : index === hierarchy.length - 1 ? '(Assigned Commodity)' : ''}
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: index === hierarchy.length - 1 ? '#0f766e' : '#1e293b' }}>
-                      {lvl.code ? `[${lvl.code}] ` : ''}{lvl.title}
-                    </Typography>
-                  </Box>
-                  <Chip size="small" label={`Key: ${lvl.key}`} sx={{ fontSize: '0.65rem', height: 20 }} />
-                </Box>
-              ))}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <TrendingUpIcon fontSize="small" sx={{ color: '#0f766e' }} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
+                Unit Price History & Inflation Tracking
+              </Typography>
             </Stack>
-          ) : (
-            <Typography variant="caption" sx={{ color: '#94a3b8' }}>
-              No hierarchical category assigned.
-            </Typography>
-          )}
+            {loadingHistory && <CircularProgress size={16} />}
+          </Box>
 
-          {product.full_category_path && (
-            <Typography variant="caption" sx={{ display: 'block', mt: 1, color: '#64748b', fontStyle: 'italic' }}>
-              Path: {product.full_category_path}
-            </Typography>
-          )}
+          <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', borderColor: '#e2e8f0' }}>
+            <Table size="small">
+              <TableHead sx={{ backgroundColor: '#f1f5f9' }}>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.72rem', color: '#475569' }}>Date</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.72rem', color: '#475569' }}>Price</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.72rem', color: '#475569' }}>Change / Inflation</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '0.72rem', color: '#475569' }}>Reason / Remarks</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {priceHistory.length > 0 ? (
+                  priceHistory.map((h, i) => {
+                    const isIncrease = h.price_change > 0;
+                    const isDecrease = h.price_change < 0;
+                    return (
+                      <TableRow key={h.id || i} hover>
+                        <TableCell sx={{ fontSize: '0.75rem', fontWeight: 600, color: '#334155' }}>
+                          {formatDate(h.effective_date || h.created_at)}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: '0.78rem', fontWeight: 800, color: '#0f766e' }}>
+                          ₱{Number(h.new_price).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: '0.72rem' }}>
+                          {h.old_price === null ? (
+                            <Chip size="small" label="Initial Price" sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700, backgroundColor: '#f1f5f9' }} />
+                          ) : isIncrease ? (
+                            <Chip
+                              size="small"
+                              icon={<TrendingUpIcon sx={{ fontSize: '13px !important' }} />}
+                              label={`+₱${Number(h.price_change).toFixed(2)} (+${h.percentage_change}%)`}
+                              color="error"
+                              variant="outlined"
+                              sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700 }}
+                            />
+                          ) : isDecrease ? (
+                            <Chip
+                              size="small"
+                              icon={<TrendingDownIcon sx={{ fontSize: '13px !important' }} />}
+                              label={`-₱${Math.abs(Number(h.price_change)).toFixed(2)} (${h.percentage_change}%)`}
+                              color="success"
+                              variant="outlined"
+                              sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700 }}
+                            />
+                          ) : (
+                            <Chip size="small" icon={<RemoveIcon />} label="No change" sx={{ height: 20, fontSize: '0.65rem' }} />
+                          )}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: '0.72rem', color: '#64748b' }}>
+                          {h.reason || 'Price recorded'}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center" sx={{ py: 2, color: '#94a3b8', fontSize: '0.75rem' }}>
+                      Current price recorded: ₱{Number(product.unit_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </Paper>
         </Box>
 
         <Divider sx={{ my: 2 }} />
 
-        {/* Technical Specifications */}
+        {/* Audit Trail & Modification History */}
+        <Box sx={{ mb: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <HistoryIcon fontSize="small" sx={{ color: '#0f766e' }} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
+                Audit Trail & History
+              </Typography>
+            </Stack>
+            {loadingAuditLogs && <CircularProgress size={16} />}
+          </Box>
+
+          <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
+            {auditLogs.length > 0 ? (
+              <Stack spacing={1.2}>
+                {auditLogs.map((log) => {
+                  const isCreated = log.action === 'CREATED';
+                  const isUpdated = log.action === 'UPDATED';
+                  const isPdf = log.action === 'PDF_UPLOADED';
+
+                  const badgeBg = isCreated ? '#dcfce7' : isUpdated ? '#e0f2fe' : isPdf ? '#fef3c7' : '#f1f5f9';
+                  const badgeColor = isCreated ? '#166534' : isUpdated ? '#0369a1' : isPdf ? '#92400e' : '#475569';
+
+                  return (
+                    <Box key={log.id} sx={{ p: 1.2, backgroundColor: '#ffffff', borderRadius: 1.5, border: '1px solid #e2e8f0' }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                        <Stack direction="row" spacing={0.8} alignItems="center">
+                          <Chip
+                            size="small"
+                            label={log.action}
+                            sx={{
+                              height: 20,
+                              fontSize: '0.65rem',
+                              fontWeight: 800,
+                              backgroundColor: badgeBg,
+                              color: badgeColor,
+                            }}
+                          />
+                          <Typography variant="caption" sx={{ fontWeight: 700, color: '#0f766e' }}>
+                            {log.user_name || log.user_email || 'System'}
+                          </Typography>
+                        </Stack>
+                        <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.7rem' }}>
+                          {formatDate(log.created_at)}
+                        </Typography>
+                      </Box>
+                      <Typography variant="caption" sx={{ color: '#334155', display: 'block', fontSize: '0.75rem' }}>
+                        {log.description}
+                      </Typography>
+                      {log.new_values && Object.keys(log.new_values).length > 0 && (
+                        <Box sx={{ mt: 0.8, pt: 0.8, borderTop: '1px dashed #e2e8f0' }}>
+                          <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', display: 'block', fontSize: '0.68rem', mb: 0.3 }}>
+                            Changed Fields:
+                          </Typography>
+                          <Stack spacing={0.3}>
+                            {Object.entries(log.new_values).map(([k, newVal]) => (
+                              <Box key={k} sx={{ fontSize: '0.68rem', color: '#64748b', display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                                <span style={{ fontWeight: 600, color: '#334155' }}>{k}:</span>
+                                {log.old_values && log.old_values[k] !== undefined && (
+                                  <span style={{ textDecoration: 'line-through', color: '#dc2626' }}>
+                                    {String(log.old_values[k] ?? 'empty')}
+                                  </span>
+                                )}
+                                <span style={{ color: '#059669', fontWeight: 600 }}>
+                                  → {String(newVal ?? 'empty')}
+                                </span>
+                              </Box>
+                            ))}
+                          </Stack>
+                        </Box>
+                      )}
+                    </Box>
+                  );
+                })}
+              </Stack>
+            ) : (
+              <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', textAlign: 'center', py: 1 }}>
+                {loadingAuditLogs ? 'Loading change history...' : 'No activity logs recorded yet for this product.'}
+              </Typography>
+            )}
+          </Paper>
+        </Box>
+
+        <Divider sx={{ my: 2 }} />
+
+        {/* Other Technical Specifications */}
         <Box sx={{ mb: 3 }}>
           <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
             <ReceiptLongIcon fontSize="small" sx={{ color: '#0f766e' }} />
             <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f172a' }}>
-              Technical Specifications ({specs.length})
+              Other Specifications (Optional) ({specs.length})
             </Typography>
           </Stack>
 
@@ -165,7 +444,7 @@ export default function ProductDetailDrawer({
             </Stack>
           ) : (
             <Typography variant="caption" sx={{ color: '#94a3b8' }}>
-              No technical specifications listed.
+              No other technical specifications listed.
             </Typography>
           )}
         </Box>

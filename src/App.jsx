@@ -15,10 +15,13 @@ import ProductDetailDrawer from './components/ProductDetailDrawer';
 import CategoryExplorerView from './components/CategoryExplorerView';
 import UniformNamingTool from './components/UniformNamingTool';
 import DashboardView from './components/DashboardView';
+import ActivityLogsView from './components/ActivityLogsView';
 import ImportExportModal from './components/ImportExportModal';
-import { api } from './services/api';
+import AuthView from './components/AuthView';
+import { api, authStorage } from './services/api';
 
 export default function App() {
+  const [currentUser, setCurrentUser] = useState(() => authStorage.getUser());
   const [currentTab, setCurrentTab] = useState('products');
   const [stats, setStats] = useState(null);
 
@@ -29,6 +32,7 @@ export default function App() {
   const [filters, setFilters] = useState({
     search: '',
     category_key: '',
+    internal_category_id: '',
     uom: '',
     sort_by: 'created_at',
     sort_order: 'desc',
@@ -56,16 +60,16 @@ export default function App() {
     }
   };
 
-  // Load products with current filters
+  // Load products catalogue
   const fetchProducts = useCallback(async (page = 1, currentFilters = filters, perPage = pagination.perPage) => {
     setLoadingProducts(true);
     try {
-      const params = {
-        ...currentFilters,
+      const response = await api.getProducts({
         page,
         per_page: perPage,
-      };
-      const response = await api.getProducts(params);
+        ...currentFilters,
+      });
+
       setProducts(response.data || []);
       setPagination({
         currentPage: response.current_page || 1,
@@ -89,6 +93,19 @@ export default function App() {
     const updated = { ...filters, [key]: value };
     setFilters(updated);
     fetchProducts(1, updated);
+  };
+
+  const handleResetFilters = () => {
+    const reset = {
+      search: '',
+      category_key: '',
+      internal_category_id: '',
+      uom: '',
+      sort_by: 'created_at',
+      sort_order: 'desc',
+    };
+    setFilters(reset);
+    fetchProducts(1, reset);
   };
 
   const handlePageChange = (newPage) => {
@@ -138,9 +155,69 @@ export default function App() {
     });
   };
 
-  const handleExport = () => {
-    window.location.href = api.getExportUrl(filters);
+  const handleExport = async () => {
+    try {
+      if (api.downloadExportCsv) {
+        await api.downloadExportCsv(filters);
+      } else {
+        window.location.href = api.getExportUrl(filters);
+      }
+    } catch (err) {
+      alert(err.message || 'Failed to export CSV');
+    }
   };
+
+  const handleLogout = async () => {
+    try {
+      await api.logout();
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      authStorage.clear();
+      setCurrentUser(null);
+      notify('Signed out successfully.');
+    }
+  };
+
+  const handleAuthSuccess = (user) => {
+    setCurrentUser(user);
+    notify(`Welcome back, ${user.email}!`);
+    fetchStats();
+    fetchProducts(1, filters);
+  };
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      authStorage.clear();
+      setCurrentUser(null);
+      notify('Session expired. Please sign in again.', 'warning');
+    };
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
+  }, []);
+
+  if (!currentUser) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <AuthView onAuthSuccess={handleAuthSuccess} />
+        <Snackbar
+          open={notification.open}
+          autoHideDuration={4000}
+          onClose={() => setNotification((prev) => ({ ...prev, open: false }))}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        >
+          <Alert
+            severity={notification.severity}
+            onClose={() => setNotification((prev) => ({ ...prev, open: false }))}
+            sx={{ width: '100%', fontWeight: 600, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+          >
+            {notification.message}
+          </Alert>
+        </Snackbar>
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -153,6 +230,8 @@ export default function App() {
           onOpenImport={() => setImportModalOpen(true)}
           onExport={handleExport}
           stats={stats}
+          currentUser={currentUser}
+          onLogout={handleLogout}
         />
 
         {/* Full-width content wrapper consuming the entire page */}
@@ -160,10 +239,12 @@ export default function App() {
           {currentTab === 'products' && (
             <ProductsView
               products={products}
+              currentUser={currentUser}
               loading={loadingProducts}
               pagination={pagination}
               filters={filters}
               onFilterChange={handleFilterChange}
+              onResetFilters={handleResetFilters}
               onPageChange={handlePageChange}
               onRowsPerPageChange={handleRowsPerPageChange}
               onViewProduct={(p) => setDetailDrawer({ open: true, product: p })}
@@ -191,6 +272,10 @@ export default function App() {
               onNavigateToProducts={() => setCurrentTab('products')}
             />
           )}
+
+          {currentTab === 'logs' && (
+            <ActivityLogsView />
+          )}
         </Box>
 
         {/* Clean Slim Footer */}
@@ -206,6 +291,7 @@ export default function App() {
           onClose={() => setProductModal({ open: false, product: null })}
           onSave={handleSaveProduct}
           product={productModal.product}
+          currentUser={currentUser}
         />
 
         <ProductDetailDrawer
