@@ -26,7 +26,7 @@ export function AppHeader() {
   return (
     <header className="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-40 flex h-14 items-center gap-2 border-b px-4 backdrop-blur sm:px-6">
       <MobileNavigation />
-      <span className="truncate text-sm font-semibold md:hidden">Product Catalogue</span>
+      <span className="truncate text-sm font-semibold md:hidden">Product Catalogue Registry</span>
 
       <div className="ml-auto flex items-center gap-2">
         <DropdownMenu>

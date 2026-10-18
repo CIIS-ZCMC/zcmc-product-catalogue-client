@@ -183,7 +183,7 @@ export default function ProductListPage() {
         description="Search and manage standardized items in the ZCMC procurement catalogue."
         actions={
           <>
-            <Button variant="outline" className="order-2 sm:order-none" onClick={() => setImportOpen(true)}>
+            <Button variant="outline" disabled className="order-2 sm:order-none" onClick={() => setImportOpen(true)}>
               <Upload aria-hidden="true" />
               Import CSV
             </Button>

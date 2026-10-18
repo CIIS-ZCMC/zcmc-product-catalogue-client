@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { NAV_ITEMS } from './nav-items'
+import zcmcLogo from '@/assets/zcmc-logo.png'
 
 export function NavList({ collapsed = false, onNavigate }) {
   return (
@@ -15,14 +16,13 @@ export function NavList({ collapsed = false, onNavigate }) {
             to={to}
             onClick={onNavigate}
             aria-label={collapsed ? label : undefined}
-            className={({ isActive }) =>
-              cn(
-                'flex h-10 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
-                'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-                isActive && 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold',
-                collapsed && 'justify-center px-0',
-              )
-            }
+            // A plain string (not NavLink's function form): Radix's Tooltip Slot would stringify a function.
+            className={cn(
+              'flex h-10 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+              'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+              'aria-[current=page]:bg-sidebar-accent aria-[current=page]:text-sidebar-accent-foreground aria-[current=page]:font-semibold',
+              collapsed && 'justify-center px-0',
+            )}
           >
             <Icon className="size-4 shrink-0" aria-hidden="true" />
             {!collapsed && <span className="truncate">{label}</span>}
@@ -56,13 +56,8 @@ export function AppSidebar({ collapsed, onToggle }) {
         collapsed ? 'lg:w-16' : 'lg:w-60',
       )}
     >
-      <div className={cn('flex h-14 items-center gap-2 border-b px-3', collapsed && 'lg:justify-center')}>
-        <span
-          className="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-bold"
-          aria-hidden="true"
-        >
-          ZC
-        </span>
+      <div className={cn('flex h-14 items-center justify-center gap-2 border-b px-2', !collapsed && 'lg:justify-start lg:px-3')}>
+        <img src={zcmcLogo} alt="ZCMC logo" className="h-8 w-auto shrink-0 object-contain" />
         <span className={cn('hidden min-w-0 flex-col leading-tight', !collapsed && 'lg:flex')}>
           <span className="truncate text-sm font-semibold">Product Catalogue</span>
           <span className="text-muted-foreground truncate text-xs">ZCMC Procurement</span>
