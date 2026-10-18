@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router'
 import { CircleAlert, Download, LoaderCircle, PackageOpen, Plus, RefreshCw, Search, SearchX, SlidersHorizontal, Upload, X } from 'lucide-react'
 import { toast } from 'sonner'
@@ -21,7 +21,9 @@ import { ProductCardList } from '@/components/products/product-card-list'
 import { ProductFilters } from '@/components/products/product-filters'
 import { ProductListSkeleton } from '@/components/products/product-list-skeleton'
 import { ProductTable } from '@/components/products/product-table'
-import ImportExportModal from '@/components/ImportExportModal'
+
+// MUI import dialog: loaded only once the user opens it.
+const ImportExportDialog = lazy(() => import('@/components/import-export-dialog'))
 
 const FILTER_KEYS = ['internal_category_id', 'category_key', 'uom']
 const DEFAULT_SORT = { by: 'created_at', order: 'desc' }
@@ -391,14 +393,18 @@ export default function ProductListPage() {
         }}
       />
 
-      <ImportExportModal
-        open={importOpen}
-        onClose={() => setImportOpen(false)}
-        onImportSuccess={() => {
-          reload()
-          toast.success('Import completed.')
-        }}
-      />
+      {importOpen && (
+        <Suspense fallback={null}>
+          <ImportExportDialog
+            open={importOpen}
+            onClose={() => setImportOpen(false)}
+            onImportSuccess={() => {
+              reload()
+              toast.success('Import completed.')
+            }}
+          />
+        </Suspense>
+      )}
     </div>
   )
 }

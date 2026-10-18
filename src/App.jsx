@@ -1,15 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ThemeProvider } from '@mui/material'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { RouterProvider } from 'react-router'
 import { toast } from 'sonner'
 
-import { theme } from './theme'
 import { router } from './router'
 import { api, authStorage } from './services/api'
 import { AuthProvider } from './context/auth-context'
 import { Toaster } from './components/ui/sonner'
 import { TooltipProvider } from './components/ui/tooltip'
-import AuthView from './components/AuthView'
+// Signed-in users never need the sign-in forms, so they load on demand.
+const AuthScreen = lazy(() => import('./components/auth/auth-screen').then((m) => ({ default: m.AuthScreen })))
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(() => authStorage.getUser())
@@ -47,18 +46,17 @@ export default function App() {
   )
 
   return (
-    // MUI ThemeProvider stays for the screens not yet moved to shadcn/ui (sign-in, dashboard, activity logs, CSV import).
-    <ThemeProvider theme={theme}>
-      <TooltipProvider>
-        {currentUser ? (
-          <AuthProvider value={authValue}>
-            <RouterProvider router={router} />
-          </AuthProvider>
-        ) : (
-          <AuthView onAuthSuccess={handleAuthSuccess} />
-        )}
-        <Toaster position="bottom-right" richColors closeButton />
-      </TooltipProvider>
-    </ThemeProvider>
+    <TooltipProvider>
+      {currentUser ? (
+        <AuthProvider value={authValue}>
+          <RouterProvider router={router} />
+        </AuthProvider>
+      ) : (
+        <Suspense fallback={null}>
+          <AuthScreen onAuthSuccess={handleAuthSuccess} />
+        </Suspense>
+      )}
+      <Toaster position="bottom-right" richColors closeButton />
+    </TooltipProvider>
   )
 }

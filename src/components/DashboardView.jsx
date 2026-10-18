@@ -16,6 +16,11 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { display, formatPeso } from '@/lib/product';
+
+// Shows a percentage when the server sent one, otherwise the empty marker (never a made-up number).
+const percent = (value) => (value === null || value === undefined ? display(value) : `${value}%`);
+const count = (value) => (typeof value === 'number' ? value.toLocaleString() : display(value));
 
 export default function DashboardView({ stats, onNavigateToProducts }) {
   if (!stats) return null;
@@ -27,7 +32,7 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <MetricCard
             title="Total Catalogue Products"
-            value={stats.total_products || 0}
+            value={count(stats.total_products)}
             subtitle="Standardized Hospital Items"
             icon={<Inventory2Icon sx={{ color: '#2563eb' }} />}
             bgColor="#eff6ff"
@@ -37,7 +42,7 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <MetricCard
             title="Uniform Naming Compliance"
-            value={(stats.compliance_rate || 0) + '%'}
+            value={percent(stats.compliance_rate)}
             subtitle="Compliant Uppercase & Structure"
             icon={<CheckCircleIcon sx={{ color: '#10b981' }} />}
             bgColor="#f0fdf4"
@@ -47,7 +52,7 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <MetricCard
             title="Primary UNSPSC Segments"
-            value={stats.total_segments || 58}
+            value={count(stats.total_segments)}
             subtitle="Top-Level Category Groups"
             icon={<AccountTreeIcon sx={{ color: '#0284c7' }} />}
             bgColor="#f0f9ff"
@@ -57,7 +62,7 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <MetricCard
             title="Total UNSPSC Categories"
-            value={stats.total_categories?.toLocaleString() || '158,519'}
+            value={count(stats.total_categories)}
             subtitle="Segments, Families, Classes & Commodities"
             icon={<LocalHospitalIcon sx={{ color: '#6366f1' }} />}
             bgColor="#eef2ff"
@@ -212,7 +217,7 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
                       <Box sx={{ pt: 1.5, mt: 1.5, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between' }}>
                         <Typography variant="caption" sx={{ color: '#94a3b8' }}>Unit Price:</Typography>
                         <Typography variant="body2" sx={{ fontWeight: 800, color: '#2563eb' }}>
-                          ₱{Number(item.unit_price || 0).toFixed(2)}
+                          {formatPeso(item.unit_price)}
                         </Typography>
                       </Box>
                     </Paper>
