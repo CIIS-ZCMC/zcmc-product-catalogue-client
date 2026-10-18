@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 
 import { router } from './router'
 import { api, authStorage } from './services/api'
-import { AuthProvider } from './context/auth-context'
+import { AuthProvider, buildAuthValue } from './context/auth-context'
 import { Toaster } from './components/ui/sonner'
 import { TooltipProvider } from './components/ui/tooltip'
 // Signed-in users never need the sign-in forms, so they load on demand.
@@ -40,10 +40,7 @@ export default function App() {
     return () => window.removeEventListener('auth:unauthorized', handleUnauthorized)
   }, [])
 
-  const authValue = useMemo(
-    () => ({ currentUser, isAdmin: currentUser?.is_admin === true, logout }),
-    [currentUser, logout],
-  )
+  const authValue = useMemo(() => buildAuthValue(currentUser, logout), [currentUser, logout])
 
   return (
     <TooltipProvider>

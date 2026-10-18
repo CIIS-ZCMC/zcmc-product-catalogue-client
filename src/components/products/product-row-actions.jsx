@@ -22,7 +22,8 @@ async function copyCode(code) {
 }
 
 export function ProductRowActions({ product, onDelete, linkState }) {
-  const { isAdmin } = useAuth()
+  const { isAdmin, canManageCategory } = useAuth()
+  const canEdit = canManageCategory(product.internal_category_id)
   const label = product.item_description || product.erp_item_code || `product ${product.id}`
 
   return (
@@ -39,12 +40,14 @@ export function ProductRowActions({ product, onDelete, linkState }) {
             View details
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to={`/products/${product.id}/edit`} state={linkState}>
-            <Pencil aria-hidden="true" />
-            Edit
-          </Link>
-        </DropdownMenuItem>
+        {canEdit && (
+          <DropdownMenuItem asChild>
+            <Link to={`/products/${product.id}/edit`} state={linkState}>
+              <Pencil aria-hidden="true" />
+              Edit
+            </Link>
+          </DropdownMenuItem>
+        )}
         {product.erp_item_code && (
           <DropdownMenuItem onSelect={() => copyCode(product.erp_item_code)}>
             <Copy aria-hidden="true" />

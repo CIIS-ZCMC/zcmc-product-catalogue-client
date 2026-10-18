@@ -1,3 +1,4 @@
+import { useAuth } from '@/context/auth-context'
 import { useInternalCategories } from '@/hooks/use-lookups'
 import { SearchableSelect } from '@/components/ui/searchable-select'
 
@@ -9,9 +10,18 @@ const getSearchText = (c) => `${c.name} ${c.code} ${c.description || ''}`
 /**
  * Searchable picker for ZCMC internal categories (GET /internal-categories, about 30 rows,
  * so filtering is local). `value` is the category id or null; `onChange` gets the category or null.
+ * `onlyManageable` limits the choices to the categories the signed-in user may write to (encoders).
  */
-export function InternalCategoryCombobox({ value, onChange, placeholder = 'Select internal category', ...props }) {
+export function InternalCategoryCombobox({
+  value,
+  onChange,
+  placeholder = 'Select internal category',
+  onlyManageable = false,
+  ...props
+}) {
+  const { canManageCategory } = useAuth()
   const { data: categories, loading, error } = useInternalCategories()
+  const options = onlyManageable ? categories.filter((c) => canManageCategory(c.id)) : categories
   const selected = categories.find((c) => String(c.id) === String(value)) || null
   // Keep the trigger informative while the list loads for an existing value.
   const pendingValue = !selected && value !== null && value !== undefined && value !== '' && loading
@@ -20,7 +30,7 @@ export function InternalCategoryCombobox({ value, onChange, placeholder = 'Selec
     <SearchableSelect
       value={selected}
       onChange={onChange}
-      options={categories}
+      options={options}
       loading={loading}
       error={error}
       getOptionValue={getValue}
@@ -36,7 +46,7 @@ export function InternalCategoryCombobox({ value, onChange, placeholder = 'Selec
       placeholder={pendingValue ? 'Loading…' : placeholder}
       searchPlaceholder="Search by name or code, e.g. OF-SUP"
       searchLabel="Search internal categories"
-      emptyMessage={(q) => (q ? `No internal category matches “${q}”.` : 'No internal categories are set up on the server.')}
+      emptyMessage={(q) => (q ? `No internal category matches “${q}”.` : onlyManageable ? 'No internal category is assigned to your account. Ask an administrator.' : 'No internal categories are set up on the server.')}
       clearLabel="Clear internal category"
       {...props}
     />

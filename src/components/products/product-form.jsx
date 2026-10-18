@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -10,6 +11,7 @@ import {
   Eye,
   EyeOff,
   FileText,
+  History,
   LoaderCircle,
   Lock,
   Plus,
@@ -22,6 +24,8 @@ import { cn } from '@/lib/utils'
 import { api } from '@/services/api'
 import { buildStandardName, PHILGEPS_DIRECTORY_URL, splitSpecs } from '@/lib/product'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
+import { useAuth } from '@/context/auth-context'
+import { useFormDraft } from '@/hooks/use-form-draft'
 import { useUnits } from '@/hooks/use-lookups'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
@@ -35,6 +39,17 @@ import { InternalCategoryCombobox } from './internal-category-combobox'
 import { UnitSelect } from './unit-select'
 import { UnspscClassifier } from './unspsc-classifier'
 import { UnsavedChangesGuard } from './unsaved-changes-guard'
+
+// Never stored in a draft: the password, and the PDF link (the upload is tracked separately).
+const DRAFT_EXCLUDED_FIELDS = ['confirm_password', 'tech_specs_pdf_path']
+
+function formatDraftTime(timestamp) {
+  const date = new Date(timestamp)
+  const time = date.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' })
+  return date.toDateString() === new Date().toDateString()
+    ? `at ${time}`
+    : `on ${date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })} at ${time}`
+}
 
 const MAX_PDF_BYTES = 20 * 1024 * 1024
 
@@ -570,6 +585,19 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
   })
   const { control, handleSubmit, setError, formState } = form
 
+  // Autosave to this device only; nothing reaches the server until the user presses Save.
+  const { currentUser } = useAuth()
+  const draftKey = `${currentUser?.id ?? 'anon'}:${mode === 'edit' ? `product-edit-${product?.id}` : 'product-create'}`
+  const { savedAt, restoredAt, clearDraft, discardDraft } = useFormDraft({
+    form,
+    draftKey,
+    exclude: DRAFT_EXCLUDED_FIELDS,
+    // A prefill from the naming tool is a deliberate fresh start, so it wins over an old draft.
+    restore: !prefillDescription,
+    // An edit draft older than the product's last server update is based on outdated data.
+    isStale: (draft) => mode === 'edit' && product?.updated_at && draft.savedAt < Date.parse(product.updated_at),
+  })
+
   const naming = useWatch({ control, name: ['noun', 'type', 'material_composition', 'key_attributes', 'size'] })
   const builtName = buildStandardName({
     noun: naming[0],
@@ -608,8 +636,10 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
     async (values) => {
       setFormError('')
       try {
-        setSaved(true) // lets the unsaved-changes guard allow the post-save navigation
+        // Render with the guard off before submitting, so the post-save navigation is not blocked.
+        flushSync(() => setSaved(true))
         await onSubmit(toPayload(values, { includePassword: requirePassword }))
+        clearDraft()
       } catch (err) {
         setSaved(false)
         const fieldErrors = err?.errors && typeof err.errors === 'object' ? Object.entries(err.errors) : []
@@ -638,8 +668,22 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
 
   return (
     <Form {...form}>
-      <UnsavedChangesGuard when={formState.isDirty && !saved} />
+      <UnsavedChangesGuard when={formState.isDirty && !saved} draftSaved={savedAt !== null} />
       <form onSubmit={submit} noValidate className="space-y-6" aria-busy={formState.isSubmitting}>
+        {restoredAt && formState.isDirty && !saved && (
+          <Alert>
+            <History aria-hidden="true" />
+            <AlertTitle>Draft restored</AlertTitle>
+            <AlertDescription>
+              <p>
+                We restored your unsaved entries from {formatDraftTime(restoredAt)}. The attached PDF and password are not kept in drafts.
+              </p>
+              <Button type="button" variant="outline" size="sm" className="mt-2" onClick={discardDraft}>
+                Discard draft
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
         {showSummary && <ErrorSummary errors={formState.errors} message={formError} errorRef={errorRef} />}
 
         <SectionCard
@@ -732,6 +776,7 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
                     <FormLabel required>Internal category</FormLabel>
                     <FormControl required>
                       <InternalCategoryCombobox
+                        onlyManageable
                         value={field.value}
                         onChange={(c) => {
                           field.onChange(c ? c.id : null)
@@ -878,6 +923,9 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
 
         <div className="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t px-4 py-2.5 sm:py-3 backdrop-blur sm:mx-0 sm:flex-row sm:items-center sm:justify-between sm:rounded-lg sm:border">
           <p className="text-muted-foreground text-xs sm:text-sm" aria-live="polite">
+            {savedAt && !saved && formState.isDirty && (
+              <span className="mr-3 inline-block">Draft saved on this device {formatDraftTime(savedAt)}.</span>
+            )}
             {remaining === 0 ? (
               <span className="text-success inline-flex items-center gap-1.5">
                 <CircleCheck className="size-4" aria-hidden="true" /> All required fields are filled.

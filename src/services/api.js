@@ -78,18 +78,6 @@ export const api = {
     return res;
   },
 
-  register: async (credentials) => {
-    const res = await request('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    });
-    if (res.access_token) {
-      authStorage.setToken(res.access_token);
-      authStorage.setUser(res.user);
-    }
-    return res;
-  },
-
   forgotPassword: (email) =>
     request('/auth/forgot-password', {
       method: 'POST',
@@ -115,6 +103,21 @@ export const api = {
   getDashboardStats: () => request('/dashboard/stats'),
 
   getInternalCategories: () => request('/internal-categories'),
+
+  // Administrator-only user management (contract: docs/ADMIN_USERS_API.md).
+  getUsers: (params = {}, options = {}) => {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, val]) => {
+      if (val !== undefined && val !== null && val !== '') query.append(key, val);
+    });
+    return request(`/users?${query.toString()}`, options);
+  },
+
+  createUser: (data) => request('/users', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateUser: (id, data) => request(`/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  deleteUser: (id) => request(`/users/${id}`, { method: 'DELETE' }),
 
   getItemUnits: () => request('/item-units'),
 

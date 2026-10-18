@@ -43,7 +43,7 @@ export function AppHeader() {
               <span className="truncate">{name}</span>
               <span className="text-muted-foreground truncate text-xs font-normal">{currentUser?.email}</span>
               <Badge variant={isAdmin ? 'accent' : 'secondary'} className="mt-1">
-                {isAdmin ? 'Administrator' : 'End user'}
+                {isAdmin ? 'Administrator' : 'Encoder'}
               </Badge>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

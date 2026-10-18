@@ -4,13 +4,17 @@ import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { useAuth } from '@/context/auth-context'
 import { NAV_ITEMS } from './nav-items'
 import zcmcLogo from '@/assets/zcmc-logo.png'
 
 export function NavList({ collapsed = false, onNavigate }) {
+  const { isAdmin } = useAuth()
+  const items = NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin)
+
   return (
     <ul className="flex flex-col gap-1">
-      {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
+      {items.map(({ to, label, icon: Icon }) => {
         const link = (
           <NavLink
             to={to}

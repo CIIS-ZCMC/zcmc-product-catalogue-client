@@ -34,7 +34,8 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import { api } from '../services/api';
 
-export default function CategoryExplorerView({ onFilterProductsByCategory }) {
+// `canEdit` is true for administrators only; everyone else browses read-only (the server must enforce this too).
+export default function CategoryExplorerView({ onFilterProductsByCategory, canEdit = false }) {
   // Navigation stack: array of category objects [rootSegment, family, class, ...]
   const [navPath, setNavPath] = useState([]);
   const [currentChildren, setCurrentChildren] = useState([]);
@@ -121,6 +122,7 @@ export default function CategoryExplorerView({ onFilterProductsByCategory }) {
   };
 
   const handleOpenAdd = () => {
+    if (!canEdit) return;
     setFormFields({
       title: '',
       code: '',
@@ -131,7 +133,7 @@ export default function CategoryExplorerView({ onFilterProductsByCategory }) {
   };
 
   const handleOpenEdit = () => {
-    if (!selectedNode) return;
+    if (!canEdit || !selectedNode) return;
     setFormFields({
       title: selectedNode.title || '',
       code: selectedNode.code || '',
@@ -175,7 +177,7 @@ export default function CategoryExplorerView({ onFilterProductsByCategory }) {
   };
 
   const handleDeleteCategory = async () => {
-    if (!selectedNode) return;
+    if (!canEdit || !selectedNode) return;
     const msg = `Are you sure you want to delete category "${selectedNode.title}"?`;
     if (!window.confirm(msg)) return;
 
@@ -245,14 +247,16 @@ export default function CategoryExplorerView({ onFilterProductsByCategory }) {
                 </Typography>
               </Box>
 
-              <Button
-                size="small"
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleOpenAdd}
-              >
-                Add Category
-              </Button>
+              {canEdit && (
+                <Button
+                  size="small"
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={handleOpenAdd}
+                >
+                  Add Category
+                </Button>
+              )}
             </Box>
 
             <CardContent sx={{ p: 0, flex: 1, overflowY: 'auto', maxHeight: 600 }}>
@@ -342,18 +346,20 @@ export default function CategoryExplorerView({ onFilterProductsByCategory }) {
                       </Typography>
                     </Box>
 
-                    <Stack direction="row" spacing={1}>
-                      <Tooltip title="Edit this Category">
-                        <IconButton size="small" onClick={handleOpenEdit} sx={{ color: '#0284c7' }}>
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete Category">
-                        <IconButton size="small" onClick={handleDeleteCategory} sx={{ color: '#ef4444' }}>
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
+                    {canEdit && (
+                      <Stack direction="row" spacing={1}>
+                        <Tooltip title="Edit this Category">
+                          <IconButton size="small" aria-label="Edit this category" onClick={handleOpenEdit} sx={{ color: '#0284c7' }}>
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete Category">
+                          <IconButton size="small" aria-label="Delete this category" onClick={handleDeleteCategory} sx={{ color: '#ef4444' }}>
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
+                    )}
                   </Box>
 
                   {/* Action to drill down if children exist */}

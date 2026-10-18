@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useBlocker } from 'react-router'
 
 import {
@@ -12,10 +12,15 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 
-/** Asks before in-app navigation or a tab close would discard unsaved form input. */
-export function UnsavedChangesGuard({ when }) {
+/**
+ * Asks before in-app navigation or a tab close would discard unsaved form input.
+ * With `draftSaved` the wording says the entries are kept as a draft on this device.
+ */
+export function UnsavedChangesGuard({ when, draftSaved = false }) {
+  const leavingRef = useRef(false)
   const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) => when && currentLocation.pathname !== nextLocation.pathname,
+    ({ currentLocation, nextLocation }) =>
+      when && currentLocation.pathname !== nextLocation.pathname,
   )
 
   useEffect(() => {
@@ -29,18 +34,32 @@ export function UnsavedChangesGuard({ when }) {
   }, [when])
 
   return (
-    <AlertDialog open={blocker.state === 'blocked'} onOpenChange={(open) => !open && blocker.reset?.()}>
+    <AlertDialog
+      open={blocker.state === 'blocked'}
+      onOpenChange={(open) => {
+        // Closing via "Discard changes" must not cancel the navigation it just started.
+        if (!open && !leavingRef.current) blocker.reset?.()
+      }}
+    >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Discard unsaved changes?</AlertDialogTitle>
+          <AlertDialogTitle>{draftSaved ? 'Leave this form?' : 'Discard unsaved changes?'}</AlertDialogTitle>
           <AlertDialogDescription>
-            You have entries on this form that are not saved. If you leave now, they will be lost.
+            {draftSaved
+              ? 'Your entries are not saved to the catalogue yet. They are kept as a draft on this device, and will be restored when you open this form again.'
+              : 'You have entries on this form that are not saved. If you leave now, they will be lost.'}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => blocker.reset?.()}>Keep editing</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={() => blocker.proceed?.()}>
-            Discard changes
+          <AlertDialogAction
+            variant="destructive"
+            onClick={() => {
+              leavingRef.current = true
+              blocker.proceed?.()
+            }}
+          >
+            {draftSaved ? 'Leave, keep draft' : 'Discard changes'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

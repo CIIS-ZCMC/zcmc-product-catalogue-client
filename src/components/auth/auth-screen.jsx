@@ -4,13 +4,11 @@ import { CircleCheck } from 'lucide-react'
 import zcmcLogo from '@/assets/zcmc-logo.png'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { RegisterForm, SignInForm } from './auth-forms'
+import { SignInForm } from './auth-forms'
 import { ResetPasswordDialog } from './reset-password-dialog'
 
-/** Sign-in / create-account screen shown before the app shell. */
+/** Sign-in screen shown before the app shell. Accounts are created by an administrator, not here. */
 export function AuthScreen({ onAuthSuccess }) {
-  const [tab, setTab] = useState('login')
   const [notice, setNotice] = useState('')
   const [signInEmail, setSignInEmail] = useState('')
   const [reset, setReset] = useState({ open: false, email: '', key: 0 })
@@ -20,7 +18,6 @@ export function AuthScreen({ onAuthSuccess }) {
   const handleReset = (email) => {
     setReset((r) => ({ ...r, open: false }))
     setSignInEmail(email)
-    setTab('login')
     setNotice('Your password was reset. Sign in with your new password.')
   }
 
@@ -43,30 +40,16 @@ export function AuthScreen({ onAuthSuccess }) {
             </Alert>
           )}
 
-          <Tabs
-            value={tab}
-            onValueChange={(value) => {
-              setTab(value)
-              setNotice('')
-            }}
-            className="gap-4"
-          >
-            <TabsList className="w-full">
-              <TabsTrigger value="login">Sign in</TabsTrigger>
-              <TabsTrigger value="register">Create account</TabsTrigger>
-            </TabsList>
-            <TabsContent value="login">
-              <SignInForm
-                key={signInEmail}
-                defaultEmail={signInEmail}
-                onSuccess={onAuthSuccess}
-                onForgotPassword={openReset}
-              />
-            </TabsContent>
-            <TabsContent value="register">
-              <RegisterForm onSuccess={onAuthSuccess} />
-            </TabsContent>
-          </Tabs>
+          <SignInForm
+            key={signInEmail}
+            defaultEmail={signInEmail}
+            onSuccess={onAuthSuccess}
+            onForgotPassword={openReset}
+          />
+
+          <p className="text-muted-foreground text-center text-xs">
+            Need access? Accounts are created by a system administrator. Contact the Procurement Management Unit.
+          </p>
         </CardContent>
       </Card>
 

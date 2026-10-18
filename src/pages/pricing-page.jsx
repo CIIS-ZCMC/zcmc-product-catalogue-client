@@ -17,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ListPagination } from '@/components/products/list-pagination'
 import { ListState } from '@/components/products/list-state'
 import { ProductListSkeleton } from '@/components/products/product-list-skeleton'
+import { useAuth } from '@/context/auth-context'
 import { PriceEditDialog } from '@/components/products/price-edit-dialog'
 
 // Sort fields the server accepts (ProductService::listProducts).
@@ -29,6 +30,7 @@ const SORTS = [
 const DEFAULT_SORT = 'item_description:asc'
 
 export default function PricingPage() {
+  const { canManageCategory } = useAuth()
   const [params, setParams] = useSearchParams()
   const sortValue = SORTS.some((s) => s.value === `${params.get('sort_by')}:${params.get('sort_order')}`)
     ? `${params.get('sort_by')}:${params.get('sort_order')}`
@@ -177,10 +179,12 @@ export default function PricingPage() {
                     <TableCell className="text-sm">{display(p.uom)}</TableCell>
                     <TableCell className="text-right font-medium tabular-nums">{formatPeso(p.unit_price)}</TableCell>
                     <TableCell className="py-2 pr-4 text-right">
-                      <Button variant="outline" size="sm" onClick={() => setEditing(p)} aria-label={`Update price of ${display(p.item_description)}`}>
-                        <Pencil aria-hidden="true" />
-                        Update price
-                      </Button>
+                      {canManageCategory(p.internal_category_id) && (
+                        <Button variant="outline" size="sm" onClick={() => setEditing(p)} aria-label={`Update price of ${display(p.item_description)}`}>
+                          <Pencil aria-hidden="true" />
+                          Update price
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -201,10 +205,12 @@ export default function PricingPage() {
                   <p className="font-semibold tabular-nums">
                     {formatPeso(p.unit_price)} <span className="text-muted-foreground text-xs font-normal">per {display(p.uom)}</span>
                   </p>
-                  <Button variant="outline" size="sm" onClick={() => setEditing(p)} aria-label={`Update price of ${display(p.item_description)}`}>
-                    <Pencil aria-hidden="true" />
-                    Update
-                  </Button>
+                  {canManageCategory(p.internal_category_id) && (
+                    <Button variant="outline" size="sm" onClick={() => setEditing(p)} aria-label={`Update price of ${display(p.item_description)}`}>
+                      <Pencil aria-hidden="true" />
+                      Update
+                    </Button>
+                  )}
                 </div>
               </li>
             ))}

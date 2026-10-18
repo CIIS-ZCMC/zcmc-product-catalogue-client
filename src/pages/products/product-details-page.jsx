@@ -115,7 +115,7 @@ export default function ProductDetailsPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const returnTo = useReturnTo()
-  const { isAdmin } = useAuth()
+  const { isAdmin, canManageCategory } = useAuth()
   const { status, data, error, reload } = useProduct(id)
   const [deleteOpen, setDeleteOpen] = useState(false)
 
@@ -168,12 +168,14 @@ export default function ProductDetailsPage() {
         title={display(product.item_description)}
         actions={
           <>
-            <Button asChild>
-              <Link to={`/products/${product.id}/edit`} state={linkState}>
-                <Pencil aria-hidden="true" />
-                Edit
-              </Link>
-            </Button>
+            {canManageCategory(product.internal_category_id) && (
+              <Button asChild>
+                <Link to={`/products/${product.id}/edit`} state={linkState}>
+                  <Pencil aria-hidden="true" />
+                  Edit
+                </Link>
+              </Button>
+            )}
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon" aria-label="More actions">

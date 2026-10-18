@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router'
-import { CircleAlert, RefreshCw } from 'lucide-react'
+import { CircleAlert, Lock, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { api } from '@/services/api'
@@ -17,7 +17,7 @@ export default function ProductEditPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const returnTo = useReturnTo()
-  const { isAdmin } = useAuth()
+  const { isAdmin, canManageCategory } = useAuth()
   const { status, data, error, reload } = useProduct(id)
   const product = data?.product
   const detailsPath = `/products/${id}`
@@ -49,6 +49,21 @@ export default function ProductEditPage() {
             </Button>
           )}
         </ListState>
+      </div>
+    )
+  }
+
+  if (product && !canManageCategory(product.internal_category_id)) {
+    return (
+      <div className="mx-auto w-full max-w-4xl space-y-4">
+        <BackLink to={detailsPath} state={{ from: returnTo }}>Back to product</BackLink>
+        <ListState
+          role="alert"
+          headingLevel={1}
+          icon={Lock}
+          title="You cannot edit this product"
+          description="It belongs to an internal category that is not assigned to your account. Ask an administrator for access."
+        />
       </div>
     )
   }

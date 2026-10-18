@@ -14,6 +14,7 @@ const ActivityLogsPage = lazy(() => import('./pages/activity-logs-page'))
 const PricingPage = lazy(() => import('./pages/pricing-page'))
 const CategoriesPage = lazy(() => import('./pages/categories-page'))
 const NamingPage = lazy(() => import('./pages/naming-page'))
+const UsersPage = lazy(() => import('./pages/admin/users-page'))
 
 const withSuspense = (element) => <Suspense fallback={<PageFallback />}>{element}</Suspense>
 
@@ -32,6 +33,7 @@ export const router = createBrowserRouter([
       { path: 'naming', element: withSuspense(<NamingPage />) },
       { path: 'dashboard', element: withSuspense(<DashboardPage />) },
       { path: 'activity-logs', element: withSuspense(<ActivityLogsPage />) },
+      { path: 'admin/users', element: withSuspense(<UsersPage />) },
       { path: '*', element: <RouteErrorPage notFound /> },
     ],
   },
