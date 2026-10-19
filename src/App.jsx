@@ -1,4 +1,11 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { RouterProvider } from 'react-router'
 import { toast } from 'sonner'
 
@@ -8,7 +15,11 @@ import { AuthProvider } from './context/auth-context'
 import { Toaster } from './components/ui/sonner'
 import { TooltipProvider } from './components/ui/tooltip'
 // Signed-in users never need the sign-in forms, so they load on demand.
-const AuthScreen = lazy(() => import('./components/auth/auth-screen').then((m) => ({ default: m.AuthScreen })))
+const AuthScreen = lazy(() =>
+  import('./components/auth/auth-screen').then((m) => ({
+    default: m.AuthScreen,
+  }))
+)
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(() => authStorage.getUser())
@@ -37,12 +48,13 @@ export default function App() {
       toast.warning('Your session expired. Please sign in again.')
     }
     window.addEventListener('auth:unauthorized', handleUnauthorized)
-    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized)
+    return () =>
+      window.removeEventListener('auth:unauthorized', handleUnauthorized)
   }, [])
 
   const authValue = useMemo(
     () => ({ currentUser, isAdmin: currentUser?.is_admin === true, logout }),
-    [currentUser, logout],
+    [currentUser, logout]
   )
 
   return (

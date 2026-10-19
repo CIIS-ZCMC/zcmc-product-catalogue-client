@@ -1,6 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
-import { CircleAlert, PackageOpen, Pencil, RefreshCw, Search, SearchX, X } from 'lucide-react'
+import {
+  CircleAlert,
+  PackageOpen,
+  Pencil,
+  RefreshCw,
+  Search,
+  SearchX,
+  X,
+} from 'lucide-react'
 import { toast } from 'sonner'
 
 import { cn } from '@/lib/utils'
@@ -12,8 +20,21 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { ListPagination } from '@/components/products/list-pagination'
 import { ListState } from '@/components/products/list-state'
 import { ProductListSkeleton } from '@/components/products/product-list-skeleton'
@@ -30,13 +51,23 @@ const DEFAULT_SORT = 'item_description:asc'
 
 export default function PricingPage() {
   const [params, setParams] = useSearchParams()
-  const sortValue = SORTS.some((s) => s.value === `${params.get('sort_by')}:${params.get('sort_order')}`)
+  const sortValue = SORTS.some(
+    (s) => s.value === `${params.get('sort_by')}:${params.get('sort_order')}`
+  )
     ? `${params.get('sort_by')}:${params.get('sort_order')}`
     : DEFAULT_SORT
-  const perPage = PAGE_SIZES.includes(Number(params.get('per_page'))) ? Number(params.get('per_page')) : PAGE_SIZES[0]
+  const perPage = PAGE_SIZES.includes(Number(params.get('per_page')))
+    ? Number(params.get('per_page'))
+    : PAGE_SIZES[0]
   const query = useMemo(() => {
     const [sort_by, sort_order] = sortValue.split(':')
-    return { search: params.get('q') || '', sort_by, sort_order, page: Math.max(1, Number(params.get('page')) || 1), per_page: perPage }
+    return {
+      search: params.get('q') || '',
+      sort_by,
+      sort_order,
+      page: Math.max(1, Number(params.get('page')) || 1),
+      per_page: perPage,
+    }
   }, [params, sortValue, perPage])
   const { status, products, meta, error, reload } = useProducts(query)
 
@@ -47,7 +78,9 @@ export default function PricingPage() {
   const update = (changes, { resetPage = true } = {}) =>
     setParams((prev) => {
       const next = new URLSearchParams(prev)
-      Object.entries(changes).forEach(([k, v]) => (v === '' || v == null ? next.delete(k) : next.set(k, String(v))))
+      Object.entries(changes).forEach(([k, v]) =>
+        v === '' || v == null ? next.delete(k) : next.set(k, String(v))
+      )
       if (resetPage) next.delete('page')
       return next
     })
@@ -62,7 +95,9 @@ export default function PricingPage() {
   const rows = status === 'success' || status === 'refreshing' ? products : []
 
   const onSaved = (product, price) => {
-    toast.success(`Price of ${product.erp_item_code || 'product'} is now ${formatPeso(price)}.`)
+    toast.success(
+      `Price of ${product.erp_item_code || 'product'} is now ${formatPeso(price)}.`
+    )
     reload()
   }
 
@@ -78,7 +113,10 @@ export default function PricingPage() {
           <label htmlFor="price-search" className="sr-only">
             Search products
           </label>
-          <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" aria-hidden="true" />
+          <Search
+            className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
+            aria-hidden="true"
+          />
           <Input
             id="price-search"
             type="search"
@@ -89,7 +127,13 @@ export default function PricingPage() {
             className="h-10 pr-9 pl-9"
           />
           {searchInput && (
-            <Button variant="ghost" size="icon-sm" className="absolute top-1/2 right-1 -translate-y-1/2" onClick={() => setSearchInput('')} aria-label="Clear search">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="absolute top-1/2 right-1 -translate-y-1/2"
+              onClick={() => setSearchInput('')}
+              aria-label="Clear search"
+            >
               <X aria-hidden="true" />
             </Button>
           )}
@@ -119,14 +163,28 @@ export default function PricingPage() {
         </div>
       </div>
 
-      <p className="text-muted-foreground mb-3 min-h-5 text-sm" aria-live="polite">
-        {busy ? 'Updating results…' : status === 'success' && meta?.total != null ? `${meta.total.toLocaleString()} products` : ''}
+      <p
+        className="text-muted-foreground mb-3 min-h-5 text-sm"
+        aria-live="polite"
+      >
+        {busy
+          ? 'Updating results…'
+          : status === 'success' && meta?.total != null
+            ? `${meta.total.toLocaleString()} products`
+            : ''}
       </p>
 
-      {status === 'loading' && <ProductListSkeleton rows={Math.min(perPage, 10)} />}
+      {status === 'loading' && (
+        <ProductListSkeleton rows={Math.min(perPage, 10)} />
+      )}
 
       {status === 'error' && (
-        <ListState role="alert" icon={CircleAlert} title="Prices could not be loaded" description={error?.message}>
+        <ListState
+          role="alert"
+          icon={CircleAlert}
+          title="Prices could not be loaded"
+          description={error?.message}
+        >
           <Button onClick={reload}>
             <RefreshCw aria-hidden="true" />
             Try again
@@ -134,15 +192,30 @@ export default function PricingPage() {
         </ListState>
       )}
 
-      {(status === 'success' || busy) && rows.length === 0 &&
+      {(status === 'success' || busy) &&
+        rows.length === 0 &&
         (hasQuery ? (
-          <ListState icon={SearchX} title="No products match" description="Nothing in the catalogue matches this search.">
-            <Button variant="outline" onClick={() => { setSearchInput(''); update({ q: '' }) }}>
+          <ListState
+            icon={SearchX}
+            title="No products match"
+            description="Nothing in the catalogue matches this search."
+          >
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSearchInput('')
+                update({ q: '' })
+              }}
+            >
               Clear search
             </Button>
           </ListState>
         ) : (
-          <ListState icon={PackageOpen} title="No products to price yet" description="Add products to the catalogue first, then record their prices here.">
+          <ListState
+            icon={PackageOpen}
+            title="No products to price yet"
+            description="Add products to the catalogue first, then record their prices here."
+          >
             <Button asChild>
               <Link to="/products/new">Add product</Link>
             </Button>
@@ -151,7 +224,12 @@ export default function PricingPage() {
 
       {rows.length > 0 && (
         <div className="space-y-4" aria-busy={busy}>
-          <div className={cn('bg-card hidden rounded-xl border md:block', busy && 'opacity-60 transition-opacity')}>
+          <div
+            className={cn(
+              'bg-card hidden rounded-xl border md:block',
+              busy && 'opacity-60 transition-opacity'
+            )}
+          >
             <Table className="table-fixed">
               <caption className="sr-only">Unit prices</caption>
               <TableHeader>
@@ -168,16 +246,28 @@ export default function PricingPage() {
               <TableBody>
                 {rows.map((p) => (
                   <TableRow key={p.id}>
-                    <TableCell className="font-mono text-xs break-all">{display(p.erp_item_code)}</TableCell>
+                    <TableCell className="font-mono text-xs break-all">
+                      {display(p.erp_item_code)}
+                    </TableCell>
                     <TableCell>
-                      <Link to={`/products/${p.id}`} className="font-medium break-words underline-offset-4 hover:underline">
+                      <Link
+                        to={`/products/${p.id}`}
+                        className="font-medium break-words underline-offset-4 hover:underline"
+                      >
                         {display(p.item_description)}
                       </Link>
                     </TableCell>
                     <TableCell className="text-sm">{display(p.uom)}</TableCell>
-                    <TableCell className="text-right font-medium tabular-nums">{formatPeso(p.unit_price)}</TableCell>
+                    <TableCell className="text-right font-medium tabular-nums">
+                      {formatPeso(p.unit_price)}
+                    </TableCell>
                     <TableCell className="py-2 pr-4 text-right">
-                      <Button variant="outline" size="sm" onClick={() => setEditing(p)} aria-label={`Update price of ${display(p.item_description)}`}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditing(p)}
+                        aria-label={`Update price of ${display(p.item_description)}`}
+                      >
                         <Pencil aria-hidden="true" />
                         Update price
                       </Button>
@@ -188,20 +278,39 @@ export default function PricingPage() {
             </Table>
           </div>
 
-          <ul className={cn('grid gap-3 md:hidden', busy && 'opacity-60')} aria-label="Unit prices">
+          <ul
+            className={cn('grid gap-3 md:hidden', busy && 'opacity-60')}
+            aria-label="Unit prices"
+          >
             {rows.map((p) => (
-              <li key={p.id} className="bg-card space-y-3 rounded-xl border p-4">
+              <li
+                key={p.id}
+                className="bg-card space-y-3 rounded-xl border p-4"
+              >
                 <div className="space-y-1">
-                  <Link to={`/products/${p.id}`} className="block font-medium break-words">
+                  <Link
+                    to={`/products/${p.id}`}
+                    className="block font-medium break-words"
+                  >
                     {display(p.item_description)}
                   </Link>
-                  <p className="text-muted-foreground font-mono text-xs break-all">{display(p.erp_item_code)}</p>
+                  <p className="text-muted-foreground font-mono text-xs break-all">
+                    {display(p.erp_item_code)}
+                  </p>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-semibold tabular-nums">
-                    {formatPeso(p.unit_price)} <span className="text-muted-foreground text-xs font-normal">per {display(p.uom)}</span>
+                    {formatPeso(p.unit_price)}{' '}
+                    <span className="text-muted-foreground text-xs font-normal">
+                      per {display(p.uom)}
+                    </span>
                   </p>
-                  <Button variant="outline" size="sm" onClick={() => setEditing(p)} aria-label={`Update price of ${display(p.item_description)}`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditing(p)}
+                    aria-label={`Update price of ${display(p.item_description)}`}
+                  >
                     <Pencil aria-hidden="true" />
                     Update
                   </Button>
@@ -216,12 +325,19 @@ export default function PricingPage() {
               update({ page: page > 1 ? page : '' }, { resetPage: false })
               window.scrollTo({ top: 0 })
             }}
-            onPerPageChange={(n) => update({ per_page: n === PAGE_SIZES[0] ? '' : n })}
+            onPerPageChange={(n) =>
+              update({ per_page: n === PAGE_SIZES[0] ? '' : n })
+            }
           />
         </div>
       )}
 
-      <PriceEditDialog product={editing} open={Boolean(editing)} onOpenChange={(o) => !o && setEditing(null)} onSaved={onSaved} />
+      <PriceEditDialog
+        product={editing}
+        open={Boolean(editing)}
+        onOpenChange={(o) => !o && setEditing(null)}
+        onSaved={onSaved}
+      />
     </div>
   )
 }

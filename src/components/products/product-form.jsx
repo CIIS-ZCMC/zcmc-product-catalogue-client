@@ -20,17 +20,39 @@ import {
 
 import { cn } from '@/lib/utils'
 import { api } from '@/services/api'
-import { buildStandardName, PHILGEPS_DIRECTORY_URL, splitSpecs } from '@/lib/product'
+import {
+  buildStandardName,
+  PHILGEPS_DIRECTORY_URL,
+  splitSpecs,
+} from '@/lib/product'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import { useUnits } from '@/hooks/use-lookups'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
 import { InternalCategoryCombobox } from './internal-category-combobox'
 import { UnitSelect } from './unit-select'
 import { UnspscClassifier } from './unspsc-classifier'
@@ -41,7 +63,10 @@ const MAX_PDF_BYTES = 20 * 1024 * 1024
 // Limits mirror StoreProductRequest / UpdateProductRequest on the server, which stays the source of truth.
 function buildSchema({ requirePassword }) {
   const optional = (max, label) =>
-    z.string().trim().max(max, { message: `${label} must be ${max} characters or fewer.` })
+    z
+      .string()
+      .trim()
+      .max(max, { message: `${label} must be ${max} characters or fewer.` })
 
   return z
     .object({
@@ -56,18 +81,26 @@ function buildSchema({ requirePassword }) {
       size: optional(100, 'Size'),
       uom: z.string().min(1, { message: 'Select a unit of measure.' }),
       commodity: z
-        .object({ key: z.union([z.number(), z.string()]), code: z.string().nullish(), title: z.string().nullish() })
+        .object({
+          key: z.union([z.number(), z.string()]),
+          code: z.string().nullish(),
+          title: z.string().nullish(),
+        })
         .nullable()
         .refine((v) => v !== null, { message: 'Select the UNSPSC commodity.' }),
       internal_category_id: z
         .union([z.number(), z.string()])
         .nullable()
-        .refine((v) => v !== null && v !== '', { message: 'Select the internal category.' }),
+        .refine((v) => v !== null && v !== '', {
+          message: 'Select the internal category.',
+        }),
       bizbox_item_code: z
         .string()
         .trim()
         .min(1, { message: 'Enter the BizBox item code.' })
-        .max(100, { message: 'BizBox item code must be 100 characters or fewer.' }),
+        .max(100, {
+          message: 'BizBox item code must be 100 characters or fewer.',
+        }),
       philgeps_code: optional(100, 'PhilGEPS code'),
       other_specs: z.array(z.string()),
       tech_specs_pdf_path: z.string().nullable(),
@@ -86,8 +119,14 @@ function buildSchema({ requirePassword }) {
 
 // Splits a free-text name from the naming assistant ("NOUN, attribute, ...") into the structured fields.
 function prefillFrom(description) {
-  const [noun = '', ...rest] = (description || '').split(',').map((s) => s.trim()).filter(Boolean)
-  return { noun: noun.toUpperCase(), key_attributes: rest.join(', ').toUpperCase() }
+  const [noun = '', ...rest] = (description || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  return {
+    noun: noun.toUpperCase(),
+    key_attributes: rest.join(', ').toUpperCase(),
+  }
 }
 
 function defaultsFrom(product, prefill) {
@@ -131,7 +170,9 @@ function toPayload(values, { includePassword }) {
     internal_category_id: values.internal_category_id,
     bizbox_item_code: values.bizbox_item_code.trim(),
     philgeps_code: values.philgeps_code.trim() || null,
-    other_specs: values.other_specs.length ? values.other_specs.join('; ') : null,
+    other_specs: values.other_specs.length
+      ? values.other_specs.join('; ')
+      : null,
     tech_specs_pdf_path: values.tech_specs_pdf_path || null,
   }
   if (includePassword) payload.confirm_password = values.confirm_password
@@ -139,7 +180,10 @@ function toPayload(values, { includePassword }) {
 }
 
 // Server field names → form field names.
-const SERVER_FIELD_MAP = { category_key: 'commodity', password: 'confirm_password' }
+const SERVER_FIELD_MAP = {
+  category_key: 'commodity',
+  password: 'confirm_password',
+}
 
 // Order and wording used by the error summary; matches the order fields appear on screen.
 const FIELD_LABELS = {
@@ -165,7 +209,9 @@ function focusField(name) {
   // FormControl gives the labelled control an id ending in -form-item; fall back to the first focusable element.
   const target =
     wrapper?.querySelector('[id$="-form-item"]') ||
-    wrapper?.querySelector('input:not([type=hidden]):not(.sr-only), button, textarea, [tabindex]:not([tabindex="-1"])')
+    wrapper?.querySelector(
+      'input:not([type=hidden]):not(.sr-only), button, textarea, [tabindex]:not([tabindex="-1"])'
+    )
   wrapper?.scrollIntoView({ block: 'center' })
   target?.focus({ preventScroll: true })
 }
@@ -174,7 +220,10 @@ function SectionCard({ title, description, optional, children, headingId }) {
   return (
     <Card className="gap-4" role="group" aria-labelledby={headingId}>
       <CardHeader>
-        <CardTitle className="flex flex-wrap items-center gap-2 text-base" id={headingId}>
+        <CardTitle
+          className="flex flex-wrap items-center gap-2 text-base"
+          id={headingId}
+        >
           {title}
           {optional && (
             <Badge variant="secondary" className="font-normal">
@@ -189,7 +238,14 @@ function SectionCard({ title, description, optional, children, headingId }) {
   )
 }
 
-function NamingField({ control, name, label, placeholder, description, required }) {
+function NamingField({
+  control,
+  name,
+  label,
+  placeholder,
+  description,
+  required,
+}) {
   return (
     <FormField
       control={control}
@@ -199,7 +255,13 @@ function NamingField({ control, name, label, placeholder, description, required 
           <FormLabel required={required}>{label}</FormLabel>
           <FormControl required={required}>
             {/* Displayed and saved in uppercase; the typed value is left alone so the caret never jumps. */}
-            <Input {...field} placeholder={placeholder} autoComplete="off" autoCapitalize="characters" className="uppercase placeholder:normal-case" />
+            <Input
+              {...field}
+              placeholder={placeholder}
+              autoComplete="off"
+              autoCapitalize="characters"
+              className="uppercase placeholder:normal-case"
+            />
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />
@@ -224,26 +286,39 @@ function NamingAudit({ description, excludeId }) {
       .validateNaming(debounced, { signal: controller.signal })
       .then((data) => setAudit({ status: 'success', data }))
       .catch((err) => {
-        if (err?.name !== 'AbortError') setAudit({ status: 'error', data: null })
+        if (err?.name !== 'AbortError')
+          setAudit({ status: 'error', data: null })
       })
     return () => controller.abort()
   }, [debounced])
 
   if (audit.status === 'idle') return null
   if (audit.status === 'error') {
-    return <p className="text-muted-foreground text-xs">Naming guidance is unavailable right now. You can still save.</p>
+    return (
+      <p className="text-muted-foreground text-xs">
+        Naming guidance is unavailable right now. You can still save.
+      </p>
+    )
   }
   if (!audit.data) {
     return (
       <p className="text-muted-foreground flex items-center gap-2 text-xs">
-        <LoaderCircle className="size-3.5 animate-spin" aria-hidden="true" /> Checking naming standard…
+        <LoaderCircle className="size-3.5 animate-spin" aria-hidden="true" />{' '}
+        Checking naming standard…
       </p>
     )
   }
 
-  const { is_valid: valid, score, feedback = [], similar_items: allSimilar = [] } = audit.data
+  const {
+    is_valid: valid,
+    score,
+    feedback = [],
+    similar_items: allSimilar = [],
+  } = audit.data
   // In edit mode the product being edited is not a duplicate of itself.
-  const similar = allSimilar.filter((item) => String(item.id) !== String(excludeId))
+  const similar = allSimilar.filter(
+    (item) => String(item.id) !== String(excludeId)
+  )
   return (
     <div className="space-y-3" aria-live="polite">
       <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -252,9 +327,16 @@ function NamingAudit({ description, excludeId }) {
         ) : (
           <TriangleAlert className="text-warning size-4" aria-hidden="true" />
         )}
-        <span className="font-medium">{valid ? 'Meets the naming standard' : 'Naming can be improved'}</span>
+        <span className="font-medium">
+          {valid ? 'Meets the naming standard' : 'Naming can be improved'}
+        </span>
         <Badge variant="outline">Score {score}%</Badge>
-        {audit.status === 'loading' && <LoaderCircle className="text-muted-foreground size-3.5 animate-spin" aria-label="Updating" />}
+        {audit.status === 'loading' && (
+          <LoaderCircle
+            className="text-muted-foreground size-3.5 animate-spin"
+            aria-label="Updating"
+          />
+        )}
       </div>
       {feedback.length > 0 && (
         <ul className="text-muted-foreground list-disc space-y-1 pl-5 text-xs">
@@ -271,10 +353,17 @@ function NamingAudit({ description, excludeId }) {
             <ul className="space-y-1">
               {similar.slice(0, 5).map((item) => (
                 <li key={item.id} className="break-words">
-                  <a href={`/products/${item.id}`} target="_blank" rel="noreferrer" className="font-medium underline underline-offset-2">
+                  <a
+                    href={`/products/${item.id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium underline underline-offset-2"
+                  >
                     {item.item_description}
                   </a>{' '}
-                  <span className="font-mono text-xs">{item.erp_item_code}</span>
+                  <span className="font-mono text-xs">
+                    {item.erp_item_code}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -297,11 +386,16 @@ function BizboxDuplicateCheck({ code, excludeId }) {
     if (term.length < 3) return undefined
     const controller = new AbortController()
     api
-      .getProducts({ search: term, per_page: 10 }, { signal: controller.signal })
+      .getProducts(
+        { search: term, per_page: 10 },
+        { signal: controller.signal }
+      )
       .then((res) => {
         const rows = Array.isArray(res?.data) ? res.data : []
         const matches = rows.filter(
-          (p) => (p.bizbox_item_code || '').trim().toLowerCase() === term.toLowerCase() && String(p.id) !== String(excludeId),
+          (p) =>
+            (p.bizbox_item_code || '').trim().toLowerCase() ===
+              term.toLowerCase() && String(p.id) !== String(excludeId)
         )
         setState({ term, matches })
       })
@@ -311,7 +405,8 @@ function BizboxDuplicateCheck({ code, excludeId }) {
     return () => controller.abort()
   }, [term, excludeId])
 
-  if (term.length < 3 || state.term !== term || state.matches.length === 0) return null
+  if (term.length < 3 || state.term !== term || state.matches.length === 0)
+    return null
   return (
     <Alert variant="warning" role="status" className="mt-2">
       <TriangleAlert aria-hidden="true" />
@@ -320,7 +415,12 @@ function BizboxDuplicateCheck({ code, excludeId }) {
         <ul className="space-y-1">
           {state.matches.slice(0, 3).map((p) => (
             <li key={p.id} className="break-words">
-              <a href={`/products/${p.id}`} target="_blank" rel="noreferrer" className="font-medium underline underline-offset-2">
+              <a
+                href={`/products/${p.id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium underline underline-offset-2"
+              >
                 {p.item_description}
                 <span className="sr-only"> (opens in a new tab)</span>
               </a>{' '}
@@ -338,16 +438,29 @@ function ErrorSummary({ errors, message, errorRef }) {
   const entries = FIELD_ORDER.filter((name) => errors[name])
   if (!message && entries.length === 0) return null
   return (
-    <Alert variant="destructive" ref={errorRef} tabIndex={-1} className="outline-none">
+    <Alert
+      variant="destructive"
+      ref={errorRef}
+      tabIndex={-1}
+      className="outline-none"
+    >
       <CircleAlert aria-hidden="true" />
-      <AlertTitle>{entries.length ? `Not saved: ${entries.length} ${entries.length === 1 ? 'field needs' : 'fields need'} attention` : 'Not saved'}</AlertTitle>
+      <AlertTitle>
+        {entries.length
+          ? `Not saved: ${entries.length} ${entries.length === 1 ? 'field needs' : 'fields need'} attention`
+          : 'Not saved'}
+      </AlertTitle>
       <AlertDescription>
         {message && <p>{message}</p>}
         {entries.length > 0 && (
           <ul className="mt-1 list-disc space-y-0.5 pl-5">
             {entries.map((name) => (
               <li key={name}>
-                <button type="button" className="text-left underline underline-offset-2" onClick={() => focusField(name)}>
+                <button
+                  type="button"
+                  className="text-left underline underline-offset-2"
+                  onClick={() => focusField(name)}
+                >
                   {FIELD_LABELS[name]}
                 </button>
                 : {errors[name]?.message}
@@ -373,7 +486,11 @@ function ErpCodePreview({ mode, product, commodity, internalCategoryId }) {
     setState((prev) => ({ ...prev, status: 'loading' }))
     api
       .getNextErpCode(commodity.code, '', internalCategoryId, commodity.key)
-      .then((res) => active && setState({ status: 'success', code: res?.erp_item_code || '' }))
+      .then(
+        (res) =>
+          active &&
+          setState({ status: 'success', code: res?.erp_item_code || '' })
+      )
       .catch(() => active && setState({ status: 'error', code: '' }))
     return () => {
       active = false
@@ -385,14 +502,26 @@ function ErpCodePreview({ mode, product, commodity, internalCategoryId }) {
       ? product?.erp_item_code || '—'
       : state.status === 'loading'
         ? 'Generating…'
-        : state.code || (ready ? 'Could not preview the code' : 'Select a commodity and internal category')
+        : state.code ||
+          (ready
+            ? 'Could not preview the code'
+            : 'Select a commodity and internal category')
 
   return (
     <div className="grid gap-2">
       <Label htmlFor="erp-code">ERP item code</Label>
       <div className="relative">
-        <Lock className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" aria-hidden="true" />
-        <Input id="erp-code" readOnly value={value} className="pl-9 font-mono" aria-describedby="erp-code-help" />
+        <Lock
+          className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2"
+          aria-hidden="true"
+        />
+        <Input
+          id="erp-code"
+          readOnly
+          value={value}
+          className="pl-9 font-mono"
+          aria-describedby="erp-code-help"
+        />
       </div>
       <p id="erp-code-help" className="text-muted-foreground text-xs">
         {mode === 'edit'
@@ -407,7 +536,8 @@ function SpecsField({ value, onChange }) {
   const [draft, setDraft] = useState('')
   const add = () => {
     const parts = splitSpecs(draft)
-    if (parts.length) onChange([...value, ...parts.filter((p) => !value.includes(p))])
+    if (parts.length)
+      onChange([...value, ...parts.filter((p) => !value.includes(p))])
     setDraft('')
   }
   return (
@@ -428,20 +558,28 @@ function SpecsField({ value, onChange }) {
           aria-describedby="spec-help"
           autoComplete="off"
         />
-        <Button type="button" variant="outline" onClick={add} disabled={!draft.trim()}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={add}
+          disabled={!draft.trim()}
+        >
           <Plus aria-hidden="true" />
           Add
         </Button>
       </div>
       <p id="spec-help" className="text-muted-foreground text-xs">
-        Optional notes such as Sterile, Heavy duty or CE certified. Press Enter to add each one. Saved separated by
-        semicolons.
+        Optional notes such as Sterile, Heavy duty or CE certified. Press Enter
+        to add each one. Saved separated by semicolons.
       </p>
       {value.length > 0 && (
         <ul className="flex flex-wrap gap-2" aria-label="Added specifications">
           {value.map((spec) => (
             <li key={spec}>
-              <Badge variant="secondary" className="h-7 max-w-full gap-1 pr-1 pl-2.5">
+              <Badge
+                variant="secondary"
+                className="h-7 max-w-full gap-1 pr-1 pl-2.5"
+              >
                 <span className="break-all whitespace-normal">{spec}</span>
                 <button
                   type="button"
@@ -464,13 +602,18 @@ function PdfField({ path, initialUrl, onChange }) {
   const inputRef = useRef(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
-  const [file, setFile] = useState(() => (path ? { name: path.split('/').pop(), url: initialUrl || '' } : null))
+  const [file, setFile] = useState(() =>
+    path ? { name: path.split('/').pop(), url: initialUrl || '' } : null
+  )
 
   const handleFile = async (e) => {
     const selected = e.target.files?.[0]
     e.target.value = ''
     if (!selected) return
-    if (selected.type !== 'application/pdf' && !selected.name.toLowerCase().endsWith('.pdf')) {
+    if (
+      selected.type !== 'application/pdf' &&
+      !selected.name.toLowerCase().endsWith('.pdf')
+    ) {
       setError('Choose a PDF file.')
       return
     }
@@ -482,7 +625,10 @@ function PdfField({ path, initialUrl, onChange }) {
     setUploading(true)
     try {
       const res = await api.uploadSpecsPdf(selected)
-      setFile({ name: res.original_filename || selected.name, url: res.file_url })
+      setFile({
+        name: res.original_filename || selected.name,
+        url: res.file_url,
+      })
       onChange(res.file_path)
     } catch (err) {
       setError(err.message || 'The PDF could not be uploaded. Try again.')
@@ -505,15 +651,31 @@ function PdfField({ path, initialUrl, onChange }) {
       />
       {path && file ? (
         <div className="flex flex-wrap items-center gap-2 rounded-md border p-2">
-          <FileText className="text-muted-foreground size-4 shrink-0" aria-hidden="true" />
+          <FileText
+            className="text-muted-foreground size-4 shrink-0"
+            aria-hidden="true"
+          />
           {file.url ? (
-            <a href={file.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 text-sm font-medium break-all underline-offset-2 hover:underline">
+            <a
+              href={file.url}
+              target="_blank"
+              rel="noreferrer"
+              className="min-w-0 flex-1 text-sm font-medium break-all underline-offset-2 hover:underline"
+            >
               {file.name}
             </a>
           ) : (
-            <span className="min-w-0 flex-1 text-sm break-all">{file.name}</span>
+            <span className="min-w-0 flex-1 text-sm break-all">
+              {file.name}
+            </span>
           )}
-          <Button type="button" variant="outline" size="sm" onClick={() => inputRef.current?.click()} disabled={uploading}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading}
+          >
             Replace
           </Button>
           <Button
@@ -531,14 +693,24 @@ function PdfField({ path, initialUrl, onChange }) {
         </div>
       ) : (
         <div>
-          <Button type="button" variant="outline" onClick={() => inputRef.current?.click()} disabled={uploading}>
-            {uploading ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <Upload aria-hidden="true" />}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? (
+              <LoaderCircle className="animate-spin" aria-hidden="true" />
+            ) : (
+              <Upload aria-hidden="true" />
+            )}
             {uploading ? 'Uploading…' : 'Upload PDF'}
           </Button>
         </div>
       )}
       <p id="pdf-help" className="text-muted-foreground text-xs">
-        Optional manufacturer brochure or datasheet, up to 20 MB. It uploads immediately and is linked when you save.
+        Optional manufacturer brochure or datasheet, up to 20 MB. It uploads
+        immediately and is linked when you save.
       </p>
       {error && (
         <p className="text-destructive text-xs font-medium" role="alert">
@@ -554,7 +726,14 @@ function PdfField({ path, initialUrl, onChange }) {
  * `onSubmit(payload)` performs the request and should throw the API error on failure;
  * field errors from the server (err.errors) are mapped back onto the inputs.
  */
-export function ProductForm({ mode, product, prefillDescription, requirePassword = false, onSubmit, onCancel }) {
+export function ProductForm({
+  mode,
+  product,
+  prefillDescription,
+  requirePassword = false,
+  onSubmit,
+  onCancel,
+}) {
   const [formError, setFormError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -563,14 +742,20 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
 
   const form = useForm({
     resolver: zodResolver(buildSchema({ requirePassword })),
-    defaultValues: defaultsFrom(product, prefillDescription ? prefillFrom(prefillDescription) : null),
+    defaultValues: defaultsFrom(
+      product,
+      prefillDescription ? prefillFrom(prefillDescription) : null
+    ),
     mode: 'onTouched',
     // Focus goes to the error summary instead, which links to each invalid field.
     shouldFocusError: false,
   })
   const { control, handleSubmit, setError, formState } = form
 
-  const naming = useWatch({ control, name: ['noun', 'type', 'material_composition', 'key_attributes', 'size'] })
+  const naming = useWatch({
+    control,
+    name: ['noun', 'type', 'material_composition', 'key_attributes', 'size'],
+  })
   const builtName = buildStandardName({
     noun: naming[0],
     type: naming[1],
@@ -578,9 +763,25 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
     key_attributes: naming[3],
     size: naming[4],
   })
-  const [commodity, internalCategoryId, uom, bizboxCode, otherSpecs, pdfPath, password] = useWatch({
+  const [
+    commodity,
+    internalCategoryId,
+    uom,
+    bizboxCode,
+    otherSpecs,
+    pdfPath,
+    password,
+  ] = useWatch({
     control,
-    name: ['commodity', 'internal_category_id', 'uom', 'bizbox_item_code', 'other_specs', 'tech_specs_pdf_path', 'confirm_password'],
+    name: [
+      'commodity',
+      'internal_category_id',
+      'uom',
+      'bizbox_item_code',
+      'other_specs',
+      'tech_specs_pdf_path',
+      'confirm_password',
+    ],
   })
 
   // Required-field progress shown next to the save button.
@@ -594,9 +795,11 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
   ]
   const remaining = required.filter((v) => !v).length
 
-  const unitOptions = units.some((u) => u.toLowerCase() === (product?.uom || '').toLowerCase()) || !product?.uom
-    ? units
-    : [product.uom, ...units]
+  const unitOptions =
+    units.some((u) => u.toLowerCase() === (product?.uom || '').toLowerCase()) ||
+    !product?.uom
+      ? units
+      : [product.uom, ...units]
 
   const showSummary = formState.submitCount > 0 && !formState.isSubmitting
   // Each failed submit ends with showSummary turning true; move focus to the summary then.
@@ -612,12 +815,18 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
         await onSubmit(toPayload(values, { includePassword: requirePassword }))
       } catch (err) {
         setSaved(false)
-        const fieldErrors = err?.errors && typeof err.errors === 'object' ? Object.entries(err.errors) : []
+        const fieldErrors =
+          err?.errors && typeof err.errors === 'object'
+            ? Object.entries(err.errors)
+            : []
         let mapped = 0
         fieldErrors.forEach(([key, messages]) => {
           const name = SERVER_FIELD_MAP[key] || key
           if (name in form.getValues()) {
-            setError(name, { type: 'server', message: Array.isArray(messages) ? messages[0] : String(messages) })
+            setError(name, {
+              type: 'server',
+              message: Array.isArray(messages) ? messages[0] : String(messages),
+            })
             mapped += 1
           }
         })
@@ -627,20 +836,32 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
               ? 'The catalogue server could not be reached. Your entries are kept; check the connection and try again.'
               : err?.status >= 500
                 ? `The server could not save the product (${err.message || `error ${err.status}`}). Your entries are kept; try again.`
-                : err?.message || 'The product could not be saved. Your entries are kept; try again.',
+                : err?.message ||
+                  'The product could not be saved. Your entries are kept; try again.'
           )
         }
       }
     },
     // Invalid: the error summary lists each field with a link to it.
-    () => setFormError(''),
+    () => setFormError('')
   )
 
   return (
     <Form {...form}>
       <UnsavedChangesGuard when={formState.isDirty && !saved} />
-      <form onSubmit={submit} noValidate className="space-y-6" aria-busy={formState.isSubmitting}>
-        {showSummary && <ErrorSummary errors={formState.errors} message={formError} errorRef={errorRef} />}
+      <form
+        onSubmit={submit}
+        noValidate
+        className="space-y-6"
+        aria-busy={formState.isSubmitting}
+      >
+        {showSummary && (
+          <ErrorSummary
+            errors={formState.errors}
+            message={formError}
+            errorRef={errorRef}
+          />
+        )}
 
         <SectionCard
           headingId="section-name"
@@ -648,13 +869,44 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
           description="Built from these parts in order and saved in uppercase. Only the noun is required."
         >
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <NamingField control={control} name="noun" label="Noun" placeholder="e.g. Gloves, Paper" description="The generic item name, e.g. GLOVES." required />
-            <NamingField control={control} name="type" label="Type" placeholder="e.g. Examination, Bond" description="Sub-classification or form." />
-            <NamingField control={control} name="material_composition" label="Material / composition" placeholder="e.g. Nitrile" description="Active ingredient or material." />
+            <NamingField
+              control={control}
+              name="noun"
+              label="Noun"
+              placeholder="e.g. Gloves, Paper"
+              description="The generic item name, e.g. GLOVES."
+              required
+            />
+            <NamingField
+              control={control}
+              name="type"
+              label="Type"
+              placeholder="e.g. Examination, Bond"
+              description="Sub-classification or form."
+            />
+            <NamingField
+              control={control}
+              name="material_composition"
+              label="Material / composition"
+              placeholder="e.g. Nitrile"
+              description="Active ingredient or material."
+            />
             <div className="sm:col-span-2 lg:col-span-3">
-              <NamingField control={control} name="key_attributes" label="Key attributes" placeholder="e.g. Powder-free, Non-sterile" description="Properties, colour or mechanism. Separate several with commas." />
+              <NamingField
+                control={control}
+                name="key_attributes"
+                label="Key attributes"
+                placeholder="e.g. Powder-free, Non-sterile"
+                description="Properties, colour or mechanism. Separate several with commas."
+              />
             </div>
-            <NamingField control={control} name="size" label="Size" placeholder="e.g. Medium, A4" description="Dimensions or size." />
+            <NamingField
+              control={control}
+              name="size"
+              label="Size"
+              placeholder="e.g. Medium, A4"
+              description="Dimensions or size."
+            />
             <FormField
               control={control}
               name="uom"
@@ -671,7 +923,9 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
                       }}
                     />
                   </FormControl>
-                  <FormDescription>Hospital inventory unit. Type to search, e.g. box.</FormDescription>
+                  <FormDescription>
+                    Hospital inventory unit. Type to search, e.g. box.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -679,14 +933,21 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
           </div>
 
           <div className="bg-muted/60 mt-5 space-y-3 rounded-lg border p-4">
-            <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase" id="built-name-label">
+            <p
+              className="text-muted-foreground text-xs font-medium tracking-wide uppercase"
+              id="built-name-label"
+            >
               Item description preview
             </p>
             <p
-              className={cn('font-mono text-sm font-semibold break-words', !builtName && 'text-muted-foreground font-normal')}
+              className={cn(
+                'font-mono text-sm font-semibold break-words',
+                !builtName && 'text-muted-foreground font-normal'
+              )}
               aria-labelledby="built-name-label"
             >
-              {builtName || 'Fill in the noun and other parts to see the description.'}
+              {builtName ||
+                'Fill in the noun and other parts to see the description.'}
             </p>
             <NamingAudit description={builtName} excludeId={product?.id} />
           </div>
@@ -705,8 +966,10 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
                 <FormItem data-field="commodity">
                   <FormLabel required>UNSPSC commodity</FormLabel>
                   <FormDescription>
-                    Search by words, the item name or the 8-digit code, or browse Segment → Family → Class. Results are ranked by matching rules
-                    and show why they matched; you make the final choice.
+                    Search by words, the item name or the 8-digit code, or
+                    browse Segment → Family → Class. Results are ranked by
+                    matching rules and show why they matched; you make the final
+                    choice.
                   </FormDescription>
                   <FormControl required>
                     <UnspscClassifier
@@ -739,17 +1002,28 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
                         }}
                       />
                     </FormControl>
-                    <FormDescription>ZCMC institutional category, e.g. OF-SUP.</FormDescription>
+                    <FormDescription>
+                      ZCMC institutional category, e.g. OF-SUP.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <ErpCodePreview mode={mode} product={product} commodity={commodity} internalCategoryId={internalCategoryId} />
+              <ErpCodePreview
+                mode={mode}
+                product={product}
+                commodity={commodity}
+                internalCategoryId={internalCategoryId}
+              />
             </div>
           </div>
         </SectionCard>
 
-        <SectionCard headingId="section-codes" title="3. System codes" description="Codes used by other hospital and government systems.">
+        <SectionCard
+          headingId="section-codes"
+          title="3. System codes"
+          description="Codes used by other hospital and government systems."
+        >
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={control}
@@ -758,11 +1032,22 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
                 <FormItem data-field="bizbox_item_code">
                   <FormLabel required>BizBox item code</FormLabel>
                   <FormControl required>
-                    <Input {...field} placeholder="e.g. BZ-MED-001" autoComplete="off" autoCapitalize="characters" spellCheck={false} />
+                    <Input
+                      {...field}
+                      placeholder="e.g. BZ-MED-001"
+                      autoComplete="off"
+                      autoCapitalize="characters"
+                      spellCheck={false}
+                    />
                   </FormControl>
-                  <FormDescription>Code from the BizBox hospital system.</FormDescription>
+                  <FormDescription>
+                    Code from the BizBox hospital system.
+                  </FormDescription>
                   <FormMessage />
-                  <BizboxDuplicateCheck code={field.value || ''} excludeId={product?.id} />
+                  <BizboxDuplicateCheck
+                    code={field.value || ''}
+                    excludeId={product?.id}
+                  />
                 </FormItem>
               )}
             />
@@ -773,11 +1058,22 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
                 <FormItem data-field="philgeps_code">
                   <FormLabel>PhilGEPS code</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="e.g. 14111507-PP-M01" autoComplete="off" autoCapitalize="characters" spellCheck={false} />
+                    <Input
+                      {...field}
+                      placeholder="e.g. 14111507-PP-M01"
+                      autoComplete="off"
+                      autoCapitalize="characters"
+                      spellCheck={false}
+                    />
                   </FormControl>
                   <FormDescription>
                     Optional. Look it up in the{' '}
-                    <a href={PHILGEPS_DIRECTORY_URL} target="_blank" rel="noreferrer" className="text-primary inline-flex items-center gap-0.5 font-medium underline underline-offset-2">
+                    <a
+                      href={PHILGEPS_DIRECTORY_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-primary inline-flex items-center gap-0.5 font-medium underline underline-offset-2"
+                    >
                       PS-PhilGEPS common-use items directory
                       <ExternalLink className="size-3" aria-hidden="true" />
                       <span className="sr-only">(opens in a new tab)</span>
@@ -791,7 +1087,11 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
           </div>
         </SectionCard>
 
-        <Collapsible defaultOpen={Boolean(product?.other_specs || product?.tech_specs_pdf_path)}>
+        <Collapsible
+          defaultOpen={Boolean(
+            product?.other_specs || product?.tech_specs_pdf_path
+          )}
+        >
           <Card className="gap-0 py-0">
             <CollapsibleTrigger asChild>
               <button
@@ -807,13 +1107,20 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
                   </span>
                   <span className="text-muted-foreground block text-sm">
                     {otherSpecs.length || pdfPath
-                      ? [otherSpecs.length && `${otherSpecs.length} specification${otherSpecs.length === 1 ? '' : 's'}`, pdfPath && 'PDF attached']
+                      ? [
+                          otherSpecs.length &&
+                            `${otherSpecs.length} specification${otherSpecs.length === 1 ? '' : 's'}`,
+                          pdfPath && 'PDF attached',
+                        ]
                           .filter(Boolean)
                           .join(' · ')
                       : 'Extra notes and a manufacturer datasheet.'}
                   </span>
                 </span>
-                <ChevronDown className="text-muted-foreground size-5 shrink-0 transition-transform group-data-[state=open]:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
+                <ChevronDown
+                  className="text-muted-foreground size-5 shrink-0 transition-transform group-data-[state=open]:rotate-180 motion-reduce:transition-none"
+                  aria-hidden="true"
+                />
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -823,7 +1130,10 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
                   name="other_specs"
                   render={({ field }) => (
                     <div data-field="other_specs">
-                      <SpecsField value={field.value} onChange={field.onChange} />
+                      <SpecsField
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
                     </div>
                   )}
                 />
@@ -832,7 +1142,11 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
                   name="tech_specs_pdf_path"
                   render={({ field }) => (
                     <div data-field="tech_specs_pdf_path">
-                      <PdfField path={field.value} initialUrl={product?.tech_specs_pdf_url} onChange={(v) => field.onChange(v)} />
+                      <PdfField
+                        path={field.value}
+                        initialUrl={product?.tech_specs_pdf_url}
+                        onChange={(v) => field.onChange(v)}
+                      />
                     </div>
                   )}
                 />
@@ -855,7 +1169,12 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
                   <FormLabel required>Account password</FormLabel>
                   <div className="relative">
                     <FormControl required>
-                      <Input {...field} type={showPassword ? 'text' : 'password'} autoComplete="current-password" className="pr-10" />
+                      <Input
+                        {...field}
+                        type={showPassword ? 'text' : 'password'}
+                        autoComplete="current-password"
+                        className="pr-10"
+                      />
                     </FormControl>
                     <Button
                       type="button"
@@ -863,10 +1182,16 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
                       size="icon-sm"
                       className="absolute top-1/2 right-0.5 -translate-y-1/2"
                       onClick={() => setShowPassword((s) => !s)}
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      aria-label={
+                        showPassword ? 'Hide password' : 'Show password'
+                      }
                       aria-pressed={showPassword}
                     >
-                      {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
+                      {showPassword ? (
+                        <EyeOff aria-hidden="true" />
+                      ) : (
+                        <Eye aria-hidden="true" />
+                      )}
                     </Button>
                   </div>
                   <FormMessage />
@@ -877,22 +1202,37 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
         )}
 
         <div className="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t px-4 py-2.5 sm:py-3 backdrop-blur sm:mx-0 sm:flex-row sm:items-center sm:justify-between sm:rounded-lg sm:border">
-          <p className="text-muted-foreground text-xs sm:text-sm" aria-live="polite">
+          <p
+            className="text-muted-foreground text-xs sm:text-sm"
+            aria-live="polite"
+          >
             {remaining === 0 ? (
               <span className="text-success inline-flex items-center gap-1.5">
-                <CircleCheck className="size-4" aria-hidden="true" /> All required fields are filled.
+                <CircleCheck className="size-4" aria-hidden="true" /> All
+                required fields are filled.
               </span>
             ) : (
               `${remaining} required ${remaining === 1 ? 'field' : 'fields'} left`
             )}
           </p>
           <div className="grid grid-cols-2 gap-2 sm:flex">
-            <Button type="button" variant="outline" onClick={onCancel} disabled={formState.isSubmitting}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={formState.isSubmitting}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={formState.isSubmitting}>
-              {formState.isSubmitting && <LoaderCircle className="animate-spin" aria-hidden="true" />}
-              {formState.isSubmitting ? 'Saving…' : mode === 'edit' ? 'Save product' : 'Create product'}
+              {formState.isSubmitting && (
+                <LoaderCircle className="animate-spin" aria-hidden="true" />
+              )}
+              {formState.isSubmitting
+                ? 'Saving…'
+                : mode === 'edit'
+                  ? 'Save product'
+                  : 'Create product'}
             </Button>
           </div>
         </div>

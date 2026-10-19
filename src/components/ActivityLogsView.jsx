@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   Box,
   Paper,
@@ -24,83 +24,103 @@ import {
   Tooltip,
   Divider,
   InputAdornment,
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import HistoryIcon from '@mui/icons-material/History';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import CloseIcon from '@mui/icons-material/Close';
-import PersonIcon from '@mui/icons-material/Person';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import { api } from '../services/api';
+} from '@mui/material'
+import SearchIcon from '@mui/icons-material/Search'
+import RefreshIcon from '@mui/icons-material/Refresh'
+import HistoryIcon from '@mui/icons-material/History'
+import AddCircleIcon from '@mui/icons-material/AddCircle'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import CloseIcon from '@mui/icons-material/Close'
+import PersonIcon from '@mui/icons-material/Person'
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
+import { api } from '../services/api'
 
 const ACTION_CONFIG = {
-  CREATED: { label: 'Created', color: 'success', icon: <AddCircleIcon fontSize="inherit" /> },
-  UPDATED: { label: 'Updated', color: 'info', icon: <EditIcon fontSize="inherit" /> },
-  DELETED: { label: 'Deleted', color: 'error', icon: <DeleteIcon fontSize="inherit" /> },
-  IMPORTED: { label: 'Imported', color: 'secondary', icon: <CloudUploadIcon fontSize="inherit" /> },
-  PDF_UPLOADED: { label: 'PDF Upload', color: 'primary', icon: <PictureAsPdfIcon fontSize="inherit" /> },
-};
+  CREATED: {
+    label: 'Created',
+    color: 'success',
+    icon: <AddCircleIcon fontSize="inherit" />,
+  },
+  UPDATED: {
+    label: 'Updated',
+    color: 'info',
+    icon: <EditIcon fontSize="inherit" />,
+  },
+  DELETED: {
+    label: 'Deleted',
+    color: 'error',
+    icon: <DeleteIcon fontSize="inherit" />,
+  },
+  IMPORTED: {
+    label: 'Imported',
+    color: 'secondary',
+    icon: <CloudUploadIcon fontSize="inherit" />,
+  },
+  PDF_UPLOADED: {
+    label: 'PDF Upload',
+    color: 'primary',
+    icon: <PictureAsPdfIcon fontSize="inherit" />,
+  },
+}
 
 export default function ActivityLogsView() {
-  const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(15);
+  const [logs, setLogs] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(15)
 
   // Filters
-  const [search, setSearch] = useState('');
-  const [selectedAction, setSelectedAction] = useState('ALL');
+  const [search, setSearch] = useState('')
+  const [selectedAction, setSelectedAction] = useState('ALL')
 
   // Change inspection modal
-  const [selectedLog, setSelectedLog] = useState(null);
+  const [selectedLog, setSelectedLog] = useState(null)
 
   const fetchLogs = useCallback(async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       const params = {
         page: page + 1,
         per_page: rowsPerPage,
-      };
+      }
       if (search.trim()) {
-        params.search = search.trim();
+        params.search = search.trim()
       }
       if (selectedAction !== 'ALL') {
-        params.action = selectedAction;
+        params.action = selectedAction
       }
-      const res = await api.getActivityLogs(params);
-      setLogs(res.data || []);
-      setTotal(res.total || 0);
+      const res = await api.getActivityLogs(params)
+      setLogs(res.data || [])
+      setTotal(res.total || 0)
     } catch (err) {
-      console.error('Failed to load activity logs:', err);
+      console.error('Failed to load activity logs:', err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [page, rowsPerPage, search, selectedAction]);
+  }, [page, rowsPerPage, search, selectedAction])
 
   useEffect(() => {
-    fetchLogs();
-  }, [fetchLogs]);
+    fetchLogs()
+  }, [fetchLogs])
 
   const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+    setPage(newPage)
+  }
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+    setRowsPerPage(parseInt(event.target.value, 10))
+    setPage(0)
+  }
 
   const formatDate = (dateString) => {
-    if (!dateString) return '—';
-    const d = new Date(dateString);
+    if (!dateString) return '—'
+    const d = new Date(dateString)
     return d.toLocaleString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -108,8 +128,8 @@ export default function ActivityLogsView() {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
-    });
-  };
+    })
+  }
 
   return (
     <Box>
@@ -147,11 +167,22 @@ export default function ActivityLogsView() {
               <HistoryIcon fontSize="medium" />
             </Box>
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#ffffff' }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 800,
+                  letterSpacing: '-0.02em',
+                  color: '#ffffff',
+                }}
+              >
                 System Audit Trail & Activity Logs
               </Typography>
-              <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block' }}>
-                Immutable audit logs tracking product creations, modifications, deletions, and document uploads.
+              <Typography
+                variant="caption"
+                sx={{ color: '#94a3b8', display: 'block' }}
+              >
+                Immutable audit logs tracking product creations, modifications,
+                deletions, and document uploads.
               </Typography>
             </Box>
           </Stack>
@@ -161,12 +192,22 @@ export default function ActivityLogsView() {
           <Chip
             label={`Total Logged Events: ${total}`}
             variant="outlined"
-            sx={{ borderColor: 'rgba(255, 255, 255, 0.2)', color: '#e2e8f0', fontWeight: 700 }}
+            sx={{
+              borderColor: 'rgba(255, 255, 255, 0.2)',
+              color: '#e2e8f0',
+              fontWeight: 700,
+            }}
           />
           <Button
             variant="contained"
             size="small"
-            startIcon={loading ? <CircularProgress size={16} color="inherit" /> : <RefreshIcon />}
+            startIcon={
+              loading ? (
+                <CircularProgress size={16} color="inherit" />
+              ) : (
+                <RefreshIcon />
+              )
+            }
             onClick={() => fetchLogs()}
             disabled={loading}
             sx={{
@@ -182,16 +223,23 @@ export default function ActivityLogsView() {
       </Paper>
 
       {/* Filter Bar */}
-      <Paper variant="outlined" sx={{ p: 2, mb: 2, borderRadius: 2, borderColor: '#e2e8f0' }}>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
+      <Paper
+        variant="outlined"
+        sx={{ p: 2, mb: 2, borderRadius: 2, borderColor: '#e2e8f0' }}
+      >
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          alignItems="center"
+        >
           <TextField
             fullWidth
             size="small"
             placeholder="Search logs by user, description, or item code..."
             value={search}
             onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(0);
+              setSearch(e.target.value)
+              setPage(0)
             }}
             slotProps={{
               input: {
@@ -209,8 +257,8 @@ export default function ActivityLogsView() {
             size="small"
             value={selectedAction}
             onChange={(e) => {
-              setSelectedAction(e.target.value);
-              setPage(0);
+              setSelectedAction(e.target.value)
+              setPage(0)
             }}
             sx={{ minWidth: 180 }}
             label="Filter Action"
@@ -226,17 +274,30 @@ export default function ActivityLogsView() {
       </Paper>
 
       {/* Logs Table */}
-      <Paper variant="outlined" sx={{ borderRadius: 2, borderColor: '#e2e8f0', overflow: 'hidden' }}>
+      <Paper
+        variant="outlined"
+        sx={{ borderRadius: 2, borderColor: '#e2e8f0', overflow: 'hidden' }}
+      >
         <TableContainer sx={{ maxHeight: 600 }}>
           <Table size="small" stickyHeader>
             <TableHead>
-              <TableRow sx={{ '& th': { backgroundColor: '#f8fafc', fontWeight: 700, color: '#334155' } }}>
+              <TableRow
+                sx={{
+                  '& th': {
+                    backgroundColor: '#f8fafc',
+                    fontWeight: 700,
+                    color: '#334155',
+                  },
+                }}
+              >
                 <TableCell sx={{ width: '15%' }}>Timestamp</TableCell>
                 <TableCell sx={{ width: '12%' }}>Action</TableCell>
                 <TableCell sx={{ width: '22%' }}>User / Actor</TableCell>
                 <TableCell sx={{ width: '18%' }}>Target Item</TableCell>
                 <TableCell sx={{ width: '25%' }}>Description</TableCell>
-                <TableCell align="center" sx={{ width: '8%' }}>Changes</TableCell>
+                <TableCell align="center" sx={{ width: '8%' }}>
+                  Changes
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -244,19 +305,27 @@ export default function ActivityLogsView() {
                 <TableRow>
                   <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
                     <CircularProgress size={28} sx={{ color: '#2563eb' }} />
-                    <Typography variant="body2" sx={{ color: '#64748b', mt: 1 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: '#64748b', mt: 1 }}
+                    >
                       Loading audit logs...
                     </Typography>
                   </TableCell>
                 </TableRow>
               ) : logs.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 6, color: '#94a3b8' }}>
+                  <TableCell
+                    colSpan={6}
+                    align="center"
+                    sx={{ py: 6, color: '#94a3b8' }}
+                  >
                     <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                       No activity logs found.
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#cbd5e1' }}>
-                      Try clearing search filters or perform catalogue actions to generate logs.
+                      Try clearing search filters or perform catalogue actions
+                      to generate logs.
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -266,12 +335,18 @@ export default function ActivityLogsView() {
                     label: log.action,
                     color: 'default',
                     icon: <HistoryIcon fontSize="inherit" />,
-                  };
-                  const hasDiff = Boolean(log.old_values || log.new_values);
+                  }
+                  const hasDiff = Boolean(log.old_values || log.new_values)
 
                   return (
                     <TableRow key={log.id} hover>
-                      <TableCell sx={{ fontSize: '0.78rem', color: '#475569', fontWeight: 600 }}>
+                      <TableCell
+                        sx={{
+                          fontSize: '0.78rem',
+                          color: '#475569',
+                          fontWeight: 600,
+                        }}
+                      >
                         {formatDate(log.created_at)}
                       </TableCell>
 
@@ -281,34 +356,68 @@ export default function ActivityLogsView() {
                           label={actionCfg.label}
                           color={actionCfg.color}
                           size="small"
-                          sx={{ fontWeight: 800, fontSize: '0.68rem', height: 22 }}
+                          sx={{
+                            fontWeight: 800,
+                            fontSize: '0.68rem',
+                            height: 22,
+                          }}
                         />
                       </TableCell>
 
                       <TableCell>
                         <Stack spacing={0.2}>
-                          <Stack direction="row" spacing={0.5} alignItems="center">
+                          <Stack
+                            direction="row"
+                            spacing={0.5}
+                            alignItems="center"
+                          >
                             {log.user?.is_admin ? (
-                              <AdminPanelSettingsIcon sx={{ fontSize: 14, color: '#2563eb' }} />
+                              <AdminPanelSettingsIcon
+                                sx={{ fontSize: 14, color: '#2563eb' }}
+                              />
                             ) : (
-                              <PersonIcon sx={{ fontSize: 14, color: '#64748b' }} />
+                              <PersonIcon
+                                sx={{ fontSize: 14, color: '#64748b' }}
+                              />
                             )}
-                            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.78rem', color: '#0f172a' }}>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontWeight: 700,
+                                fontSize: '0.78rem',
+                                color: '#0f172a',
+                              }}
+                            >
                               {log.user_name || 'System'}
                             </Typography>
                           </Stack>
-                          <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.7rem' }}>
-                            {log.user_email || '—'} {log.ip_address ? `• ${log.ip_address}` : ''}
+                          <Typography
+                            variant="caption"
+                            sx={{ color: '#64748b', fontSize: '0.7rem' }}
+                          >
+                            {log.user_email || '—'}{' '}
+                            {log.ip_address ? `• ${log.ip_address}` : ''}
                           </Typography>
                         </Stack>
                       </TableCell>
 
                       <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.78rem', color: '#2563eb' }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: '0.78rem',
+                            color: '#2563eb',
+                          }}
+                        >
                           {log.entity_identifier || `#${log.entity_id || '—'}`}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.68rem' }}>
-                          {log.entity_type} {log.entity_id ? `(#${log.entity_id})` : ''}
+                        <Typography
+                          variant="caption"
+                          sx={{ color: '#94a3b8', fontSize: '0.68rem' }}
+                        >
+                          {log.entity_type}{' '}
+                          {log.entity_id ? `(#${log.entity_id})` : ''}
                         </Typography>
                       </TableCell>
 
@@ -332,13 +441,16 @@ export default function ActivityLogsView() {
                             </IconButton>
                           </Tooltip>
                         ) : (
-                          <Typography variant="caption" sx={{ color: '#cbd5e1' }}>
+                          <Typography
+                            variant="caption"
+                            sx={{ color: '#cbd5e1' }}
+                          >
                             —
                           </Typography>
                         )}
                       </TableCell>
                     </TableRow>
-                  );
+                  )
                 })
               )}
             </TableBody>
@@ -359,8 +471,21 @@ export default function ActivityLogsView() {
 
       {/* Change Inspection Modal */}
       {selectedLog && (
-        <Dialog open={Boolean(selectedLog)} onClose={() => setSelectedLog(null)} maxWidth="md" fullWidth>
-          <DialogTitle sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Dialog
+          open={Boolean(selectedLog)}
+          onClose={() => setSelectedLog(null)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle
+            sx={{
+              m: 0,
+              p: 2,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
             <Stack direction="row" spacing={1} alignItems="center">
               <CompareArrowsIcon sx={{ color: '#2563eb' }} />
               <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
@@ -373,57 +498,111 @@ export default function ActivityLogsView() {
           </DialogTitle>
           <DialogContent dividers sx={{ p: 2.5 }}>
             <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f172a' }}>
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 700, color: '#0f172a' }}
+              >
                 {selectedLog.description}
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748b' }}>
-                Executed by <strong>{selectedLog.user_name}</strong> ({selectedLog.user_email}) on {formatDate(selectedLog.created_at)}
+                Executed by <strong>{selectedLog.user_name}</strong> (
+                {selectedLog.user_email}) on{' '}
+                {formatDate(selectedLog.created_at)}
               </Typography>
             </Box>
 
-            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
+            <TableContainer
+              component={Paper}
+              variant="outlined"
+              sx={{ borderRadius: 2 }}
+            >
               <Table size="small">
                 <TableHead sx={{ backgroundColor: '#f8fafc' }}>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 700, width: '25%' }}>Attribute</TableCell>
-                    <TableCell sx={{ fontWeight: 700, width: '37.5%', color: '#dc2626' }}>Before (Old Value)</TableCell>
-                    <TableCell sx={{ fontWeight: 700, width: '37.5%', color: '#16a34a' }}>After (New Value)</TableCell>
+                    <TableCell sx={{ fontWeight: 700, width: '25%' }}>
+                      Attribute
+                    </TableCell>
+                    <TableCell
+                      sx={{ fontWeight: 700, width: '37.5%', color: '#dc2626' }}
+                    >
+                      Before (Old Value)
+                    </TableCell>
+                    <TableCell
+                      sx={{ fontWeight: 700, width: '37.5%', color: '#16a34a' }}
+                    >
+                      After (New Value)
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {(() => {
-                    const oldVal = selectedLog.old_values || {};
-                    const newVal = selectedLog.new_values || {};
-                    const keys = Array.from(new Set([...Object.keys(oldVal), ...Object.keys(newVal)]));
+                    const oldVal = selectedLog.old_values || {}
+                    const newVal = selectedLog.new_values || {}
+                    const keys = Array.from(
+                      new Set([...Object.keys(oldVal), ...Object.keys(newVal)])
+                    )
 
                     if (keys.length === 0) {
                       return (
                         <TableRow>
-                          <TableCell colSpan={3} align="center" sx={{ py: 3, color: '#94a3b8' }}>
-                            No structured attribute diff available for this event.
+                          <TableCell
+                            colSpan={3}
+                            align="center"
+                            sx={{ py: 3, color: '#94a3b8' }}
+                          >
+                            No structured attribute diff available for this
+                            event.
                           </TableCell>
                         </TableRow>
-                      );
+                      )
                     }
 
                     return keys.map((key) => {
-                      const vOld = oldVal[key] !== undefined && oldVal[key] !== null ? String(oldVal[key]) : '—';
-                      const vNew = newVal[key] !== undefined && newVal[key] !== null ? String(newVal[key]) : '—';
+                      const vOld =
+                        oldVal[key] !== undefined && oldVal[key] !== null
+                          ? String(oldVal[key])
+                          : '—'
+                      const vNew =
+                        newVal[key] !== undefined && newVal[key] !== null
+                          ? String(newVal[key])
+                          : '—'
 
                       return (
                         <TableRow key={key}>
-                          <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem', color: '#475569', textTransform: 'capitalize' }}>
+                          <TableCell
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: '0.75rem',
+                              color: '#475569',
+                              textTransform: 'capitalize',
+                            }}
+                          >
                             {key.replace(/_/g, ' ')}
                           </TableCell>
-                          <TableCell sx={{ fontSize: '0.75rem', backgroundColor: '#fef2f2', color: '#991b1b', wordBreak: 'break-word' }}>
+                          <TableCell
+                            sx={{
+                              fontSize: '0.75rem',
+                              backgroundColor: '#fef2f2',
+                              color: '#991b1b',
+                              wordBreak: 'break-word',
+                            }}
+                          >
                             {vOld}
                           </TableCell>
-                          <TableCell sx={{ fontSize: '0.75rem', backgroundColor: '#f0fdf4', color: '#166534', wordBreak: 'break-word', fontWeight: 600 }}>
+                          <TableCell
+                            sx={{
+                              fontSize: '0.75rem',
+                              backgroundColor: '#f0fdf4',
+                              color: '#166534',
+                              wordBreak: 'break-word',
+                              fontWeight: 600,
+                            }}
+                          >
                             {vNew}
                           </TableCell>
                         </TableRow>
-                      );
-                    });
+                      )
+                    })
                   })()}
                 </TableBody>
               </Table>
@@ -437,5 +616,5 @@ export default function ActivityLogsView() {
         </Dialog>
       )}
     </Box>
-  );
+  )
 }

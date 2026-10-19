@@ -19,7 +19,12 @@ import {
  * Confirms permanent deletion. The server (DELETE /products/:id) allows this for
  * administrators only and returns 403 otherwise; that message is shown here.
  */
-export function DeleteProductDialog({ product, open, onOpenChange, onDeleted }) {
+export function DeleteProductDialog({
+  product,
+  open,
+  onOpenChange,
+  onDeleted,
+}) {
   const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
 
@@ -51,15 +56,19 @@ export function DeleteProductDialog({ product, open, onOpenChange, onDeleted }) 
           <AlertDialogDescription asChild>
             <div className="space-y-3">
               <p>
-                This permanently removes the product from the catalogue. Its price history is deleted with it. This
-                cannot be undone.
+                This permanently removes the product from the catalogue. Its
+                price history is deleted with it. This cannot be undone.
               </p>
               {product && (
                 <dl className="bg-muted text-foreground grid gap-1 rounded-md p-3 text-sm">
                   <dt className="sr-only">Item description</dt>
-                  <dd className="font-medium break-words">{display(product.item_description)}</dd>
+                  <dd className="font-medium break-words">
+                    {display(product.item_description)}
+                  </dd>
                   <dt className="sr-only">ERP item code</dt>
-                  <dd className="text-muted-foreground font-mono text-xs break-all">{display(product.erp_item_code)}</dd>
+                  <dd className="text-muted-foreground font-mono text-xs break-all">
+                    {display(product.erp_item_code)}
+                  </dd>
                 </dl>
               )}
             </div>
@@ -76,8 +85,14 @@ export function DeleteProductDialog({ product, open, onOpenChange, onDeleted }) 
         <AlertDialogFooter>
           <AlertDialogCancel disabled={pending}>Cancel</AlertDialogCancel>
           {/* Plain Button (not AlertDialogAction) so the dialog stays open while the request runs or fails. */}
-          <Button variant="destructive" onClick={handleDelete} disabled={pending}>
-            {pending && <LoaderCircle className="animate-spin" aria-hidden="true" />}
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={pending}
+          >
+            {pending && (
+              <LoaderCircle className="animate-spin" aria-hidden="true" />
+            )}
             {pending ? 'Deleting…' : 'Delete product'}
           </Button>
         </AlertDialogFooter>

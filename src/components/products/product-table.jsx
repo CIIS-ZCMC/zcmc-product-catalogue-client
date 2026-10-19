@@ -4,16 +4,29 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { commodityLabel, display, formatDate } from '@/lib/product'
 import { Badge } from '@/components/ui/badge'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { ProductRowActions } from './product-row-actions'
 
 function SortableHead({ label, field, sort, onSort, className }) {
   const active = sort.by === field
-  const Icon = !active ? ArrowUpDown : sort.order === 'asc' ? ArrowUp : ArrowDown
+  const Icon = !active
+    ? ArrowUpDown
+    : sort.order === 'asc'
+      ? ArrowUp
+      : ArrowDown
   return (
     <TableHead
       className={className}
-      aria-sort={active ? (sort.order === 'asc' ? 'ascending' : 'descending') : 'none'}
+      aria-sort={
+        active ? (sort.order === 'asc' ? 'ascending' : 'descending') : 'none'
+      }
     >
       <button
         type="button"
@@ -21,9 +34,14 @@ function SortableHead({ label, field, sort, onSort, className }) {
         className="hover:text-foreground -mx-1 inline-flex items-center gap-1 rounded px-1 py-1 uppercase outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
       >
         {label}
-        <Icon className={cn('size-3.5', !active && 'opacity-50')} aria-hidden="true" />
+        <Icon
+          className={cn('size-3.5', !active && 'opacity-50')}
+          aria-hidden="true"
+        />
         <span className="sr-only">
-          {active ? `, sorted ${sort.order === 'asc' ? 'ascending' : 'descending'}` : ', not sorted'}
+          {active
+            ? `, sorted ${sort.order === 'asc' ? 'ascending' : 'descending'}`
+            : ', not sorted'}
         </span>
       </button>
     </TableHead>
@@ -31,19 +49,58 @@ function SortableHead({ label, field, sort, onSort, className }) {
 }
 
 /** Desktop and tablet listing (md and up). Secondary columns drop out below xl. */
-export function ProductTable({ products, sort, onSort, onDelete, linkState, busy }) {
+export function ProductTable({
+  products,
+  sort,
+  onSort,
+  onDelete,
+  linkState,
+  busy,
+}) {
   return (
-    <div className={cn('bg-card rounded-xl border', busy && 'opacity-60 transition-opacity')}>
+    <div
+      className={cn(
+        'bg-card rounded-xl border',
+        busy && 'opacity-60 transition-opacity'
+      )}
+    >
       <Table className="table-fixed">
         <caption className="sr-only">Catalogue products</caption>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <SortableHead label="ERP code" field="erp_item_code" sort={sort} onSort={onSort} className="w-44 lg:w-52" />
-            <SortableHead label="Item description" field="item_description" sort={sort} onSort={onSort} />
-            <TableHead className="hidden w-56 lg:table-cell xl:w-72">UNSPSC commodity</TableHead>
-            <TableHead className="hidden w-32 leading-tight whitespace-normal xl:table-cell">Internal category</TableHead>
-            <SortableHead label="UOM" field="uom" sort={sort} onSort={onSort} className="w-24" />
-            <SortableHead label="Added" field="created_at" sort={sort} onSort={onSort} className="hidden w-32 xl:table-cell" />
+            <SortableHead
+              label="ERP code"
+              field="erp_item_code"
+              sort={sort}
+              onSort={onSort}
+              className="w-44 lg:w-52"
+            />
+            <SortableHead
+              label="Item description"
+              field="item_description"
+              sort={sort}
+              onSort={onSort}
+            />
+            <TableHead className="hidden w-56 lg:table-cell xl:w-72">
+              UNSPSC commodity
+            </TableHead>
+            <TableHead className="hidden w-32 leading-tight whitespace-normal xl:table-cell">
+              Internal category
+            </TableHead>
+            <SortableHead
+              label="UOM"
+              field="uom"
+              sort={sort}
+              onSort={onSort}
+              className="w-24"
+            />
+            <SortableHead
+              label="Added"
+              field="created_at"
+              sort={sort}
+              onSort={onSort}
+              className="hidden w-32 xl:table-cell"
+            />
             <TableHead className="w-14">
               <span className="sr-only">Actions</span>
             </TableHead>
@@ -52,7 +109,9 @@ export function ProductTable({ products, sort, onSort, onDelete, linkState, busy
         <TableBody>
           {products.map((p) => (
             <TableRow key={p.id}>
-              <TableCell className="font-mono text-xs break-all">{display(p.erp_item_code)}</TableCell>
+              <TableCell className="font-mono text-xs break-all">
+                {display(p.erp_item_code)}
+              </TableCell>
               <TableCell>
                 <Link
                   to={`/products/${p.id}`}
@@ -66,12 +125,20 @@ export function ProductTable({ products, sort, onSort, onDelete, linkState, busy
                   {p.philgeps_code && <> · PhilGEPS {p.philgeps_code}</>}
                 </div>
                 {/* Commodity moves under the description where its column is hidden. */}
-                <div className="text-muted-foreground mt-1 text-xs break-words lg:hidden">{commodityLabel(p)}</div>
+                <div className="text-muted-foreground mt-1 text-xs break-words lg:hidden">
+                  {commodityLabel(p)}
+                </div>
               </TableCell>
-              <TableCell className="hidden text-sm break-words lg:table-cell">{commodityLabel(p)}</TableCell>
+              <TableCell className="hidden text-sm break-words lg:table-cell">
+                {commodityLabel(p)}
+              </TableCell>
               <TableCell className="hidden xl:table-cell">
                 {p.internal_category_code ? (
-                  <Badge variant="outline" className="font-mono" title={p.internal_category?.name}>
+                  <Badge
+                    variant="outline"
+                    className="font-mono"
+                    title={p.internal_category?.name}
+                  >
                     {p.internal_category_code}
                   </Badge>
                 ) : (
@@ -79,9 +146,15 @@ export function ProductTable({ products, sort, onSort, onDelete, linkState, busy
                 )}
               </TableCell>
               <TableCell className="text-sm">{display(p.uom)}</TableCell>
-              <TableCell className="text-muted-foreground hidden text-sm xl:table-cell">{formatDate(p.created_at)}</TableCell>
+              <TableCell className="text-muted-foreground hidden text-sm xl:table-cell">
+                {formatDate(p.created_at)}
+              </TableCell>
               <TableCell className="py-2 text-right">
-                <ProductRowActions product={p} onDelete={onDelete} linkState={linkState} />
+                <ProductRowActions
+                  product={p}
+                  onDelete={onDelete}
+                  linkState={linkState}
+                />
               </TableCell>
             </TableRow>
           ))}

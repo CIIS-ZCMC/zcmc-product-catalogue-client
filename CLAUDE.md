@@ -67,10 +67,10 @@ Do not copy it into other files. Where it disagrees with this file, this file de
 
 - `npm run dev` starts Vite on `0.0.0.0:5173` and proxies `/api` to `127.0.0.1:7000`. `api.js` falls back
   to `http://<host>:7000/api` when `VITE_API_BASE_URL` is unset.
-- `npm run lint` runs oxlint (`.oxlintrc.json`). The baseline on 2026-10-16 was 0 errors and 31 warnings. Add no new
-  errors, and no new warnings except the expected `only-export-components` warning for each new `lazy()` route in `src/router.jsx`.
-- `npm run build` is the production build. It must pass. Read its chunk-size output.
-- There is no test runner, type-check script or formatter configured. Do not claim tests ran.
+- `npm run lint` runs oxlint (`.oxlintrc.json`). The baseline was 0 errors and 29-31 warnings.
+- `npm run format:check` and `npm run format` run Prettier according to `.prettierrc`.
+- `npm run test` runs unit tests via Vitest (`vitest run`).
+- `npm run build` is the production build. It reads `VITE_API_BASE_URL` (defaulting in production to `https://product-registryapi.zcmc.online/api`). It must pass.
 
 ## Working rules
 

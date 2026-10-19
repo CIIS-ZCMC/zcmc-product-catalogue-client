@@ -9,7 +9,11 @@ export default function NamingPage() {
   return (
     <LegacyTheme>
       <UniformNamingTool
-        onSendToProductModal={(description) => navigate('/products/new', { state: { prefillDescription: description } })}
+        onSendToProductModal={(description) =>
+          navigate('/products/new', {
+            state: { prefillDescription: description },
+          })
+        }
       />
     </LegacyTheme>
   )

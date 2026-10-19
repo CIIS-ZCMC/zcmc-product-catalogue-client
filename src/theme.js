@@ -1,4 +1,4 @@
-﻿import { createTheme } from '@mui/material/styles';
+﻿import { createTheme } from '@mui/material/styles'
 
 export const theme = createTheme({
   palette: {
@@ -93,7 +93,8 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)',
+          boxShadow:
+            '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)',
           border: '1px solid #e2e8f0',
         },
       },
@@ -137,4 +138,4 @@ export const theme = createTheme({
       },
     },
   },
-});
+})

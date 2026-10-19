@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import {
   Box,
   Card,
@@ -18,98 +18,107 @@ import {
   DialogContent,
   DialogActions,
   FormHelperText,
-} from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import LockResetIcon from '@mui/icons-material/LockReset';
-import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
-import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
-import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import SecurityIcon from '@mui/icons-material/Security';
-import MarkEmailReadOutlinedIcon from '@mui/icons-material/MarkEmailReadOutlined';
-import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
-import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
-import PasswordIcon from '@mui/icons-material/Password';
-import { api } from '../services/api';
+} from '@mui/material'
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
+import LockResetIcon from '@mui/icons-material/LockReset'
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined'
+import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined'
+import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import SecurityIcon from '@mui/icons-material/Security'
+import MarkEmailReadOutlinedIcon from '@mui/icons-material/MarkEmailReadOutlined'
+import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined'
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined'
+import PasswordIcon from '@mui/icons-material/Password'
+import { api } from '../services/api'
 
 export default function AuthView({ onAuthSuccess }) {
-  const [tab, setTab] = useState('login'); // 'login' | 'register'
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
+  const [tab, setTab] = useState('login') // 'login' | 'register'
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
+  const [successMsg, setSuccessMsg] = useState('')
 
   // Password rules validation helpers
-  const hasMinLength = password.length >= 8;
-  const hasNumber = /\d/.test(password);
-  const hasSpecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(password);
-  const isPasswordValid = hasMinLength && hasNumber && hasSpecial;
+  const hasMinLength = password.length >= 8
+  const hasNumber = /\d/.test(password)
+  const hasSpecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(password)
+  const isPasswordValid = hasMinLength && hasNumber && hasSpecial
 
   // Matching check
-  const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword;
-  const passwordsMismatch = confirmPassword.length > 0 && password !== confirmPassword;
+  const passwordsMatch =
+    confirmPassword.length > 0 && password === confirmPassword
+  const passwordsMismatch =
+    confirmPassword.length > 0 && password !== confirmPassword
 
   // Forgot password dialog state
-  const [forgotOpen, setForgotOpen] = useState(false);
-  const [forgotStep, setForgotStep] = useState(1); // 1: send code, 2: verify & reset
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotCode, setForgotCode] = useState('');
-  const [forgotNewPass, setForgotNewPass] = useState('');
-  const [forgotConfirmPass, setForgotConfirmPass] = useState('');
-  const [forgotShowPass, setForgotShowPass] = useState(false);
-  const [forgotShowConfirmPass, setForgotShowConfirmPass] = useState(false);
-  const [forgotLoading, setForgotLoading] = useState(false);
-  const [forgotError, setForgotError] = useState('');
-  const [forgotSuccess, setForgotSuccess] = useState('');
+  const [forgotOpen, setForgotOpen] = useState(false)
+  const [forgotStep, setForgotStep] = useState(1) // 1: send code, 2: verify & reset
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotCode, setForgotCode] = useState('')
+  const [forgotNewPass, setForgotNewPass] = useState('')
+  const [forgotConfirmPass, setForgotConfirmPass] = useState('')
+  const [forgotShowPass, setForgotShowPass] = useState(false)
+  const [forgotShowConfirmPass, setForgotShowConfirmPass] = useState(false)
+  const [forgotLoading, setForgotLoading] = useState(false)
+  const [forgotError, setForgotError] = useState('')
+  const [forgotSuccess, setForgotSuccess] = useState('')
 
-  const forgotHasMinLength = forgotNewPass.length >= 8;
-  const forgotHasNumber = /\d/.test(forgotNewPass);
-  const forgotHasSpecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(forgotNewPass);
-  const forgotPassValid = forgotHasMinLength && forgotHasNumber && forgotHasSpecial;
-  const forgotPasswordsMatch = forgotConfirmPass.length > 0 && forgotNewPass === forgotConfirmPass;
-  const forgotPasswordsMismatch = forgotConfirmPass.length > 0 && forgotNewPass !== forgotConfirmPass;
+  const forgotHasMinLength = forgotNewPass.length >= 8
+  const forgotHasNumber = /\d/.test(forgotNewPass)
+  const forgotHasSpecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(
+    forgotNewPass
+  )
+  const forgotPassValid =
+    forgotHasMinLength && forgotHasNumber && forgotHasSpecial
+  const forgotPasswordsMatch =
+    forgotConfirmPass.length > 0 && forgotNewPass === forgotConfirmPass
+  const forgotPasswordsMismatch =
+    forgotConfirmPass.length > 0 && forgotNewPass !== forgotConfirmPass
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMsg('');
-    setSuccessMsg('');
+    e.preventDefault()
+    setErrorMsg('')
+    setSuccessMsg('')
 
     if (tab === 'register') {
       if (!firstName.trim()) {
-        setErrorMsg('Please enter your First Name.');
-        return;
+        setErrorMsg('Please enter your First Name.')
+        return
       }
       if (!lastName.trim()) {
-        setErrorMsg('Please enter your Last Name.');
-        return;
+        setErrorMsg('Please enter your Last Name.')
+        return
       }
       if (!email.trim()) {
-        setErrorMsg('Please enter your Email Address.');
-        return;
+        setErrorMsg('Please enter your Email Address.')
+        return
       }
       if (!isPasswordValid) {
         setErrorMsg(
           'Password must be at least 8 characters long and include at least 1 number and 1 special character (!@#$%...).'
-        );
-        return;
+        )
+        return
       }
       if (!confirmPassword) {
-        setErrorMsg('Please confirm your password.');
-        return;
+        setErrorMsg('Please confirm your password.')
+        return
       }
       if (password !== confirmPassword) {
-        setErrorMsg('Passwords do not match. Please verify your password confirmation.');
-        return;
+        setErrorMsg(
+          'Passwords do not match. Please verify your password confirmation.'
+        )
+        return
       }
 
-      setLoading(true);
+      setLoading(true)
       try {
         const res = await api.register({
           first_name: firstName.trim(),
@@ -117,96 +126,114 @@ export default function AuthView({ onAuthSuccess }) {
           email: email.trim(),
           password,
           password_confirmation: confirmPassword,
-        });
-        onAuthSuccess(res.user, res.access_token);
+        })
+        onAuthSuccess(res.user, res.access_token)
       } catch (err) {
-        const firstErr = err.errors ? Object.values(err.errors)[0]?.[0] : null;
-        setErrorMsg(firstErr || err.message || 'Registration failed. Please check your inputs.');
+        const firstErr = err.errors ? Object.values(err.errors)[0]?.[0] : null
+        setErrorMsg(
+          firstErr ||
+            err.message ||
+            'Registration failed. Please check your inputs.'
+        )
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     } else {
       // Sign In
       if (!email.trim() || !password) {
-        setErrorMsg('Please provide both email and password.');
-        return;
+        setErrorMsg('Please provide both email and password.')
+        return
       }
 
-      setLoading(true);
+      setLoading(true)
       try {
-        const res = await api.login({ email: email.trim(), password });
-        onAuthSuccess(res.user, res.access_token);
+        const res = await api.login({ email: email.trim(), password })
+        onAuthSuccess(res.user, res.access_token)
       } catch (err) {
-        const firstErr = err.errors ? Object.values(err.errors)[0]?.[0] : null;
-        setErrorMsg(firstErr || err.message || 'Authentication failed. Please check your credentials.');
+        const firstErr = err.errors ? Object.values(err.errors)[0]?.[0] : null
+        setErrorMsg(
+          firstErr ||
+            err.message ||
+            'Authentication failed. Please check your credentials.'
+        )
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
-  };
+  }
 
   const handleSendResetCode = async (e) => {
-    e?.preventDefault();
+    e?.preventDefault()
     if (!forgotEmail.trim()) {
-      setForgotError('Please enter your email address.');
-      return;
+      setForgotError('Please enter your email address.')
+      return
     }
-    setForgotLoading(true);
-    setForgotError('');
-    setForgotSuccess('');
+    setForgotLoading(true)
+    setForgotError('')
+    setForgotSuccess('')
     try {
-      const res = await api.forgotPassword(forgotEmail.trim());
-      setForgotSuccess(res.message || 'Verification code sent to your email.');
-      setForgotStep(2);
+      const res = await api.forgotPassword(forgotEmail.trim())
+      setForgotSuccess(res.message || 'Verification code sent to your email.')
+      setForgotStep(2)
     } catch (err) {
-      setForgotError(err.message || 'Failed to send password reset code.');
+      setForgotError(err.message || 'Failed to send password reset code.')
     } finally {
-      setForgotLoading(false);
+      setForgotLoading(false)
     }
-  };
+  }
 
   const handleResetPassword = async (e) => {
-    e?.preventDefault();
+    e?.preventDefault()
     if (!forgotCode.trim() || forgotCode.trim().length !== 6) {
-      setForgotError('Please enter the 6-digit verification code received in your email.');
-      return;
+      setForgotError(
+        'Please enter the 6-digit verification code received in your email.'
+      )
+      return
     }
     if (!forgotPassValid) {
       setForgotError(
         'New password must be at least 8 characters long and include at least 1 number and 1 special character.'
-      );
-      return;
+      )
+      return
     }
     if (forgotNewPass !== forgotConfirmPass) {
-      setForgotError('Passwords do not match. Please verify your password confirmation.');
-      return;
+      setForgotError(
+        'Passwords do not match. Please verify your password confirmation.'
+      )
+      return
     }
 
-    setForgotLoading(true);
-    setForgotError('');
+    setForgotLoading(true)
+    setForgotError('')
     try {
       const res = await api.resetPassword({
         email: forgotEmail.trim(),
         code: forgotCode.trim(),
         password: forgotNewPass,
         password_confirmation: forgotConfirmPass,
-      });
-      setForgotSuccess(res.message || 'Password reset successfully!');
+      })
+      setForgotSuccess(res.message || 'Password reset successfully!')
       setTimeout(() => {
-        setForgotOpen(false);
-        setEmail(forgotEmail.trim());
-        setPassword('');
-        setConfirmPassword('');
-        setTab('login');
-        setSuccessMsg('Password reset successfully! Please sign in with your new password.');
-      }, 1500);
+        setForgotOpen(false)
+        setEmail(forgotEmail.trim())
+        setPassword('')
+        setConfirmPassword('')
+        setTab('login')
+        setSuccessMsg(
+          'Password reset successfully! Please sign in with your new password.'
+        )
+      }, 1500)
     } catch (err) {
-      const firstErr = err.errors ? Object.values(err.errors)[0]?.[0] : null;
-      setForgotError(firstErr || err.message || 'Failed to reset password. Please check your code.');
+      const firstErr = err.errors ? Object.values(err.errors)[0]?.[0] : null
+      setForgotError(
+        firstErr ||
+          err.message ||
+          'Failed to reset password. Please check your code.'
+      )
     } finally {
-      setForgotLoading(false);
+      setForgotLoading(false)
     }
-  };
+  }
 
   return (
     <Box
@@ -244,13 +271,13 @@ export default function AuthView({ onAuthSuccess }) {
           }}
         >
           <Box
-            // sx={{
-            //   display: 'inline-flex',
-            //   p: 1.2,
-            //   borderRadius: '50%',
-            //   backgroundColor: 'rgba(255, 255, 255, 0.15)',
-            //   mb: 1.2,
-            // }}
+          // sx={{
+          //   display: 'inline-flex',
+          //   p: 1.2,
+          //   borderRadius: '50%',
+          //   backgroundColor: 'rgba(255, 255, 255, 0.15)',
+          //   mb: 1.2,
+          // }}
           >
             {/* <LocalHospitalIcon sx={{ fontSize: 32, color: '#ffffff' }} /> */}
           </Box>
@@ -260,38 +287,63 @@ export default function AuthView({ onAuthSuccess }) {
           <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
             Zamboanga City Medical Center
           </Typography>
-          <Typography variant="caption" sx={{ opacity: 0.85, fontWeight: 600, display: 'block', mt: 0.5 }}>
+          <Typography
+            variant="caption"
+            sx={{ opacity: 0.85, fontWeight: 600, display: 'block', mt: 0.5 }}
+          >
             Product Catalogue Portal
           </Typography>
         </Box>
 
         {/* Tab Switcher: Sign In vs Register */}
-        <Box sx={{ borderBottom: 1, borderColor: '#e2e8f0', backgroundColor: '#f8fafc' }}>
+        <Box
+          sx={{
+            borderBottom: 1,
+            borderColor: '#e2e8f0',
+            backgroundColor: '#f8fafc',
+          }}
+        >
           <Tabs
             value={tab}
             onChange={(e, val) => {
-              setTab(val);
-              setErrorMsg('');
-              setSuccessMsg('');
+              setTab(val)
+              setErrorMsg('')
+              setSuccessMsg('')
             }}
             variant="fullWidth"
             textColor="primary"
             indicatorColor="primary"
           >
-            <Tab label="Sign In" value="login" sx={{ fontWeight: 700, py: 1.5 }} />
-            <Tab label="Create Account" value="register" sx={{ fontWeight: 700, py: 1.5 }} />
+            <Tab
+              label="Sign In"
+              value="login"
+              sx={{ fontWeight: 700, py: 1.5 }}
+            />
+            <Tab
+              label="Create Account"
+              value="register"
+              sx={{ fontWeight: 700, py: 1.5 }}
+            />
           </Tabs>
         </Box>
 
         <CardContent sx={{ p: 3.5 }}>
           {errorMsg && (
-            <Alert severity="error" sx={{ mb: 2.5 }} onClose={() => setErrorMsg('')}>
+            <Alert
+              severity="error"
+              sx={{ mb: 2.5 }}
+              onClose={() => setErrorMsg('')}
+            >
               {errorMsg}
             </Alert>
           )}
 
           {successMsg && (
-            <Alert severity="success" sx={{ mb: 2.5 }} onClose={() => setSuccessMsg('')}>
+            <Alert
+              severity="success"
+              sx={{ mb: 2.5 }}
+              onClose={() => setSuccessMsg('')}
+            >
               {successMsg}
             </Alert>
           )}
@@ -313,7 +365,10 @@ export default function AuthView({ onAuthSuccess }) {
                       input: {
                         startAdornment: (
                           <InputAdornment position="start">
-                            <PersonOutlinedIcon fontSize="small" sx={{ color: '#2563eb' }} />
+                            <PersonOutlinedIcon
+                              fontSize="small"
+                              sx={{ color: '#2563eb' }}
+                            />
                           </InputAdornment>
                         ),
                       },
@@ -331,7 +386,10 @@ export default function AuthView({ onAuthSuccess }) {
                       input: {
                         startAdornment: (
                           <InputAdornment position="start">
-                            <BadgeOutlinedIcon fontSize="small" sx={{ color: '#2563eb' }} />
+                            <BadgeOutlinedIcon
+                              fontSize="small"
+                              sx={{ color: '#2563eb' }}
+                            />
                           </InputAdornment>
                         ),
                       },
@@ -355,7 +413,10 @@ export default function AuthView({ onAuthSuccess }) {
                   input: {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <EmailOutlinedIcon fontSize="small" sx={{ color: '#2563eb' }} />
+                        <EmailOutlinedIcon
+                          fontSize="small"
+                          sx={{ color: '#2563eb' }}
+                        />
                       </InputAdornment>
                     ),
                   },
@@ -367,18 +428,29 @@ export default function AuthView({ onAuthSuccess }) {
                 <TextField
                   fullWidth
                   size="small"
-                  label={tab === 'register' ? 'Create Password *' : 'Password *'}
+                  label={
+                    tab === 'register' ? 'Create Password *' : 'Password *'
+                  }
                   type={showPassword ? 'text' : 'password'}
                   required
-                  placeholder={tab === 'register' ? 'Min 8 chars, 1 number, 1 symbol' : 'Enter your password'}
+                  placeholder={
+                    tab === 'register'
+                      ? 'Min 8 chars, 1 number, 1 symbol'
+                      : 'Enter your password'
+                  }
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
+                  autoComplete={
+                    tab === 'login' ? 'current-password' : 'new-password'
+                  }
                   slotProps={{
                     input: {
                       startAdornment: (
                         <InputAdornment position="start">
-                          <LockOutlinedIcon fontSize="small" sx={{ color: '#2563eb' }} />
+                          <LockOutlinedIcon
+                            fontSize="small"
+                            sx={{ color: '#2563eb' }}
+                          />
                         </InputAdornment>
                       ),
                       endAdornment: (
@@ -388,7 +460,11 @@ export default function AuthView({ onAuthSuccess }) {
                             onClick={() => setShowPassword((prev) => !prev)}
                             edge="end"
                           >
-                            {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                            {showPassword ? (
+                              <VisibilityOff fontSize="small" />
+                            ) : (
+                              <Visibility fontSize="small" />
+                            )}
                           </IconButton>
                         </InputAdornment>
                       ),
@@ -398,16 +474,40 @@ export default function AuthView({ onAuthSuccess }) {
 
                 {/* Password Policy Indicator for Registration */}
                 {tab === 'register' && password.length > 0 && (
-                  <Box sx={{ mt: 1, p: 1.5, backgroundColor: '#f8fafc', borderRadius: 2, border: '1px solid #e2e8f0' }}>
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#334155', display: 'block', mb: 0.8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <Box
+                    sx={{
+                      mt: 1,
+                      p: 1.5,
+                      backgroundColor: '#f8fafc',
+                      borderRadius: 2,
+                      border: '1px solid #e2e8f0',
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 800,
+                        color: '#334155',
+                        display: 'block',
+                        mb: 0.8,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                      }}
+                    >
                       Password Requirements:
                     </Typography>
                     <Stack direction="column" spacing={0.7}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                      >
                         {hasMinLength ? (
-                          <CheckCircleOutlinedIcon sx={{ fontSize: 16, color: '#10b981' }} />
+                          <CheckCircleOutlinedIcon
+                            sx={{ fontSize: 16, color: '#10b981' }}
+                          />
                         ) : (
-                          <CancelOutlinedIcon sx={{ fontSize: 16, color: '#94a3b8' }} />
+                          <CancelOutlinedIcon
+                            sx={{ fontSize: 16, color: '#94a3b8' }}
+                          />
                         )}
                         <Typography
                           variant="caption"
@@ -420,11 +520,17 @@ export default function AuthView({ onAuthSuccess }) {
                         </Typography>
                       </Box>
 
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                      >
                         {hasNumber ? (
-                          <CheckCircleOutlinedIcon sx={{ fontSize: 16, color: '#10b981' }} />
+                          <CheckCircleOutlinedIcon
+                            sx={{ fontSize: 16, color: '#10b981' }}
+                          />
                         ) : (
-                          <CancelOutlinedIcon sx={{ fontSize: 16, color: '#94a3b8' }} />
+                          <CancelOutlinedIcon
+                            sx={{ fontSize: 16, color: '#94a3b8' }}
+                          />
                         )}
                         <Typography
                           variant="caption"
@@ -437,11 +543,17 @@ export default function AuthView({ onAuthSuccess }) {
                         </Typography>
                       </Box>
 
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                      >
                         {hasSpecial ? (
-                          <CheckCircleOutlinedIcon sx={{ fontSize: 16, color: '#10b981' }} />
+                          <CheckCircleOutlinedIcon
+                            sx={{ fontSize: 16, color: '#10b981' }}
+                          />
                         ) : (
-                          <CancelOutlinedIcon sx={{ fontSize: 16, color: '#94a3b8' }} />
+                          <CancelOutlinedIcon
+                            sx={{ fontSize: 16, color: '#94a3b8' }}
+                          />
                         )}
                         <Typography
                           variant="caption"
@@ -460,25 +572,32 @@ export default function AuthView({ onAuthSuccess }) {
                 {/* Helper text when password field is empty in register mode */}
                 {tab === 'register' && password.length === 0 && (
                   <FormHelperText sx={{ color: '#64748b', mt: 0.5 }}>
-                    Must be at least 8 characters with at least 1 number and 1 special character.
+                    Must be at least 8 characters with at least 1 number and 1
+                    special character.
                   </FormHelperText>
                 )}
 
                 {/* Forgot Password Link for Login */}
                 {tab === 'login' && (
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.8 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      mt: 0.8,
+                    }}
+                  >
                     <Button
                       variant="text"
                       size="small"
                       onClick={() => {
-                        setForgotOpen(true);
-                        setForgotEmail(email.trim());
-                        setForgotStep(1);
-                        setForgotError('');
-                        setForgotSuccess('');
-                        setForgotCode('');
-                        setForgotNewPass('');
-                        setForgotConfirmPass('');
+                        setForgotOpen(true)
+                        setForgotEmail(email.trim())
+                        setForgotStep(1)
+                        setForgotError('')
+                        setForgotSuccess('')
+                        setForgotCode('')
+                        setForgotNewPass('')
+                        setForgotConfirmPass('')
                       }}
                       sx={{
                         textTransform: 'none',
@@ -486,7 +605,10 @@ export default function AuthView({ onAuthSuccess }) {
                         fontWeight: 700,
                         color: '#2563eb',
                         p: 0,
-                        '&:hover': { background: 'none', textDecoration: 'underline' },
+                        '&:hover': {
+                          background: 'none',
+                          textDecoration: 'underline',
+                        },
                       }}
                     >
                       Forgot password?
@@ -516,7 +638,11 @@ export default function AuthView({ onAuthSuccess }) {
                             <PasswordIcon
                               fontSize="small"
                               sx={{
-                                color: passwordsMismatch ? '#ef4444' : passwordsMatch ? '#10b981' : '#2563eb',
+                                color: passwordsMismatch
+                                  ? '#ef4444'
+                                  : passwordsMatch
+                                    ? '#10b981'
+                                    : '#2563eb',
                               }}
                             />
                           </InputAdornment>
@@ -524,14 +650,23 @@ export default function AuthView({ onAuthSuccess }) {
                         endAdornment: (
                           <InputAdornment position="end">
                             {passwordsMatch && (
-                              <CheckCircleOutlinedIcon fontSize="small" sx={{ color: '#10b981', mr: 0.5 }} />
+                              <CheckCircleOutlinedIcon
+                                fontSize="small"
+                                sx={{ color: '#10b981', mr: 0.5 }}
+                              />
                             )}
                             <IconButton
                               size="small"
-                              onClick={() => setShowConfirmPassword((prev) => !prev)}
+                              onClick={() =>
+                                setShowConfirmPassword((prev) => !prev)
+                              }
                               edge="end"
                             >
-                              {showConfirmPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                              {showConfirmPassword ? (
+                                <VisibilityOff fontSize="small" />
+                              ) : (
+                                <Visibility fontSize="small" />
+                              )}
                             </IconButton>
                           </InputAdornment>
                         ),
@@ -539,12 +674,16 @@ export default function AuthView({ onAuthSuccess }) {
                     }}
                   />
                   {passwordsMismatch && (
-                    <FormHelperText sx={{ color: '#ef4444', fontWeight: 600, mt: 0.5 }}>
+                    <FormHelperText
+                      sx={{ color: '#ef4444', fontWeight: 600, mt: 0.5 }}
+                    >
                       Passwords do not match.
                     </FormHelperText>
                   )}
                   {passwordsMatch && (
-                    <FormHelperText sx={{ color: '#10b981', fontWeight: 600, mt: 0.5 }}>
+                    <FormHelperText
+                      sx={{ color: '#10b981', fontWeight: 600, mt: 0.5 }}
+                    >
                       Passwords match.
                     </FormHelperText>
                   )}
@@ -553,16 +692,39 @@ export default function AuthView({ onAuthSuccess }) {
 
               {/* Status / Feature Badges */}
               {tab === 'register' ? (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, pt: 0.5 }}>
-                  <MarkEmailReadOutlinedIcon sx={{ fontSize: 16, color: '#2563eb' }} />
-                  <Typography variant="caption" sx={{ color: '#475569', fontWeight: 600 }}>
-                    A confirmation welcome email will be dispatched to your inbox.
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.8,
+                    pt: 0.5,
+                  }}
+                >
+                  <MarkEmailReadOutlinedIcon
+                    sx={{ fontSize: 16, color: '#2563eb' }}
+                  />
+                  <Typography
+                    variant="caption"
+                    sx={{ color: '#475569', fontWeight: 600 }}
+                  >
+                    A confirmation welcome email will be dispatched to your
+                    inbox.
                   </Typography>
                 </Box>
               ) : (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, pt: 0.5 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.8,
+                    pt: 0.5,
+                  }}
+                >
                   <SecurityIcon sx={{ fontSize: 16, color: '#10b981' }} />
-                  <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: '#64748b', fontWeight: 600 }}
+                  >
                     Encrypted authentication & Sanctum token security active
                   </Typography>
                 </Box>
@@ -604,7 +766,9 @@ export default function AuthView({ onAuthSuccess }) {
         fullWidth
         PaperProps={{ sx: { borderRadius: 3, p: 1 } }}
       >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 1 }}>
+        <DialogTitle
+          sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 1 }}
+        >
           <LockResetIcon sx={{ color: '#2563eb', fontSize: 26 }} />
           <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a' }}>
             Reset Password
@@ -613,7 +777,11 @@ export default function AuthView({ onAuthSuccess }) {
 
         <DialogContent dividers>
           {forgotError && (
-            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setForgotError('')}>
+            <Alert
+              severity="error"
+              sx={{ mb: 2 }}
+              onClose={() => setForgotError('')}
+            >
               {forgotError}
             </Alert>
           )}
@@ -627,7 +795,9 @@ export default function AuthView({ onAuthSuccess }) {
           {forgotStep === 1 ? (
             <Stack spacing={2} sx={{ mt: 1 }}>
               <Typography variant="body2" sx={{ color: '#475569' }}>
-                Enter your registered email address. We will dispatch a <strong>6-digit verification code</strong> via SMTP to reset your password.
+                Enter your registered email address. We will dispatch a{' '}
+                <strong>6-digit verification code</strong> via SMTP to reset
+                your password.
               </Typography>
               <TextField
                 fullWidth
@@ -642,7 +812,10 @@ export default function AuthView({ onAuthSuccess }) {
                   input: {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <EmailOutlinedIcon fontSize="small" sx={{ color: '#2563eb' }} />
+                        <EmailOutlinedIcon
+                          fontSize="small"
+                          sx={{ color: '#2563eb' }}
+                        />
                       </InputAdornment>
                     ),
                   },
@@ -652,7 +825,9 @@ export default function AuthView({ onAuthSuccess }) {
           ) : (
             <Stack spacing={2} sx={{ mt: 1 }}>
               <Typography variant="body2" sx={{ color: '#475569' }}>
-                A 6-digit verification code was emailed to <strong>{forgotEmail}</strong>. Enter it below with your new password.
+                A 6-digit verification code was emailed to{' '}
+                <strong>{forgotEmail}</strong>. Enter it below with your new
+                password.
               </Typography>
 
               <TextField
@@ -661,11 +836,20 @@ export default function AuthView({ onAuthSuccess }) {
                 label="6-Digit Reset Code"
                 required
                 value={forgotCode}
-                onChange={(e) => setForgotCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
+                onChange={(e) =>
+                  setForgotCode(
+                    e.target.value.replace(/[^0-9]/g, '').slice(0, 6)
+                  )
+                }
                 placeholder="123456"
                 inputProps={{
                   maxLength: 6,
-                  style: { letterSpacing: '0.25em', fontWeight: 800, textAlign: 'center', fontSize: '1.2rem' },
+                  style: {
+                    letterSpacing: '0.25em',
+                    fontWeight: 800,
+                    textAlign: 'center',
+                    fontSize: '1.2rem',
+                  },
                 }}
               />
 
@@ -683,7 +867,10 @@ export default function AuthView({ onAuthSuccess }) {
                   input: {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LockOutlinedIcon fontSize="small" sx={{ color: '#2563eb' }} />
+                        <LockOutlinedIcon
+                          fontSize="small"
+                          sx={{ color: '#2563eb' }}
+                        />
                       </InputAdornment>
                     ),
                     endAdornment: (
@@ -693,7 +880,11 @@ export default function AuthView({ onAuthSuccess }) {
                           onClick={() => setForgotShowPass((prev) => !prev)}
                           edge="end"
                         >
-                          {forgotShowPass ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                          {forgotShowPass ? (
+                            <VisibilityOff fontSize="small" />
+                          ) : (
+                            <Visibility fontSize="small" />
+                          )}
                         </IconButton>
                       </InputAdornment>
                     ),
@@ -715,8 +906,8 @@ export default function AuthView({ onAuthSuccess }) {
                   forgotPasswordsMismatch
                     ? 'Passwords do not match.'
                     : forgotPasswordsMatch
-                    ? 'Passwords match.'
-                    : ''
+                      ? 'Passwords match.'
+                      : ''
                 }
                 slotProps={{
                   input: {
@@ -728,8 +919,8 @@ export default function AuthView({ onAuthSuccess }) {
                             color: forgotPasswordsMismatch
                               ? '#ef4444'
                               : forgotPasswordsMatch
-                              ? '#10b981'
-                              : '#2563eb',
+                                ? '#10b981'
+                                : '#2563eb',
                           }}
                         />
                       </InputAdornment>
@@ -737,14 +928,23 @@ export default function AuthView({ onAuthSuccess }) {
                     endAdornment: (
                       <InputAdornment position="end">
                         {forgotPasswordsMatch && (
-                          <CheckCircleOutlinedIcon fontSize="small" sx={{ color: '#10b981', mr: 0.5 }} />
+                          <CheckCircleOutlinedIcon
+                            fontSize="small"
+                            sx={{ color: '#10b981', mr: 0.5 }}
+                          />
                         )}
                         <IconButton
                           size="small"
-                          onClick={() => setForgotShowConfirmPass((prev) => !prev)}
+                          onClick={() =>
+                            setForgotShowConfirmPass((prev) => !prev)
+                          }
                           edge="end"
                         >
-                          {forgotShowConfirmPass ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                          {forgotShowConfirmPass ? (
+                            <VisibilityOff fontSize="small" />
+                          ) : (
+                            <Visibility fontSize="small" />
+                          )}
                         </IconButton>
                       </InputAdornment>
                     ),
@@ -752,12 +952,22 @@ export default function AuthView({ onAuthSuccess }) {
                 }}
               />
 
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
                 <Button
                   size="small"
                   onClick={handleSendResetCode}
                   disabled={forgotLoading}
-                  sx={{ textTransform: 'none', color: '#2563eb', fontWeight: 600 }}
+                  sx={{
+                    textTransform: 'none',
+                    color: '#2563eb',
+                    fontWeight: 600,
+                  }}
                 >
                   Resend code
                 </Button>
@@ -795,7 +1005,11 @@ export default function AuthView({ onAuthSuccess }) {
                 minWidth: 140,
               }}
             >
-              {forgotLoading ? <CircularProgress size={20} color="inherit" /> : 'Send Code'}
+              {forgotLoading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                'Send Code'
+              )}
             </Button>
           ) : (
             <Button
@@ -814,11 +1028,15 @@ export default function AuthView({ onAuthSuccess }) {
                 minWidth: 140,
               }}
             >
-              {forgotLoading ? <CircularProgress size={20} color="inherit" /> : 'Reset Password'}
+              {forgotLoading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                'Reset Password'
+              )}
             </Button>
           )}
         </DialogActions>
       </Dialog>
     </Box>
-  );
+  )
 }

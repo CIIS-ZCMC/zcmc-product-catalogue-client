@@ -15,8 +15,15 @@ export default function ProductCreatePage() {
   const handleSubmit = async (payload) => {
     const res = await api.createProduct(payload)
     const created = res?.product
-    toast.success(created?.erp_item_code ? `Product ${created.erp_item_code} created.` : 'Product created.')
-    navigate(created?.id ? `/products/${created.id}` : returnTo, { replace: true, state: { from: returnTo } })
+    toast.success(
+      created?.erp_item_code
+        ? `Product ${created.erp_item_code} created.`
+        : 'Product created.'
+    )
+    navigate(created?.id ? `/products/${created.id}` : returnTo, {
+      replace: true,
+      state: { from: returnTo },
+    })
   }
 
   return (

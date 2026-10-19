@@ -5,11 +5,30 @@ import { z } from 'zod'
 import { CircleCheck } from 'lucide-react'
 
 import { api } from '@/services/api'
-import { applyServerErrors, emailSchema, newPasswordSchema, PASSWORD_HINT } from '@/lib/auth'
+import {
+  applyServerErrors,
+  emailSchema,
+  newPasswordSchema,
+  PASSWORD_HINT,
+} from '@/lib/auth'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { FormError, SubmitButton } from './auth-forms'
 import { PasswordChecklist, PasswordInput } from './password-input'
@@ -22,13 +41,21 @@ const resetSchema = z
     password: newPasswordSchema,
     confirmPassword: z.string().min(1, 'Re-type the new password.'),
   })
-  .refine((v) => v.password === v.confirmPassword, { path: ['confirmPassword'], message: 'Passwords do not match.' })
+  .refine((v) => v.password === v.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords do not match.',
+  })
 
 /**
  * Two steps: request a 6-digit code by email, then set a new password with it.
  * Mount with a fresh `key` each time it opens so it starts at step 1.
  */
-export function ResetPasswordDialog({ open, onOpenChange, defaultEmail = '', onReset }) {
+export function ResetPasswordDialog({
+  open,
+  onOpenChange,
+  defaultEmail = '',
+  onReset,
+}) {
   const [email, setEmail] = useState(null) // set once a code has been sent
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
@@ -41,8 +68,9 @@ export function ResetPasswordDialog({ open, onOpenChange, defaultEmail = '', onR
           <DialogDescription>
             {email ? (
               <>
-                Enter the 6-digit code sent to <strong className="text-foreground">{email}</strong>, then choose a new
-                password.
+                Enter the 6-digit code sent to{' '}
+                <strong className="text-foreground">{email}</strong>, then
+                choose a new password.
               </>
             ) : (
               'Enter your registered email address and we will email you a 6-digit code.'
@@ -85,14 +113,20 @@ export function ResetPasswordDialog({ open, onOpenChange, defaultEmail = '', onR
 
 function RequestStep({ defaultEmail, onBusyChange, onSent }) {
   const [formError, setFormError] = useState('')
-  const form = useForm({ resolver: zodResolver(requestSchema), defaultValues: { email: defaultEmail } })
+  const form = useForm({
+    resolver: zodResolver(requestSchema),
+    defaultValues: { email: defaultEmail },
+  })
 
   const submit = form.handleSubmit(async ({ email }) => {
     setFormError('')
     onBusyChange(true)
     try {
       const res = await api.forgotPassword(email)
-      onSent(email, res?.message || 'A verification code was sent to your email.')
+      onSent(
+        email,
+        res?.message || 'A verification code was sent to your email.'
+      )
     } catch (err) {
       setFormError(applyServerErrors(form, err))
     } finally {
@@ -111,13 +145,21 @@ function RequestStep({ defaultEmail, onBusyChange, onSent }) {
             <FormItem>
               <FormLabel required>Email address</FormLabel>
               <FormControl required>
-                <Input type="email" autoComplete="email" placeholder="name@zcmc.gov.ph" {...field} />
+                <Input
+                  type="email"
+                  autoComplete="email"
+                  placeholder="name@zcmc.gov.ph"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <SubmitButton pending={form.formState.isSubmitting} pendingLabel="Sending code…">
+        <SubmitButton
+          pending={form.formState.isSubmitting}
+          pendingLabel="Sending code…"
+        >
           Send code
         </SubmitButton>
       </form>
@@ -147,7 +189,11 @@ function ResetStep({ email, onBusyChange, onResend, onChangeEmail, onDone }) {
       })
       onDone(email)
     } catch (err) {
-      setFormError(applyServerErrors(form, err, { password_confirmation: 'confirmPassword' }))
+      setFormError(
+        applyServerErrors(form, err, {
+          password_confirmation: 'confirmPassword',
+        })
+      )
     } finally {
       onBusyChange(false)
     }
@@ -185,7 +231,11 @@ function ResetStep({ email, onBusyChange, onResend, onChangeEmail, onDone }) {
                   placeholder="123456"
                   className="text-center font-mono text-lg tracking-[0.3em]"
                   {...field}
-                  onChange={(e) => field.onChange(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value.replace(/\D/g, '').slice(0, 6)
+                    )
+                  }
                 />
               </FormControl>
               <FormMessage />
@@ -202,7 +252,11 @@ function ResetStep({ email, onBusyChange, onResend, onChangeEmail, onDone }) {
               <FormControl required>
                 <PasswordInput autoComplete="new-password" {...field} />
               </FormControl>
-              {password ? <PasswordChecklist value={password} /> : <FormDescription>{PASSWORD_HINT}</FormDescription>}
+              {password ? (
+                <PasswordChecklist value={password} />
+              ) : (
+                <FormDescription>{PASSWORD_HINT}</FormDescription>
+              )}
               <FormMessage />
             </FormItem>
           )}
@@ -223,7 +277,13 @@ function ResetStep({ email, onBusyChange, onResend, onChangeEmail, onDone }) {
         />
 
         <div className="flex items-center justify-between gap-2 text-sm">
-          <Button type="button" variant="link" className="h-auto p-0" onClick={resend} disabled={resending || pending}>
+          <Button
+            type="button"
+            variant="link"
+            className="h-auto p-0"
+            onClick={resend}
+            disabled={resending || pending}
+          >
             {resending ? 'Sending…' : 'Resend code'}
           </Button>
           <Button

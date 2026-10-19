@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 import {
   AppBar,
   Toolbar,
@@ -10,16 +10,16 @@ import {
   Stack,
   IconButton,
   Tooltip,
-} from '@mui/material';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import LogoutIcon from '@mui/icons-material/Logout';
-import Inventory2Icon from '@mui/icons-material/Inventory2';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import AddIcon from '@mui/icons-material/Add';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
-import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
-import HistoryIcon from '@mui/icons-material/History';
+} from '@mui/material'
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'
+import LogoutIcon from '@mui/icons-material/Logout'
+import Inventory2Icon from '@mui/icons-material/Inventory2'
+import DashboardIcon from '@mui/icons-material/Dashboard'
+import AddIcon from '@mui/icons-material/Add'
+import FileDownloadIcon from '@mui/icons-material/FileDownload'
+import FileUploadIcon from '@mui/icons-material/FileUpload'
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital'
+import HistoryIcon from '@mui/icons-material/History'
 
 export default function Header({
   currentTab,
@@ -103,26 +103,62 @@ export default function Header({
               },
             }}
           >
-            <Tab icon={<Inventory2Icon fontSize="small" />} iconPosition="start" label="Product Catalogue" value="products" />
-            <Tab icon={<DashboardIcon fontSize="small" />} iconPosition="start" label="Dashboard" value="dashboard" />
-            <Tab icon={<HistoryIcon fontSize="small" />} iconPosition="start" label="Activity Logs" value="logs" />
+            <Tab
+              icon={<Inventory2Icon fontSize="small" />}
+              iconPosition="start"
+              label="Product Catalogue"
+              value="products"
+            />
+            <Tab
+              icon={<DashboardIcon fontSize="small" />}
+              iconPosition="start"
+              label="Dashboard"
+              value="dashboard"
+            />
+            <Tab
+              icon={<HistoryIcon fontSize="small" />}
+              iconPosition="start"
+              label="Activity Logs"
+              value="logs"
+            />
           </Tabs>
 
           {/* Right Section: Stats & Action Buttons */}
-          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+          <Stack
+            direction="row"
+            spacing={1.5}
+            sx={{ alignItems: 'center', flexWrap: 'wrap' }}
+          >
             {stats && (
-              <Stack direction="row" spacing={1} sx={{ alignItems: 'center', display: { xs: 'none', xl: 'flex' } }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  alignItems: 'center',
+                  display: { xs: 'none', xl: 'flex' },
+                }}
+              >
                 <Chip
                   size="small"
                   label={`Items: ${stats.total_products || 0}`}
                   variant="outlined"
-                  sx={{ borderColor: '#cbd5e1', fontWeight: 600, fontSize: '0.75rem', height: 24 }}
+                  sx={{
+                    borderColor: '#cbd5e1',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    height: 24,
+                  }}
                 />
                 <Chip
                   size="small"
                   label={`UNSPSC: ${stats.total_categories?.toLocaleString() || '158,519'}`}
                   variant="outlined"
-                  sx={{ borderColor: '#cbd5e1', fontWeight: 600, fontSize: '0.75rem', height: 24 }}
+                  sx={{
+                    borderColor: '#cbd5e1',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    height: 24,
+                  }}
                 />
                 <Chip
                   size="small"
@@ -138,7 +174,16 @@ export default function Header({
               size="small"
               startIcon={<FileDownloadIcon />}
               onClick={onExport}
-              sx={{ borderColor: '#cbd5e1', color: '#334155', '&:hover': { borderColor: '#94a3b8', backgroundColor: '#f8fafc' }, textTransform: 'none', fontWeight: 600 }}
+              sx={{
+                borderColor: '#cbd5e1',
+                color: '#334155',
+                '&:hover': {
+                  borderColor: '#94a3b8',
+                  backgroundColor: '#f8fafc',
+                },
+                textTransform: 'none',
+                fontWeight: 600,
+              }}
             >
               Export CSV
             </Button>
@@ -147,7 +192,16 @@ export default function Header({
               size="small"
               startIcon={<FileUploadIcon />}
               onClick={onOpenImport}
-              sx={{ borderColor: '#cbd5e1', color: '#334155', '&:hover': { borderColor: '#94a3b8', backgroundColor: '#f8fafc' }, textTransform: 'none', fontWeight: 600 }}
+              sx={{
+                borderColor: '#cbd5e1',
+                color: '#334155',
+                '&:hover': {
+                  borderColor: '#94a3b8',
+                  backgroundColor: '#f8fafc',
+                },
+                textTransform: 'none',
+                fontWeight: 600,
+              }}
             >
               Import CSV
             </Button>
@@ -162,10 +216,19 @@ export default function Header({
             </Button>
 
             {currentUser && (
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ pl: 0.5 }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                sx={{ pl: 0.5 }}
+              >
                 <Chip
                   icon={<AccountCircleIcon fontSize="small" />}
-                  label={currentUser.first_name ? `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() : (currentUser.name || currentUser.email)}
+                  label={
+                    currentUser.first_name
+                      ? `${currentUser.first_name} ${currentUser.last_name || ''}`.trim()
+                      : currentUser.name || currentUser.email
+                  }
                   variant="outlined"
                   size="small"
                   sx={{
@@ -183,13 +246,19 @@ export default function Header({
                     fontWeight: 800,
                     fontSize: '0.68rem',
                     height: 22,
-                    backgroundColor: currentUser.is_admin ? '#2563eb' : '#f1f5f9',
+                    backgroundColor: currentUser.is_admin
+                      ? '#2563eb'
+                      : '#f1f5f9',
                     color: currentUser.is_admin ? '#ffffff' : '#475569',
                     border: currentUser.is_admin ? 'none' : '1px solid #cbd5e1',
                   }}
                 />
                 <Tooltip title="Sign Out">
-                  <IconButton size="small" onClick={onLogout} sx={{ color: '#64748b', '&:hover': { color: '#dc2626' } }}>
+                  <IconButton
+                    size="small"
+                    onClick={onLogout}
+                    sx={{ color: '#64748b', '&:hover': { color: '#dc2626' } }}
+                  >
                     <LogoutIcon fontSize="small" />
                     Log out
                   </IconButton>
@@ -200,5 +269,5 @@ export default function Header({
         </Toolbar>
       </Box>
     </AppBar>
-  );
+  )
 }

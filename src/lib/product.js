@@ -9,15 +9,83 @@ export const PHILGEPS_DIRECTORY_URL =
 
 // Fallback used only when /item-units fails or is empty (same list as the MUI screens).
 export const FALLBACK_UNITS = [
-  'Ampule', 'Account', 'Assembly', 'Bag', 'Bar', 'Bot', 'Bottle', 'Booklet', 'Box', 'Bundle', 'Can', 'Capsule', 'Card',
-  'Cart', 'Cartridge', 'Case', 'Cycle', 'Drum', 'Ft2', 'Gallon', 'GBq', 'Jar', 'Kg', 'Kilo', 'Kit', 'Kits', 'Liter', 'Loaf',
-  'Lot', 'mCi', 'Meter', 'Month', 'Nebule', 'Pack', 'Pad', 'Pail', 'Pair', 'Pax', 'Pfs', 'Piece',
-  'Plate', 'Rack', 'Ream', 'Roll', 'Sachet', 'Sack', 'Seat', 'Set', 'Sheet', 'Spool', 'System', 'Solution',
-  'Tablet', 'Tank', 'Test', 'Tin', 'Tray', 'Tube', 'Unit', 'Vial', 'Inhaler', 'MDI', 'Prefilled Syringe', 'Syringe', 'Length', 'Letter', 'Infusion set',
+  'Ampule',
+  'Account',
+  'Assembly',
+  'Bag',
+  'Bar',
+  'Bot',
+  'Bottle',
+  'Booklet',
+  'Box',
+  'Bundle',
+  'Can',
+  'Capsule',
+  'Card',
+  'Cart',
+  'Cartridge',
+  'Case',
+  'Cycle',
+  'Drum',
+  'Ft2',
+  'Gallon',
+  'GBq',
+  'Jar',
+  'Kg',
+  'Kilo',
+  'Kit',
+  'Kits',
+  'Liter',
+  'Loaf',
+  'Lot',
+  'mCi',
+  'Meter',
+  'Month',
+  'Nebule',
+  'Pack',
+  'Pad',
+  'Pail',
+  'Pair',
+  'Pax',
+  'Pfs',
+  'Piece',
+  'Plate',
+  'Rack',
+  'Ream',
+  'Roll',
+  'Sachet',
+  'Sack',
+  'Seat',
+  'Set',
+  'Sheet',
+  'Spool',
+  'System',
+  'Solution',
+  'Tablet',
+  'Tank',
+  'Test',
+  'Tin',
+  'Tray',
+  'Tube',
+  'Unit',
+  'Vial',
+  'Inhaler',
+  'MDI',
+  'Prefilled Syringe',
+  'Syringe',
+  'Length',
+  'Letter',
+  'Infusion set',
 ].sort((a, b) => a.localeCompare(b))
 
 // Order matches Product::buildStandardName on the server.
-export const NAMING_FIELDS = ['noun', 'type', 'material_composition', 'key_attributes', 'size']
+export const NAMING_FIELDS = [
+  'noun',
+  'type',
+  'material_composition',
+  'key_attributes',
+  'size',
+]
 
 export function buildStandardName(values) {
   return NAMING_FIELDS.map((f) => (values[f] || '').trim().toUpperCase())
@@ -39,8 +107,14 @@ export function splitSpecs(raw) {
 }
 
 const dateFormatter = new Intl.DateTimeFormat('en-PH', { dateStyle: 'medium' })
-const dateTimeFormatter = new Intl.DateTimeFormat('en-PH', { dateStyle: 'medium', timeStyle: 'short' })
-const pesoFormatter = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' })
+const dateTimeFormatter = new Intl.DateTimeFormat('en-PH', {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+})
+const pesoFormatter = new Intl.NumberFormat('en-PH', {
+  style: 'currency',
+  currency: 'PHP',
+})
 
 export function formatDate(value, withTime = false) {
   if (!value) return EMPTY_VALUE

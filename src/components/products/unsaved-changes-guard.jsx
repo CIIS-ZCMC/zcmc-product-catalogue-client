@@ -15,7 +15,8 @@ import {
 /** Asks before in-app navigation or a tab close would discard unsaved form input. */
 export function UnsavedChangesGuard({ when }) {
   const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) => when && currentLocation.pathname !== nextLocation.pathname,
+    ({ currentLocation, nextLocation }) =>
+      when && currentLocation.pathname !== nextLocation.pathname
   )
 
   useEffect(() => {
@@ -29,17 +30,26 @@ export function UnsavedChangesGuard({ when }) {
   }, [when])
 
   return (
-    <AlertDialog open={blocker.state === 'blocked'} onOpenChange={(open) => !open && blocker.reset?.()}>
+    <AlertDialog
+      open={blocker.state === 'blocked'}
+      onOpenChange={(open) => !open && blocker.reset?.()}
+    >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Discard unsaved changes?</AlertDialogTitle>
           <AlertDialogDescription>
-            You have entries on this form that are not saved. If you leave now, they will be lost.
+            You have entries on this form that are not saved. If you leave now,
+            they will be lost.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => blocker.reset?.()}>Keep editing</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={() => blocker.proceed?.()}>
+          <AlertDialogCancel onClick={() => blocker.reset?.()}>
+            Keep editing
+          </AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            onClick={() => blocker.proceed?.()}
+          >
             Discard changes
           </AlertDialogAction>
         </AlertDialogFooter>

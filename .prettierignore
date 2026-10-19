@@ -1,0 +1,8 @@
+node_modules
+dist
+dist-ssr
+.git
+package-lock.json
+.claude/
+docs/
+*.md

@@ -40,11 +40,16 @@ export function AppShell() {
       <AppSidebar collapsed={collapsed} onToggle={toggle} />
       <div className="flex min-w-0 flex-1 flex-col">
         <AppHeader />
-        <main id="main-content" tabIndex={-1} className="flex-1 px-4 py-6 outline-none sm:px-6 lg:px-8">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 px-4 py-6 outline-none sm:px-6 lg:px-8"
+        >
           <Outlet />
         </main>
         <footer className="text-muted-foreground border-t px-4 py-3 text-center text-xs sm:px-6">
-          Zamboanga City Medical Center (ZCMC) · Procurement Management Unit · Uniform Naming Standards
+          Zamboanga City Medical Center (ZCMC) · Procurement Management Unit ·
+          Uniform Naming Standards
         </footer>
       </div>
     </div>

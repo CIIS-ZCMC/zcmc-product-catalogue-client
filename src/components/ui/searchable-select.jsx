@@ -5,14 +5,31 @@ import { cn } from '@/lib/utils'
 import { filterOptions } from '@/lib/search'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import { Button } from '@/components/ui/button'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 
 const MAX_CACHED_QUERIES = 30
 
 function StatusRow({ children, role = 'status', className }) {
   return (
-    <div role={role} className={cn('text-muted-foreground flex items-center justify-center gap-2 px-3 py-6 text-center text-sm', className)}>
+    <div
+      role={role}
+      className={cn(
+        'text-muted-foreground flex items-center justify-center gap-2 px-3 py-6 text-center text-sm',
+        className
+      )}
+    >
       {children}
     </div>
   )
@@ -59,7 +76,10 @@ export function SearchableSelect({
 }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
-  const debounced = useDebouncedValue(search.trim(), loadOptions ? debounceMs : 0)
+  const debounced = useDebouncedValue(
+    search.trim(),
+    loadOptions ? debounceMs : 0
+  )
   const [cache, setCache] = useState(() => new Map())
   const [failure, setFailure] = useState(null) // { query, error }
   const [retryToken, setRetryToken] = useState(0)
@@ -78,7 +98,8 @@ export function SearchableSelect({
           const next = new Map(prev)
           next.set(debounced, Array.isArray(items) ? items : [])
           // Drop the oldest entries so a long session does not grow without bound.
-          while (next.size > MAX_CACHED_QUERIES) next.delete(next.keys().next().value)
+          while (next.size > MAX_CACHED_QUERIES)
+            next.delete(next.keys().next().value)
           return next
         })
         setFailure(null)
@@ -100,14 +121,21 @@ export function SearchableSelect({
   } else {
     if (externalLoading) status = 'loading'
     else if (externalError) status = 'error'
-    else items = filterOptions(options || [], search, { getSearchText, getLabel: getOptionLabel, getCode: getOptionCode })
+    else
+      items = filterOptions(options || [], search, {
+        getSearchText,
+        getLabel: getOptionLabel,
+        getCode: getOptionCode,
+      })
   }
   const pending = serverMode && search.trim() !== debounced
   const visible = items.slice(0, maxResults)
   const selectedValue = value ? getOptionValue(value) : null
   // Keep the keyboard highlight on a row that exists; async results replace the list under it.
   const visibleValues = visible.map(getOptionValue)
-  const activeValue = visibleValues.includes(active) ? active : (visibleValues[0] ?? '')
+  const activeValue = visibleValues.includes(active)
+    ? active
+    : (visibleValues[0] ?? '')
 
   const retry = () => {
     if (serverMode) {
@@ -127,7 +155,8 @@ export function SearchableSelect({
   const emptyText =
     typeof emptyMessage === 'function'
       ? emptyMessage(debounced)
-      : emptyMessage || (debounced ? `No matches for “${debounced}”.` : 'No options available.')
+      : emptyMessage ||
+        (debounced ? `No matches for “${debounced}”.` : 'No options available.')
 
   return (
     <Popover
@@ -154,14 +183,24 @@ export function SearchableSelect({
             className={cn(
               'bg-card h-auto min-h-10 w-full justify-between px-3 py-2 text-left font-normal whitespace-normal sm:min-h-9',
               !value && 'text-muted-foreground',
-              value && clearable && 'pr-16',
+              value && clearable && 'pr-16'
             )}
             {...triggerProps}
           >
             <span className="min-w-0 flex-1 break-words">
-              {value ? (renderValue ? renderValue(value) : getOptionLabel(value)) : placeholder}
+              {value
+                ? renderValue
+                  ? renderValue(value)
+                  : getOptionLabel(value)
+                : placeholder}
             </span>
-            <ChevronsUpDown className={cn('opacity-50', value && clearable && 'absolute right-3')} aria-hidden="true" />
+            <ChevronsUpDown
+              className={cn(
+                'opacity-50',
+                value && clearable && 'absolute right-3'
+              )}
+              aria-hidden="true"
+            />
           </Button>
         </PopoverTrigger>
         {value && clearable && !disabled && (
@@ -181,10 +220,15 @@ export function SearchableSelect({
         align="start"
         className={cn(
           'w-(--radix-popover-trigger-width) max-w-[calc(100vw-1rem)] min-w-[min(20rem,calc(100vw-1rem))] p-0',
-          contentClassName,
+          contentClassName
         )}
       >
-        <Command shouldFilter={false} loop value={activeValue} onValueChange={setActive}>
+        <Command
+          shouldFilter={false}
+          loop
+          value={activeValue}
+          onValueChange={setActive}
+        >
           <CommandInput
             placeholder={searchPlaceholder}
             value={search}
@@ -195,15 +239,26 @@ export function SearchableSelect({
           <CommandList className="max-h-[min(300px,45vh)]">
             {status === 'loading' && (
               <StatusRow>
-                <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+                <LoaderCircle
+                  className="size-4 animate-spin"
+                  aria-hidden="true"
+                />
                 {debounced ? 'Searching…' : 'Loading…'}
               </StatusRow>
             )}
             {status === 'error' && (
               <StatusRow role="alert" className="text-destructive flex-col">
-                <span>Options could not be loaded. Check your connection and try again.</span>
+                <span>
+                  Options could not be loaded. Check your connection and try
+                  again.
+                </span>
                 {(serverMode || onRetry) && (
-                  <Button type="button" variant="outline" size="sm" onClick={retry}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={retry}
+                  >
                     <RefreshCw aria-hidden="true" />
                     Try again
                   </Button>
@@ -212,7 +267,9 @@ export function SearchableSelect({
             )}
             {status === 'success' && (
               <>
-                {visible.length === 0 && <CommandEmpty>{emptyText}</CommandEmpty>}
+                {visible.length === 0 && (
+                  <CommandEmpty>{emptyText}</CommandEmpty>
+                )}
                 {visible.length > 0 && (
                   <CommandGroup
                     heading={groupHeading ? groupHeading(debounced) : undefined}
@@ -229,9 +286,17 @@ export function SearchableSelect({
                           aria-selected={selected}
                           className="min-h-10 items-start sm:min-h-0"
                         >
-                          <Check className={cn('mt-0.5', selected ? 'opacity-100' : 'opacity-0')} aria-hidden="true" />
+                          <Check
+                            className={cn(
+                              'mt-0.5',
+                              selected ? 'opacity-100' : 'opacity-0'
+                            )}
+                            aria-hidden="true"
+                          />
                           <span className="min-w-0 flex-1 break-words">
-                            {renderOption ? renderOption(option, { selected }) : getOptionLabel(option)}
+                            {renderOption
+                              ? renderOption(option, { selected })
+                              : getOptionLabel(option)}
                           </span>
                         </CommandItem>
                       )
@@ -240,14 +305,17 @@ export function SearchableSelect({
                 )}
                 {items.length > visible.length && (
                   <p className="text-muted-foreground border-t px-3 py-2 text-xs">
-                    Showing the first {visible.length} of {items.length}. Type more to narrow the list.
+                    Showing the first {visible.length} of {items.length}. Type
+                    more to narrow the list.
                   </p>
                 )}
               </>
             )}
           </CommandList>
           <p id={statusId} className="sr-only" aria-live="polite">
-            {status === 'success' && !pending ? `${items.length} ${items.length === 1 ? 'result' : 'results'}` : ''}
+            {status === 'success' && !pending
+              ? `${items.length} ${items.length === 1 ? 'result' : 'results'}`
+              : ''}
           </p>
         </Command>
       </PopoverContent>

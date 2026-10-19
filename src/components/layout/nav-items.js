@@ -1,4 +1,11 @@
-import { BadgeDollarSign, History, LayoutDashboard, Network, Package, Sparkles } from 'lucide-react'
+import {
+  BadgeDollarSign,
+  History,
+  LayoutDashboard,
+  Network,
+  Package,
+  Sparkles,
+} from 'lucide-react'
 
 // Mirrors the app's existing navigation (Product Catalogue, UNSPSC Explorer, Uniform Naming,
 // Dashboard, Activity Logs) plus the new Pricing module.

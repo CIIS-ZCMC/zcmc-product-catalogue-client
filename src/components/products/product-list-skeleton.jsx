@@ -7,10 +7,16 @@ export function ProductListSkeleton({ rows = 8 }) {
       <span className="sr-only" role="status">
         Loading products…
       </span>
-      <div className="bg-card hidden rounded-xl border md:block" aria-hidden="true">
+      <div
+        className="bg-card hidden rounded-xl border md:block"
+        aria-hidden="true"
+      >
         <div className="bg-muted/60 h-10 rounded-t-xl border-b" />
         {items.map((i) => (
-          <div key={i} className="flex items-center gap-4 border-b p-3 last:border-0">
+          <div
+            key={i}
+            className="flex items-center gap-4 border-b p-3 last:border-0"
+          >
             <Skeleton className="h-4 w-36" />
             <div className="flex-1 space-y-2">
               <Skeleton className="h-4 w-3/4" />

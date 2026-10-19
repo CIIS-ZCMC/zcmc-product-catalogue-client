@@ -11,7 +11,11 @@ export function PasswordInput({ className, ...props }) {
 
   return (
     <div className="relative">
-      <Input type={visible ? 'text' : 'password'} className={cn('pr-10', className)} {...props} />
+      <Input
+        type={visible ? 'text' : 'password'}
+        className={cn('pr-10', className)}
+        {...props}
+      />
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
@@ -19,7 +23,11 @@ export function PasswordInput({ className, ...props }) {
         aria-pressed={visible}
         className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-md outline-none focus-visible:ring-[3px]"
       >
-        {visible ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
+        {visible ? (
+          <EyeOff className="size-4" aria-hidden="true" />
+        ) : (
+          <Eye className="size-4" aria-hidden="true" />
+        )}
       </button>
     </div>
   )
@@ -33,7 +41,13 @@ export function PasswordChecklist({ value = '' }) {
         const met = rule.test(value)
         const Icon = met ? Check : X
         return (
-          <li key={rule.id} className={cn('flex items-center gap-1.5', met ? 'text-success' : 'text-muted-foreground')}>
+          <li
+            key={rule.id}
+            className={cn(
+              'flex items-center gap-1.5',
+              met ? 'text-success' : 'text-muted-foreground'
+            )}
+          >
             <Icon className="size-3.5 shrink-0" aria-hidden="true" />
             {rule.label}
             <span className="sr-only">{met ? '(met)' : '(not met)'}</span>

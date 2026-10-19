@@ -3,11 +3,19 @@ import { filterOptions, tokenize } from '../search'
 
 const units = ['Box', 'Bottle', 'Prefilled Syringe', 'Syringe', 'Vial']
 const aliases = { Bottle: 'bot btl', 'Prefilled Syringe': 'pfs' }
-const opts = { getLabel: (u) => u, getSearchText: (u) => `${u} ${aliases[u] || ''}` }
+const opts = {
+  getLabel: (u) => u,
+  getSearchText: (u) => `${u} ${aliases[u] || ''}`,
+}
 
 describe('tokenize', () => {
   it('lowercases, strips accents and keeps decimals and percentages', () => {
-    expect(tokenize('Sodium Hypochlorite 5.25%, Café')).toEqual(['sodium', 'hypochlorite', '5.25%', 'cafe'])
+    expect(tokenize('Sodium Hypochlorite 5.25%, Café')).toEqual([
+      'sodium',
+      'hypochlorite',
+      '5.25%',
+      'cafe',
+    ])
   })
 })
 
@@ -22,8 +30,13 @@ describe('filterOptions', () => {
   })
 
   it('requires every word and puts exact and prefix matches first', () => {
-    expect(filterOptions(units, 'syringe', opts)).toEqual(['Syringe', 'Prefilled Syringe'])
-    expect(filterOptions(units, 'prefilled syr', opts)).toEqual(['Prefilled Syringe'])
+    expect(filterOptions(units, 'syringe', opts)).toEqual([
+      'Syringe',
+      'Prefilled Syringe',
+    ])
+    expect(filterOptions(units, 'prefilled syr', opts)).toEqual([
+      'Prefilled Syringe',
+    ])
   })
 
   it('ranks code matches with getCode', () => {

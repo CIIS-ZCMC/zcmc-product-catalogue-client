@@ -6,7 +6,12 @@ import { api } from '@/services/api'
  * so a slow, stale response can never overwrite a newer one.
  */
 export function useProducts(query) {
-  const [state, setState] = useState({ status: 'loading', products: [], meta: null, error: null })
+  const [state, setState] = useState({
+    status: 'loading',
+    products: [],
+    meta: null,
+    error: null,
+  })
   const [reloadToken, setReloadToken] = useState(0)
   // Serialised so a new object with the same values does not trigger a refetch.
   const key = JSON.stringify(query)
@@ -14,7 +19,11 @@ export function useProducts(query) {
   useEffect(() => {
     const params = JSON.parse(key)
     const controller = new AbortController()
-    setState((prev) => ({ ...prev, status: prev.meta ? 'refreshing' : 'loading', error: null }))
+    setState((prev) => ({
+      ...prev,
+      status: prev.meta ? 'refreshing' : 'loading',
+      error: null,
+    }))
 
     api
       .getProducts(params, { signal: controller.signal })

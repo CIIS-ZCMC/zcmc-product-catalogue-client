@@ -1,7 +1,12 @@
 /* eslint-disable react/only-export-components */
 import * as React from 'react'
 import { Slot } from 'radix-ui'
-import { Controller, FormProvider, useFormContext, useFormState } from 'react-hook-form'
+import {
+  Controller,
+  FormProvider,
+  useFormContext,
+  useFormState,
+} from 'react-hook-form'
 
 import { cn } from '@/lib/utils'
 import { Label } from '@/components/ui/label'
@@ -48,7 +53,11 @@ function FormItem({ className, ...props }) {
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div data-slot="form-item" className={cn('grid gap-2 content-start', className)} {...props} />
+      <div
+        data-slot="form-item"
+        className={cn('grid gap-2 content-start', className)}
+        {...props}
+      />
     </FormItemContext.Provider>
   )
 }
@@ -82,7 +91,11 @@ function FormControl({ required, ...props }) {
     <Slot.Root
       data-slot="form-control"
       id={formItemId}
-      aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
+      aria-describedby={
+        !error
+          ? `${formDescriptionId}`
+          : `${formDescriptionId} ${formMessageId}`
+      }
       aria-invalid={!!error}
       aria-required={required || undefined}
       {...props}
@@ -123,4 +136,13 @@ function FormMessage({ className, ...props }) {
   )
 }
 
-export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField }
+export {
+  useFormField,
+  Form,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+  FormField,
+}

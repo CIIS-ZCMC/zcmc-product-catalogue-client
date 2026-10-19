@@ -5,11 +5,15 @@ function Collapsible(props) {
 }
 
 function CollapsibleTrigger(props) {
-  return <CollapsiblePrimitive.Trigger data-slot="collapsible-trigger" {...props} />
+  return (
+    <CollapsiblePrimitive.Trigger data-slot="collapsible-trigger" {...props} />
+  )
 }
 
 function CollapsibleContent(props) {
-  return <CollapsiblePrimitive.Content data-slot="collapsible-content" {...props} />
+  return (
+    <CollapsiblePrimitive.Content data-slot="collapsible-content" {...props} />
+  )
 }
 
 export { Collapsible, CollapsibleTrigger, CollapsibleContent }

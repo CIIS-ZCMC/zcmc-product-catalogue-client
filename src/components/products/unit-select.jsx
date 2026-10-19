@@ -32,7 +32,9 @@ export function UnitSelect({ value, onChange, units, ...props }) {
       placeholder="Select unit"
       searchPlaceholder="Search units, e.g. box, vial"
       searchLabel="Search units of measure"
-      emptyMessage={(q) => `No unit matches “${q}”. Ask an administrator to add it on the server.`}
+      emptyMessage={(q) =>
+        `No unit matches “${q}”. Ask an administrator to add it on the server.`
+      }
       clearLabel="Clear unit"
       {...props}
     />

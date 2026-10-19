@@ -17,7 +17,8 @@ export function useUnspscSearch(text, { enabled = true, delay = 350 } = {}) {
     const controller = new AbortController()
     searchCommodities(debounced, { signal: controller.signal })
       .then((data) => {
-        if (!controller.signal.aborted) setResult({ query: debounced, data, error: null })
+        if (!controller.signal.aborted)
+          setResult({ query: debounced, data, error: null })
       })
       .catch((error) => {
         if (error?.name !== 'AbortError' && !controller.signal.aborted) {

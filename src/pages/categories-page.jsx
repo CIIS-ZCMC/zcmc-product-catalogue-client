@@ -8,7 +8,11 @@ export default function CategoriesPage() {
   const navigate = useNavigate()
   return (
     <LegacyTheme>
-      <CategoryExplorerView onFilterProductsByCategory={(key) => navigate(`/products?category_key=${key}`)} />
+      <CategoryExplorerView
+        onFilterProductsByCategory={(key) =>
+          navigate(`/products?category_key=${key}`)
+        }
+      />
     </LegacyTheme>
   )
 }

@@ -3,7 +3,13 @@
 // ranks them locally with the explainable rules in lib/unspsc.js.
 
 import { api } from './api'
-import { COMMODITY_LEVEL, parseQuery, rankCommodities, serverTerm, toCommodity } from '@/lib/unspsc'
+import {
+  COMMODITY_LEVEL,
+  parseQuery,
+  rankCommodities,
+  serverTerm,
+  toCommodity,
+} from '@/lib/unspsc'
 
 // How many candidates to request per word. The server matches each word with LIKE and
 // returns rows in table order, so a cap that is hit means more matches may exist.
@@ -19,7 +25,8 @@ export async function searchCommodities(raw, { signal, limit = 30 } = {}) {
   const query = parseQuery(raw)
 
   if (query.kind === 'empty') {
-    if (query.text) return { query, results: [], truncated: false, suggestions: false }
+    if (query.text)
+      return { query, results: [], truncated: false, suggestions: false }
     const starters = await api.getCommodities('', { signal })
     const results = (Array.isArray(starters) ? starters : []).map((c) => ({
       item: toCommodity(c),
@@ -34,10 +41,16 @@ export async function searchCommodities(raw, { signal, limit = 30 } = {}) {
   const terms =
     query.kind === 'code'
       ? [query.code]
-      : [...new Set([...query.terms].sort((a, b) => b.length - a.length).map(serverTerm))].slice(0, MAX_SERVER_TERMS)
+      : [
+          ...new Set(
+            [...query.terms].sort((a, b) => b.length - a.length).map(serverTerm)
+          ),
+        ].slice(0, MAX_SERVER_TERMS)
 
   const responses = await Promise.all(
-    terms.map((t) => api.getCommodities(t, { signal }, { limit: CANDIDATES_PER_TERM })),
+    terms.map((t) =>
+      api.getCommodities(t, { signal }, { limit: CANDIDATES_PER_TERM })
+    )
   )
 
   const byKey = new Map()
@@ -82,7 +95,7 @@ export function getChildren(key) {
       api.getCategoryChildren(key).catch((err) => {
         childrenCache.delete(key)
         throw err
-      }),
+      })
     )
   }
   return childrenCache.get(key)

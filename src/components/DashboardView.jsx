@@ -1,4 +1,4 @@
-﻿import React from 'react';
+﻿import React from 'react'
 import {
   Box,
   Grid,
@@ -10,20 +10,22 @@ import {
   Chip,
   Paper,
   Button,
-} from '@mui/material';
-import Inventory2Icon from '@mui/icons-material/Inventory2';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { display, formatPeso } from '@/lib/product';
+} from '@mui/material'
+import Inventory2Icon from '@mui/icons-material/Inventory2'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import AccountTreeIcon from '@mui/icons-material/AccountTree'
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital'
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import { display, formatPeso } from '@/lib/product'
 
 // Shows a percentage when the server sent one, otherwise the empty marker (never a made-up number).
-const percent = (value) => (value === null || value === undefined ? display(value) : `${value}%`);
-const count = (value) => (typeof value === 'number' ? value.toLocaleString() : display(value));
+const percent = (value) =>
+  value === null || value === undefined ? display(value) : `${value}%`
+const count = (value) =>
+  typeof value === 'number' ? value.toLocaleString() : display(value)
 
 export default function DashboardView({ stats, onNavigateToProducts }) {
-  if (!stats) return null;
+  if (!stats) return null
 
   return (
     <Box sx={{ py: 3 }}>
@@ -75,23 +77,44 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
         <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent sx={{ p: 3 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a', mb: 0.5 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{ fontWeight: 800, color: '#0f172a', mb: 0.5 }}
+              >
                 Distribution by Category Group
               </Typography>
-              <Typography variant="caption" sx={{ color: '#64748b', mb: 2, display: 'block' }}>
+              <Typography
+                variant="caption"
+                sx={{ color: '#64748b', mb: 2, display: 'block' }}
+              >
                 Item count across top-level procurement classifications
               </Typography>
 
               <Stack spacing={2} sx={{ mt: 2 }}>
                 {stats.group_distribution?.map((g, idx) => {
-                  const pct = stats.total_products > 0 ? Math.round((g.count / stats.total_products) * 100) : 0;
+                  const pct =
+                    stats.total_products > 0
+                      ? Math.round((g.count / stats.total_products) * 100)
+                      : 0
                   return (
                     <Box key={idx}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: '#1e293b' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          mb: 0.5,
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 600, color: '#1e293b' }}
+                        >
                           {g.category_group || 'Unclassified'}
                         </Typography>
-                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#2563eb' }}>
+                        <Typography
+                          variant="caption"
+                          sx={{ fontWeight: 700, color: '#2563eb' }}
+                        >
                           {g.count} items ({pct}%)
                         </Typography>
                       </Box>
@@ -103,13 +126,14 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
                           borderRadius: 4,
                           backgroundColor: '#e2e8f0',
                           '& .MuiLinearProgress-bar': {
-                            backgroundColor: idx % 2 === 0 ? '#2563eb' : '#1d4ed8',
+                            backgroundColor:
+                              idx % 2 === 0 ? '#2563eb' : '#1d4ed8',
                             borderRadius: 4,
                           },
                         }}
                       />
                     </Box>
-                  );
+                  )
                 })}
               </Stack>
             </CardContent>
@@ -120,10 +144,16 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
         <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent sx={{ p: 3 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a', mb: 0.5 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{ fontWeight: 800, color: '#0f172a', mb: 0.5 }}
+              >
                 Units of Measure (UOM) Frequency
               </Typography>
-              <Typography variant="caption" sx={{ color: '#64748b', mb: 2, display: 'block' }}>
+              <Typography
+                variant="caption"
+                sx={{ color: '#64748b', mb: 2, display: 'block' }}
+              >
                 Standard packaging units used in procurement purchase requests
               </Typography>
 
@@ -141,10 +171,20 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
                       textAlign: 'center',
                     }}
                   >
-                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#2563eb' }}>
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 800, color: '#2563eb' }}
+                    >
                       {u.count}
                     </Typography>
-                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', textTransform: 'uppercase' }}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 700,
+                        color: '#475569',
+                        textTransform: 'uppercase',
+                      }}
+                    >
                       {u.uom}
                     </Typography>
                   </Paper>
@@ -158,9 +198,19 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
         <Grid size={12}>
           <Card>
             <CardContent sx={{ p: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 2,
+                }}
+              >
                 <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontWeight: 800, color: '#0f172a' }}
+                  >
                     Recently Catalogued Hospital Items
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748b' }}>
@@ -190,33 +240,79 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
                         justifyContent: 'space-between',
                         backgroundColor: '#ffffff',
                         borderColor: '#e2e8f0',
-                        '&:hover': { borderColor: '#2563eb', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' },
+                        '&:hover': {
+                          borderColor: '#2563eb',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                        },
                       }}
                     >
                       <Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
-                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#2563eb' }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'flex-start',
+                            mb: 0.5,
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            sx={{ fontWeight: 800, color: '#2563eb' }}
+                          >
                             {item.erp_item_code}
                           </Typography>
                           <Chip
                             size="small"
                             label={item.uom}
-                            sx={{ height: 18, fontSize: '0.65rem', fontWeight: 600, textTransform: 'lowercase' }}
+                            sx={{
+                              height: 18,
+                              fontSize: '0.65rem',
+                              fontWeight: 600,
+                              textTransform: 'lowercase',
+                            }}
                           />
                         </Box>
-                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#0f172a', lineHeight: 1.3 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 700,
+                            color: '#0f172a',
+                            lineHeight: 1.3,
+                          }}
+                        >
                           {item.item_description}
                         </Typography>
                         {item.full_category_path && (
-                          <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mt: 0.8, fontStyle: 'italic' }}>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: '#64748b',
+                              display: 'block',
+                              mt: 0.8,
+                              fontStyle: 'italic',
+                            }}
+                          >
                             {item.full_category_path}
                           </Typography>
                         )}
                       </Box>
 
-                      <Box sx={{ pt: 1.5, mt: 1.5, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant="caption" sx={{ color: '#94a3b8' }}>Unit Price:</Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 800, color: '#2563eb' }}>
+                      <Box
+                        sx={{
+                          pt: 1.5,
+                          mt: 1.5,
+                          borderTop: '1px solid #f1f5f9',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                        }}
+                      >
+                        <Typography variant="caption" sx={{ color: '#94a3b8' }}>
+                          Unit Price:
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 800, color: '#2563eb' }}
+                        >
                           {formatPeso(item.unit_price)}
                         </Typography>
                       </Box>
@@ -229,19 +325,36 @@ export default function DashboardView({ stats, onNavigateToProducts }) {
         </Grid>
       </Grid>
     </Box>
-  );
+  )
 }
 
 function MetricCard({ title, value, subtitle, icon, bgColor }) {
   return (
     <Card sx={{ height: '100%' }}>
       <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+          }}
+        >
           <Box>
-            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: '#64748b',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+              }}
+            >
               {title}
             </Typography>
-            <Typography variant="h4" sx={{ fontWeight: 800, color: '#0f172a', my: 0.5 }}>
+            <Typography
+              variant="h4"
+              sx={{ fontWeight: 800, color: '#0f172a', my: 0.5 }}
+            >
               {value}
             </Typography>
             <Typography variant="caption" sx={{ color: '#64748b' }}>
@@ -264,5 +377,5 @@ function MetricCard({ title, value, subtitle, icon, bgColor }) {
         </Box>
       </CardContent>
     </Card>
-  );
+  )
 }

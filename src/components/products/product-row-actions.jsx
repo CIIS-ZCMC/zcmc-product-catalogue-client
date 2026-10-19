@@ -23,7 +23,8 @@ async function copyCode(code) {
 
 export function ProductRowActions({ product, onDelete, linkState }) {
   const { isAdmin } = useAuth()
-  const label = product.item_description || product.erp_item_code || `product ${product.id}`
+  const label =
+    product.item_description || product.erp_item_code || `product ${product.id}`
 
   return (
     <DropdownMenu modal={false}>
@@ -54,7 +55,10 @@ export function ProductRowActions({ product, onDelete, linkState }) {
         {isAdmin && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onSelect={() => onDelete(product)}>
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={() => onDelete(product)}
+            >
               <Trash2 aria-hidden="true" />
               Delete
             </DropdownMenuItem>

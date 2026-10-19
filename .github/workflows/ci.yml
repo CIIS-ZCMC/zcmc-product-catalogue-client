@@ -1,0 +1,71 @@
+name: CI Tagging
+
+on:
+  workflow_run:
+    workflows: ['Lint and Test']
+    types:
+      - completed
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  tag-release:
+    name: Create and Push CI Tag
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Determine commit SHA
+        id: get_sha
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            echo "sha=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout repository at target commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.get_sha.outputs.sha }}
+          fetch-depth: 0
+          token: ${{ secrets.CI_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Generate tag name
+        id: tag_gen
+        run: |
+          DATE_STR=$(date +'%Y%m%d%H%M%S')
+          PKG_VERSION=$(node -p "try { require('./package.json').version } catch { '0.0.0' }")
+          RUN_NUM="${{ github.event.workflow_run.run_number || github.run_number }}"
+          TAG_NAME="ci-v${PKG_VERSION}-${DATE_STR}-run${RUN_NUM}"
+          echo "tag_name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
+          echo "Generated tag: ${TAG_NAME}"
+
+      - name: Create and push git tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.CI_PAT || secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ steps.tag_gen.outputs.tag_name }}
+          TARGET_SHA: ${{ steps.get_sha.outputs.sha }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${TAG_NAME}" "${TARGET_SHA}" -m "Automated CI tag after lint & tests passed [run: ${{ github.run_number }}]"
+          git push origin "${TAG_NAME}"
+
+      - name: Dispatch build workflow (fallback if GITHUB_TOKEN used for tag)
+        if: ${{ env.HAS_PAT != 'true' }}
+        env:
+          HAS_PAT: ${{ secrets.CI_PAT != '' }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ steps.tag_gen.outputs.tag_name }}
+        run: |
+          # If a Personal Access Token was used, tag push automatically triggers build.yml.
+          # If using default GITHUB_TOKEN, trigger build workflow explicitly via gh CLI.
+          echo "Triggering build workflow for tag ${TAG_NAME}..."
+          gh workflow run "Build Production Bundle" --ref "${TAG_NAME}" || echo "Workflow dispatch skipped or already triggered by tag push."

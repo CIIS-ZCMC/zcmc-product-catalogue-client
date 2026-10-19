@@ -1,18 +1,48 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
-import { ChevronRight, CircleAlert, Copy, Ellipsis, ExternalLink, FileText, Pencil, RefreshCw, Trash2 } from 'lucide-react'
+import {
+  ChevronRight,
+  CircleAlert,
+  Copy,
+  Ellipsis,
+  ExternalLink,
+  FileText,
+  Pencil,
+  RefreshCw,
+  Trash2,
+} from 'lucide-react'
 import { toast } from 'sonner'
 
 import { api } from '@/services/api'
 import { useAuth } from '@/context/auth-context'
 import { useProduct } from '@/hooks/use-product'
-import { display, formatDate, formatPeso, internalCategoryLabel, PHILGEPS_DIRECTORY_URL, splitSpecs } from '@/lib/product'
+import {
+  display,
+  formatDate,
+  formatPeso,
+  internalCategoryLabel,
+  PHILGEPS_DIRECTORY_URL,
+  splitSpecs,
+} from '@/lib/product'
 import { PageHeader } from '@/components/layout/page-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +61,11 @@ function Field({ label, children, mono = false }) {
   return (
     <div className="min-w-0 space-y-1">
       <dt className="text-muted-foreground text-xs font-medium">{label}</dt>
-      <dd className={mono ? 'font-mono text-sm break-all' : 'text-sm break-words'}>{children}</dd>
+      <dd
+        className={mono ? 'font-mono text-sm break-all' : 'text-sm break-words'}
+      >
+        {children}
+      </dd>
     </div>
   )
 }
@@ -63,7 +97,12 @@ function ActivityHistory({ productId }) {
     setState({ status: 'loading', logs: [] })
     api
       .getProductActivityLogs(productId, { signal: controller.signal })
-      .then((res) => setState({ status: 'success', logs: Array.isArray(res?.logs) ? res.logs : [] }))
+      .then((res) =>
+        setState({
+          status: 'success',
+          logs: Array.isArray(res?.logs) ? res.logs : [],
+        })
+      )
       .catch((err) => {
         if (err?.name !== 'AbortError') setState({ status: 'error', logs: [] })
       })
@@ -82,14 +121,25 @@ function ActivityHistory({ productId }) {
   if (state.status === 'error') {
     return (
       <div className="flex flex-wrap items-center gap-3 text-sm" role="alert">
-        <span className="text-muted-foreground">Activity history could not be loaded.</span>
-        <Button variant="outline" size="sm" onClick={() => setToken((n) => n + 1)}>
+        <span className="text-muted-foreground">
+          Activity history could not be loaded.
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setToken((n) => n + 1)}
+        >
           Try again
         </Button>
       </div>
     )
   }
-  if (state.logs.length === 0) return <p className="text-muted-foreground text-sm">No activity recorded for this product yet.</p>
+  if (state.logs.length === 0)
+    return (
+      <p className="text-muted-foreground text-sm">
+        No activity recorded for this product yet.
+      </p>
+    )
 
   return (
     <ol className="space-y-4">
@@ -99,7 +149,10 @@ function ActivityHistory({ productId }) {
             <Badge variant="outline" className="font-mono text-[11px]">
               {log.action}
             </Badge>
-            <time className="text-muted-foreground text-xs" dateTime={log.created_at}>
+            <time
+              className="text-muted-foreground text-xs"
+              dateTime={log.created_at}
+            >
               {formatDate(log.created_at, true)}
             </time>
           </div>
@@ -131,7 +184,11 @@ export default function ProductDetailsPage() {
           headingLevel={1}
           icon={CircleAlert}
           title={notFound ? 'Product not found' : 'Product could not be loaded'}
-          description={notFound ? 'It may have been deleted, or the link is wrong.' : error?.message}
+          description={
+            notFound
+              ? 'It may have been deleted, or the link is wrong.'
+              : error?.message
+          }
         >
           {!notFound && (
             <Button onClick={reload}>
@@ -189,7 +246,11 @@ export default function ProductDetailsPage() {
                 )}
                 {product.tech_specs_pdf_url && (
                   <DropdownMenuItem asChild>
-                    <a href={product.tech_specs_pdf_url} target="_blank" rel="noreferrer">
+                    <a
+                      href={product.tech_specs_pdf_url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       <FileText aria-hidden="true" />
                       Open specification PDF
                     </a>
@@ -198,7 +259,10 @@ export default function ProductDetailsPage() {
                 {isAdmin && (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem variant="destructive" onSelect={() => setDeleteOpen(true)}>
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onSelect={() => setDeleteOpen(true)}
+                    >
                       <Trash2 aria-hidden="true" />
                       Delete product
                     </DropdownMenuItem>
@@ -211,7 +275,9 @@ export default function ProductDetailsPage() {
       >
         <BackLink to={returnTo} />
         <div className="flex flex-wrap items-center gap-2 pt-1">
-          <span className="text-muted-foreground font-mono text-sm break-all">{display(product.erp_item_code)}</span>
+          <span className="text-muted-foreground font-mono text-sm break-all">
+            {display(product.erp_item_code)}
+          </span>
           {product.internal_category_code && (
             <Badge variant="outline" className="font-mono">
               {product.internal_category_code}
@@ -222,12 +288,19 @@ export default function ProductDetailsPage() {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0 space-y-6">
-          <Section title="Standard name parts" description="The item description is built from these parts.">
+          <Section
+            title="Standard name parts"
+            description="The item description is built from these parts."
+          >
             <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <Field label="Noun">{display(product.noun)}</Field>
               <Field label="Type">{display(product.type)}</Field>
-              <Field label="Material / composition">{display(product.material_composition)}</Field>
-              <Field label="Key attributes">{display(product.key_attributes)}</Field>
+              <Field label="Material / composition">
+                {display(product.material_composition)}
+              </Field>
+              <Field label="Key attributes">
+                {display(product.key_attributes)}
+              </Field>
               <Field label="Size">{display(product.size)}</Field>
               <Field label="Unit of measure">{display(product.uom)}</Field>
             </dl>
@@ -237,13 +310,31 @@ export default function ProductDetailsPage() {
             <dl className="grid gap-4">
               <Field label="UNSPSC hierarchy">
                 {hierarchy.length > 0 ? (
-                  <ol className="flex flex-wrap items-center gap-x-1 gap-y-1" aria-label="UNSPSC hierarchy">
+                  <ol
+                    className="flex flex-wrap items-center gap-x-1 gap-y-1"
+                    aria-label="UNSPSC hierarchy"
+                  >
                     {hierarchy.map((h, i) => (
                       <li key={h.key ?? i} className="flex items-center gap-1">
-                        {i > 0 && <ChevronRight className="text-muted-foreground size-3.5" aria-hidden="true" />}
-                        <span className={i === hierarchy.length - 1 ? 'font-medium' : 'text-muted-foreground'}>
+                        {i > 0 && (
+                          <ChevronRight
+                            className="text-muted-foreground size-3.5"
+                            aria-hidden="true"
+                          />
+                        )}
+                        <span
+                          className={
+                            i === hierarchy.length - 1
+                              ? 'font-medium'
+                              : 'text-muted-foreground'
+                          }
+                        >
                           {h.title}
-                          {h.code && <span className="ml-1 font-mono text-xs">({h.code})</span>}
+                          {h.code && (
+                            <span className="ml-1 font-mono text-xs">
+                              ({h.code})
+                            </span>
+                          )}
                         </span>
                       </li>
                     ))}
@@ -252,7 +343,9 @@ export default function ProductDetailsPage() {
                   display(null)
                 )}
               </Field>
-              <Field label="Internal category">{internalCategoryLabel(product)}</Field>
+              <Field label="Internal category">
+                {internalCategoryLabel(product)}
+              </Field>
             </dl>
           </Section>
 
@@ -263,7 +356,10 @@ export default function ProductDetailsPage() {
                   <ul className="flex flex-wrap gap-2 pt-1">
                     {specs.map((s) => (
                       <li key={s}>
-                        <Badge variant="secondary" className="whitespace-normal">
+                        <Badge
+                          variant="secondary"
+                          className="whitespace-normal"
+                        >
                           {s}
                         </Badge>
                       </li>
@@ -282,7 +378,8 @@ export default function ProductDetailsPage() {
                     className="text-primary inline-flex items-center gap-1 font-medium break-all underline-offset-2 hover:underline"
                   >
                     <FileText className="size-4 shrink-0" aria-hidden="true" />
-                    {product.tech_specs_pdf_path?.split('/').pop() || 'Open PDF'}
+                    {product.tech_specs_pdf_path?.split('/').pop() ||
+                      'Open PDF'}
                     <span className="sr-only">(opens in a new tab)</span>
                   </a>
                 ) : (
@@ -292,9 +389,14 @@ export default function ProductDetailsPage() {
             </dl>
           </Section>
 
-          <Section title="Price history" description="Recorded by the server whenever the unit price changes.">
+          <Section
+            title="Price history"
+            description="Recorded by the server whenever the unit price changes."
+          >
             {priceHistory.length === 0 ? (
-              <p className="text-muted-foreground text-sm">No price changes recorded.</p>
+              <p className="text-muted-foreground text-sm">
+                No price changes recorded.
+              </p>
             ) : (
               <Table>
                 <TableHeader>
@@ -302,18 +404,26 @@ export default function ProductDetailsPage() {
                     <TableHead>Effective</TableHead>
                     <TableHead className="text-right">Price</TableHead>
                     <TableHead>Change</TableHead>
-                    <TableHead className="hidden sm:table-cell">Reason</TableHead>
+                    <TableHead className="hidden sm:table-cell">
+                      Reason
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {priceHistory.map((h) => (
                     <TableRow key={h.id}>
-                      <TableCell className="whitespace-nowrap">{formatDate(h.effective_date)}</TableCell>
-                      <TableCell className="text-right whitespace-nowrap tabular-nums">{formatPeso(h.new_price)}</TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {formatDate(h.effective_date)}
+                      </TableCell>
+                      <TableCell className="text-right whitespace-nowrap tabular-nums">
+                        {formatPeso(h.new_price)}
+                      </TableCell>
                       <TableCell className="text-sm">
                         <PriceChange entry={h} />
                       </TableCell>
-                      <TableCell className="text-muted-foreground hidden text-sm sm:table-cell">{display(h.reason)}</TableCell>
+                      <TableCell className="text-muted-foreground hidden text-sm sm:table-cell">
+                        {display(h.reason)}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -326,7 +436,10 @@ export default function ProductDetailsPage() {
           </Section>
         </div>
 
-        <aside className="order-first min-w-0 space-y-6 lg:order-none" aria-label="Codes and record details">
+        <aside
+          className="order-first min-w-0 space-y-6 lg:order-none"
+          aria-label="Codes and record details"
+        >
           <Section title="Codes">
             <dl className="grid gap-4">
               <Field label="ERP item code" mono>
@@ -361,9 +474,15 @@ export default function ProductDetailsPage() {
 
           <Section title="Record">
             <dl className="grid gap-4">
-              <Field label="Current unit price">{formatPeso(product.unit_price)}</Field>
-              <Field label="Added">{formatDate(product.created_at, true)}</Field>
-              <Field label="Last updated">{formatDate(product.updated_at, true)}</Field>
+              <Field label="Current unit price">
+                {formatPeso(product.unit_price)}
+              </Field>
+              <Field label="Added">
+                {formatDate(product.created_at, true)}
+              </Field>
+              <Field label="Last updated">
+                {formatDate(product.updated_at, true)}
+              </Field>
               <Field label="Catalogue ID" mono>
                 #{product.id}
               </Field>

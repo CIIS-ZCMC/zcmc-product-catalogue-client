@@ -24,7 +24,9 @@ function loadUnits() {
     unitsPromise = api
       .getItemUnits()
       .then((res) => {
-        const names = Array.isArray(res?.data) ? res.data.map((u) => u.name).filter(Boolean) : []
+        const names = Array.isArray(res?.data)
+          ? res.data.map((u) => u.name).filter(Boolean)
+          : []
         return names.length > 0 ? names : FALLBACK_UNITS
       })
       .catch(() => {

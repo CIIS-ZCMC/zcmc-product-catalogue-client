@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState } from 'react'
 import {
   Dialog,
   DialogTitle,
@@ -13,70 +13,78 @@ import {
   Paper,
   Stack,
   Divider,
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { api } from '../services/api';
+} from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import FileDownloadIcon from '@mui/icons-material/FileDownload'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import { api } from '../services/api'
 
 export default function ImportExportModal({ open, onClose, onImportSuccess }) {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const [result, setResult] = useState(null)
+  const [errorMsg, setErrorMsg] = useState('')
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
-      setErrorMsg('');
-      setResult(null);
+      setSelectedFile(e.target.files[0])
+      setErrorMsg('')
+      setResult(null)
     }
-  };
+  }
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      setErrorMsg('Please select a CSV file first.');
-      return;
+      setErrorMsg('Please select a CSV file first.')
+      return
     }
 
-    setUploading(true);
-    setErrorMsg('');
+    setUploading(true)
+    setErrorMsg('')
     try {
-      const res = await api.importProducts(selectedFile);
-      setResult(res);
+      const res = await api.importProducts(selectedFile)
+      setResult(res)
       if (onImportSuccess) {
-        onImportSuccess();
+        onImportSuccess()
       }
     } catch (err) {
-      setErrorMsg(err.message || 'Import failed.');
+      setErrorMsg(err.message || 'Import failed.')
     } finally {
-      setUploading(false);
+      setUploading(false)
     }
-  };
+  }
 
   const handleDownloadTemplate = async () => {
     try {
       if (api.downloadExportCsv) {
-        await api.downloadExportCsv();
+        await api.downloadExportCsv()
       } else {
-        window.location.href = api.getExportUrl();
+        window.location.href = api.getExportUrl()
       }
     } catch (err) {
-      setErrorMsg(err.message || 'Failed to download template');
+      setErrorMsg(err.message || 'Failed to download template')
     }
-  };
+  }
 
   const handleReset = () => {
-    setSelectedFile(null);
-    setResult(null);
-    setErrorMsg('');
-    onClose();
-  };
+    setSelectedFile(null)
+    setResult(null)
+    setErrorMsg('')
+    onClose()
+  }
 
   return (
     <Dialog open={open} onClose={handleReset} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <DialogTitle
+        sx={{
+          m: 0,
+          p: 2,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
         <Typography variant="h6" sx={{ fontWeight: 800 }}>
           Import / Export Product Catalogue
         </Typography>
@@ -87,7 +95,11 @@ export default function ImportExportModal({ open, onClose, onImportSuccess }) {
 
       <DialogContent dividers sx={{ p: 3 }}>
         {errorMsg && (
-          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setErrorMsg('')}>
+          <Alert
+            severity="error"
+            sx={{ mb: 2 }}
+            onClose={() => setErrorMsg('')}
+          >
             {errorMsg}
           </Alert>
         )}
@@ -98,17 +110,30 @@ export default function ImportExportModal({ open, onClose, onImportSuccess }) {
               {result.message}
             </Typography>
             <Typography variant="caption">
-              Added: {result.imported} new items • Updated: {result.updated} existing items
+              Added: {result.imported} new items • Updated: {result.updated}{' '}
+              existing items
             </Typography>
           </Alert>
         )}
 
         <Stack spacing={2.5}>
           {/* Download template section */}
-          <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, backgroundColor: '#f8fafc' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Paper
+            variant="outlined"
+            sx={{ p: 2, borderRadius: 2, backgroundColor: '#f8fafc' }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
               <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f172a' }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ fontWeight: 700, color: '#0f172a' }}
+                >
                   ZCMC Catalogue CSV Template
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748b' }}>
@@ -148,10 +173,18 @@ export default function ImportExportModal({ open, onClose, onImportSuccess }) {
               onChange={handleFileChange}
             />
             <CloudUploadIcon sx={{ fontSize: 40, color: '#2563eb', mb: 1 }} />
-            <Typography variant="body1" sx={{ fontWeight: 700, color: '#0f172a' }}>
-              {selectedFile ? selectedFile.name : 'Click to select CSV catalogue file'}
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: 700, color: '#0f172a' }}
+            >
+              {selectedFile
+                ? selectedFile.name
+                : 'Click to select CSV catalogue file'}
             </Typography>
-            <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mt: 0.5 }}>
+            <Typography
+              variant="caption"
+              sx={{ color: '#64748b', display: 'block', mt: 0.5 }}
+            >
               Accepts .csv files up to 10MB
             </Typography>
           </Box>
@@ -174,5 +207,5 @@ export default function ImportExportModal({ open, onClose, onImportSuccess }) {
         </Button>
       </DialogActions>
     </Dialog>
-  );
+  )
 }

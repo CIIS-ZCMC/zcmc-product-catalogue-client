@@ -56,7 +56,9 @@ export default function ProductEditPage() {
   return (
     <div className="mx-auto w-full max-w-4xl">
       <PageHeader title="Edit product" description={product?.item_description}>
-        <BackLink to={detailsPath} state={{ from: returnTo }}>Back to product</BackLink>
+        <BackLink to={detailsPath} state={{ from: returnTo }}>
+          Back to product
+        </BackLink>
       </PageHeader>
       <ProductForm
         // Remount if a different product loads so defaults are rebuilt.

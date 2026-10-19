@@ -4,5 +4,7 @@ import { useLocation } from 'react-router'
 export function useReturnTo(fallback = '/products') {
   const location = useLocation()
   const from = location.state?.from
-  return typeof from === 'string' && from.startsWith('/products') ? from : fallback
+  return typeof from === 'string' && from.startsWith('/products')
+    ? from
+    : fallback
 }

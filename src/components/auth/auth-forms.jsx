@@ -5,10 +5,23 @@ import { z } from 'zod'
 import { CircleAlert, Loader2 } from 'lucide-react'
 
 import { api } from '@/services/api'
-import { applyServerErrors, emailSchema, newPasswordSchema, PASSWORD_HINT } from '@/lib/auth'
+import {
+  applyServerErrors,
+  emailSchema,
+  newPasswordSchema,
+  PASSWORD_HINT,
+} from '@/lib/auth'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PasswordChecklist, PasswordInput } from './password-input'
 
@@ -25,7 +38,10 @@ const registerSchema = z
     password: newPasswordSchema,
     confirmPassword: z.string().min(1, 'Re-type your password.'),
   })
-  .refine((v) => v.password === v.confirmPassword, { path: ['confirmPassword'], message: 'Passwords do not match.' })
+  .refine((v) => v.password === v.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords do not match.',
+  })
 
 export function FormError({ message }) {
   if (!message) return null
@@ -48,13 +64,19 @@ export function SubmitButton({ pending, children, pendingLabel }) {
 
 export function SignInForm({ defaultEmail = '', onSuccess, onForgotPassword }) {
   const [formError, setFormError] = useState('')
-  const form = useForm({ resolver: zodResolver(signInSchema), defaultValues: { email: defaultEmail, password: '' } })
+  const form = useForm({
+    resolver: zodResolver(signInSchema),
+    defaultValues: { email: defaultEmail, password: '' },
+  })
   const pending = form.formState.isSubmitting
 
   const submit = form.handleSubmit(async (values) => {
     setFormError('')
     try {
-      const res = await api.login({ email: values.email, password: values.password })
+      const res = await api.login({
+        email: values.email,
+        password: values.password,
+      })
       onSuccess(res.user)
     } catch (err) {
       setFormError(applyServerErrors(form, err))
@@ -73,7 +95,12 @@ export function SignInForm({ defaultEmail = '', onSuccess, onForgotPassword }) {
             <FormItem>
               <FormLabel required>Email address</FormLabel>
               <FormControl required>
-                <Input type="email" autoComplete="email" placeholder="name@zcmc.gov.ph" {...field} />
+                <Input
+                  type="email"
+                  autoComplete="email"
+                  placeholder="name@zcmc.gov.ph"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -91,7 +118,9 @@ export function SignInForm({ defaultEmail = '', onSuccess, onForgotPassword }) {
                   type="button"
                   variant="link"
                   className="h-auto p-0 text-xs"
-                  onClick={() => onForgotPassword(form.getValues('email').trim())}
+                  onClick={() =>
+                    onForgotPassword(form.getValues('email').trim())
+                  }
                 >
                   Forgot password?
                 </Button>
@@ -116,7 +145,13 @@ export function RegisterForm({ onSuccess }) {
   const [formError, setFormError] = useState('')
   const form = useForm({
     resolver: zodResolver(registerSchema),
-    defaultValues: { first_name: '', last_name: '', email: '', password: '', confirmPassword: '' },
+    defaultValues: {
+      first_name: '',
+      last_name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
   })
   const password = useWatch({ control: form.control, name: 'password' })
   const pending = form.formState.isSubmitting
@@ -133,7 +168,11 @@ export function RegisterForm({ onSuccess }) {
       })
       onSuccess(res.user)
     } catch (err) {
-      setFormError(applyServerErrors(form, err, { password_confirmation: 'confirmPassword' }))
+      setFormError(
+        applyServerErrors(form, err, {
+          password_confirmation: 'confirmPassword',
+        })
+      )
     }
   })
 
@@ -178,7 +217,12 @@ export function RegisterForm({ onSuccess }) {
             <FormItem>
               <FormLabel required>Email address</FormLabel>
               <FormControl required>
-                <Input type="email" autoComplete="email" placeholder="name@zcmc.gov.ph" {...field} />
+                <Input
+                  type="email"
+                  autoComplete="email"
+                  placeholder="name@zcmc.gov.ph"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -194,7 +238,11 @@ export function RegisterForm({ onSuccess }) {
               <FormControl required>
                 <PasswordInput autoComplete="new-password" {...field} />
               </FormControl>
-              {password ? <PasswordChecklist value={password} /> : <FormDescription>{PASSWORD_HINT}</FormDescription>}
+              {password ? (
+                <PasswordChecklist value={password} />
+              ) : (
+                <FormDescription>{PASSWORD_HINT}</FormDescription>
+              )}
               <FormMessage />
             </FormItem>
           )}

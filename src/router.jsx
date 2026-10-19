@@ -6,8 +6,12 @@ import { RouteErrorPage, PageFallback } from './pages/route-fallbacks'
 import ProductListPage from './pages/products/product-list-page'
 
 // The list is the landing screen, so it ships in the main bundle; the rest load on demand.
-const ProductDetailsPage = lazy(() => import('./pages/products/product-details-page'))
-const ProductCreatePage = lazy(() => import('./pages/products/product-create-page'))
+const ProductDetailsPage = lazy(
+  () => import('./pages/products/product-details-page')
+)
+const ProductCreatePage = lazy(
+  () => import('./pages/products/product-create-page')
+)
 const ProductEditPage = lazy(() => import('./pages/products/product-edit-page'))
 const DashboardPage = lazy(() => import('./pages/dashboard-page'))
 const ActivityLogsPage = lazy(() => import('./pages/activity-logs-page'))
@@ -15,7 +19,9 @@ const PricingPage = lazy(() => import('./pages/pricing-page'))
 const CategoriesPage = lazy(() => import('./pages/categories-page'))
 const NamingPage = lazy(() => import('./pages/naming-page'))
 
-const withSuspense = (element) => <Suspense fallback={<PageFallback />}>{element}</Suspense>
+const withSuspense = (element) => (
+  <Suspense fallback={<PageFallback />}>{element}</Suspense>
+)
 
 export const router = createBrowserRouter([
   {

@@ -8,7 +8,10 @@ import { ProductRowActions } from './product-row-actions'
 /** Mobile listing (below md): one compact card per product, no sideways scrolling. */
 export function ProductCardList({ products, onDelete, linkState, busy }) {
   return (
-    <ul className={cn('grid gap-3', busy && 'opacity-60 transition-opacity')} aria-label="Catalogue products">
+    <ul
+      className={cn('grid gap-3', busy && 'opacity-60 transition-opacity')}
+      aria-label="Catalogue products"
+    >
       {products.map((p) => (
         <li key={p.id} className="bg-card relative rounded-xl border p-4">
           <div className="flex items-start gap-2">
@@ -31,10 +34,16 @@ export function ProductCardList({ products, onDelete, linkState, busy }) {
             </div>
             {/* Sits above the card-wide link so the menu stays tappable. */}
             <div className="relative z-10 -mt-1 -mr-2">
-              <ProductRowActions product={p} onDelete={onDelete} linkState={linkState} />
+              <ProductRowActions
+                product={p}
+                onDelete={onDelete}
+                linkState={linkState}
+              />
             </div>
           </div>
-          <p className="text-muted-foreground mt-2 text-xs break-words">{commodityLabel(p)}</p>
+          <p className="text-muted-foreground mt-2 text-xs break-words">
+            {commodityLabel(p)}
+          </p>
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
             <Badge variant="secondary">UOM: {display(p.uom)}</Badge>
             {p.internal_category_code && (

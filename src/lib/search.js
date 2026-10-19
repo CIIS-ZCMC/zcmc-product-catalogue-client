@@ -20,7 +20,11 @@ export function tokenize(value) {
  * search text (label, code, aliases). Results keep their order except that exact
  * and prefix label/code matches move to the top.
  */
-export function filterOptions(options, query, { getSearchText, getLabel, getCode } = {}) {
+export function filterOptions(
+  options,
+  query,
+  { getSearchText, getLabel, getCode } = {}
+) {
   const terms = tokenize(query)
   if (terms.length === 0) return options
   const text = getSearchText || getLabel || String
@@ -34,10 +38,13 @@ export function filterOptions(options, query, { getSearchText, getLabel, getCode
     const code = normalize(getCode ? getCode(option) : '')
     let rank = 3
     if (label === phrase || code === phrase) rank = 0
-    else if (label.startsWith(phrase) || (code && code.startsWith(phrase))) rank = 1
+    else if (label.startsWith(phrase) || (code && code.startsWith(phrase)))
+      rank = 1
     else if (tokenize(label).some((w) => w.startsWith(terms[0]))) rank = 2
     scored.push({ option, rank, index })
   })
 
-  return scored.sort((a, b) => a.rank - b.rank || a.index - b.index).map((s) => s.option)
+  return scored
+    .sort((a, b) => a.rank - b.rank || a.index - b.index)
+    .map((s) => s.option)
 }

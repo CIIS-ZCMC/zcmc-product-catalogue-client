@@ -21,8 +21,13 @@ export function RouteErrorPage({ notFound = false }) {
 
   return (
     <div className="mx-auto flex max-w-md flex-col items-center gap-3 py-16 text-center">
-      <CircleAlert className="text-muted-foreground size-10" aria-hidden="true" />
-      <h1 className="text-xl font-semibold">{notFound ? 'Page not found' : 'Something went wrong'}</h1>
+      <CircleAlert
+        className="text-muted-foreground size-10"
+        aria-hidden="true"
+      />
+      <h1 className="text-xl font-semibold">
+        {notFound ? 'Page not found' : 'Something went wrong'}
+      </h1>
       <p className="text-muted-foreground text-sm">
         {notFound
           ? 'The page you opened does not exist in the product catalogue.'

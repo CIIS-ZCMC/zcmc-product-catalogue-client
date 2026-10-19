@@ -1,6 +1,18 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router'
-import { CircleAlert, Download, LoaderCircle, PackageOpen, Plus, RefreshCw, Search, SearchX, SlidersHorizontal, Upload, X } from 'lucide-react'
+import {
+  CircleAlert,
+  Download,
+  LoaderCircle,
+  PackageOpen,
+  Plus,
+  RefreshCw,
+  Search,
+  SearchX,
+  SlidersHorizontal,
+  Upload,
+  X,
+} from 'lucide-react'
 import { toast } from 'sonner'
 
 import { api } from '@/services/api'
@@ -11,7 +23,15 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
 import { commodityText } from '@/lib/product'
 import { DeleteProductDialog } from '@/components/products/delete-product-dialog'
 import { ListPagination } from '@/components/products/list-pagination'
@@ -23,7 +43,9 @@ import { ProductListSkeleton } from '@/components/products/product-list-skeleton
 import { ProductTable } from '@/components/products/product-table'
 
 // MUI import dialog: loaded only once the user opens it.
-const ImportExportDialog = lazy(() => import('@/components/import-export-dialog'))
+const ImportExportDialog = lazy(
+  () => import('@/components/import-export-dialog')
+)
 
 const FILTER_KEYS = ['internal_category_id', 'category_key', 'uom']
 const DEFAULT_SORT = { by: 'created_at', order: 'desc' }
@@ -59,7 +81,10 @@ export default function ProductListPage() {
   const [deleteTarget, setDeleteTarget] = useState(null)
   const { data: internalCategories } = useInternalCategories()
 
-  const updateParams = (changes, { resetPage = true, replace = false } = {}) => {
+  const updateParams = (
+    changes,
+    { resetPage = true, replace = false } = {}
+  ) => {
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev)
@@ -70,12 +95,13 @@ export default function ProductListPage() {
         if (resetPage) next.delete('page')
         return next
       },
-      { replace },
+      { replace }
     )
   }
 
   useEffect(() => {
-    if (debouncedSearch !== query.search) updateParams({ q: debouncedSearch }, { replace: true })
+    if (debouncedSearch !== query.search)
+      updateParams({ q: debouncedSearch }, { replace: true })
     // Only react to the debounced text, not to URL changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch])
@@ -85,7 +111,12 @@ export default function ProductListPage() {
     const onKey = (e) => {
       if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return
       const el = document.activeElement
-      if (el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))) return
+      if (
+        el &&
+        (el.isContentEditable ||
+          ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))
+      )
+        return
       e.preventDefault()
       document.getElementById('product-search')?.focus()
     }
@@ -95,7 +126,9 @@ export default function ProductListPage() {
 
   // Keep the box in step when the URL changes from outside (back/forward, chip removal).
   useEffect(() => {
-    setSearchInput((current) => (current.trim() === query.search ? current : query.search))
+    setSearchInput((current) =>
+      current.trim() === query.search ? current : query.search
+    )
   }, [query.search])
 
   // Resolve a label for a category_key that arrived via the URL (shared link, back button).
@@ -104,15 +137,25 @@ export default function ProductListPage() {
       setCommodity(null)
       return undefined
     }
-    if (commodity && String(commodity.key) === query.category_key) return undefined
+    if (commodity && String(commodity.key) === query.category_key)
+      return undefined
     let active = true
     api
       .getCategory(query.category_key)
       .then((res) => {
         const cat = res?.category || res
-        if (active && cat) setCommodity({ key: cat.key, code: cat.code, title: cat.title })
+        if (active && cat)
+          setCommodity({ key: cat.key, code: cat.code, title: cat.title })
       })
-      .catch(() => active && setCommodity({ key: query.category_key, code: '', title: `Category ${query.category_key}` }))
+      .catch(
+        () =>
+          active &&
+          setCommodity({
+            key: query.category_key,
+            code: '',
+            title: `Category ${query.category_key}`,
+          })
+      )
     return () => {
       active = false
     }
@@ -153,7 +196,9 @@ export default function ProductListPage() {
   // Lets detail/edit pages return to this exact list view (filters, sort, page).
   const linkState = { from: `${location.pathname}${location.search}` }
 
-  const internalCategory = internalCategories.find((c) => String(c.id) === query.internal_category_id)
+  const internalCategory = internalCategories.find(
+    (c) => String(c.id) === query.internal_category_id
+  )
   const chips = [
     query.search && {
       key: 'q',
@@ -173,10 +218,17 @@ export default function ProductListPage() {
       label: `UNSPSC: ${commodity ? commodityText(commodity) : '…'}`,
       clear: () => handleFilterChange({ category_key: '' }, null),
     },
-    query.uom && { key: 'uom', label: `UOM: ${query.uom}`, clear: () => updateParams({ uom: '' }) },
+    query.uom && {
+      key: 'uom',
+      label: `UOM: ${query.uom}`,
+      clear: () => updateParams({ uom: '' }),
+    },
   ].filter(Boolean)
 
-  const totalLabel = meta?.total !== null && meta?.total !== undefined ? `${meta.total.toLocaleString()} products` : null
+  const totalLabel =
+    meta?.total !== null && meta?.total !== undefined
+      ? `${meta.total.toLocaleString()} products`
+      : null
 
   return (
     <div className="mx-auto w-full max-w-7xl">
@@ -185,12 +237,26 @@ export default function ProductListPage() {
         description="Search and manage standardized items in the ZCMC procurement catalogue."
         actions={
           <>
-            <Button variant="outline" disabled className="order-2 sm:order-none" onClick={() => setImportOpen(true)}>
+            <Button
+              variant="outline"
+              disabled
+              className="order-2 sm:order-none"
+              onClick={() => setImportOpen(true)}
+            >
               <Upload aria-hidden="true" />
               Import CSV
             </Button>
-            <Button variant="outline" className="order-3 sm:order-none" onClick={handleExport} disabled={exporting}>
-              {exporting ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <Download aria-hidden="true" />}
+            <Button
+              variant="outline"
+              className="order-3 sm:order-none"
+              onClick={handleExport}
+              disabled={exporting}
+            >
+              {exporting ? (
+                <LoaderCircle className="animate-spin" aria-hidden="true" />
+              ) : (
+                <Download aria-hidden="true" />
+              )}
               {exporting ? 'Exporting…' : 'Export CSV'}
             </Button>
             <Button asChild className="order-1 w-full sm:order-none sm:w-auto">
@@ -209,7 +275,10 @@ export default function ProductListPage() {
             <label htmlFor="product-search" className="sr-only">
               Search products
             </label>
-            <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" aria-hidden="true" />
+            <Search
+              className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
+              aria-hidden="true"
+            />
             <Input
               id="product-search"
               type="search"
@@ -223,7 +292,8 @@ export default function ProductListPage() {
               className="h-10 pr-9 pl-9"
             />
             <span id="product-search-help" className="sr-only">
-              Matches any part of the description or codes. Press slash to jump here.
+              Matches any part of the description or codes. Press slash to jump
+              here.
             </span>
             {searchInput && (
               <Button
@@ -245,7 +315,10 @@ export default function ProductListPage() {
                 <SlidersHorizontal aria-hidden="true" />
                 Filters
                 {activeFilterCount > 0 && (
-                  <Badge className="ml-0.5 h-5 min-w-5 px-1" aria-label={`${activeFilterCount} active`}>
+                  <Badge
+                    className="ml-0.5 h-5 min-w-5 px-1"
+                    aria-label={`${activeFilterCount} active`}
+                  >
                     {activeFilterCount}
                   </Badge>
                 )}
@@ -263,15 +336,25 @@ export default function ProductListPage() {
                   commodity={commodity}
                   onChange={handleFilterChange}
                   sort={sort}
-                  onSortChange={({ by, order }) => updateParams({ sort_by: by, sort_order: order })}
+                  onSortChange={({ by, order }) =>
+                    updateParams({ sort_by: by, sort_order: order })
+                  }
                   showSort
                 />
               </div>
               <SheetFooter className="flex-row">
-                <Button variant="outline" className="flex-1" onClick={clearAll} disabled={!hasQuery}>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={clearAll}
+                  disabled={!hasQuery}
+                >
                   Clear all
                 </Button>
-                <Button className="flex-1" onClick={() => setFiltersOpen(false)}>
+                <Button
+                  className="flex-1"
+                  onClick={() => setFiltersOpen(false)}
+                >
                   Show results
                 </Button>
               </SheetFooter>
@@ -280,13 +363,25 @@ export default function ProductListPage() {
         </div>
 
         <div className="hidden md:block">
-          <ProductFilters filters={query} commodity={commodity} onChange={handleFilterChange} sort={sort} />
+          <ProductFilters
+            filters={query}
+            commodity={commodity}
+            onChange={handleFilterChange}
+            sort={sort}
+          />
         </div>
 
         {chips.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2" aria-label="Active filters">
+          <div
+            className="flex flex-wrap items-center gap-2"
+            aria-label="Active filters"
+          >
             {chips.map((chip) => (
-              <Badge key={chip.key} variant="outline" className="h-7 max-w-full gap-1 pr-1 pl-2.5 text-xs">
+              <Badge
+                key={chip.key}
+                variant="outline"
+                className="h-7 max-w-full gap-1 pr-1 pl-2.5 text-xs"
+              >
                 <span className="truncate">{chip.label}</span>
                 <button
                   type="button"
@@ -298,7 +393,12 @@ export default function ProductListPage() {
                 </button>
               </Badge>
             ))}
-            <Button variant="link" size="sm" className="h-7 px-1" onClick={clearAll}>
+            <Button
+              variant="link"
+              size="sm"
+              className="h-7 px-1"
+              onClick={clearAll}
+            >
               Clear all
             </Button>
           </div>
@@ -307,18 +407,27 @@ export default function ProductListPage() {
 
       <div className="mb-3 flex min-h-5 items-center justify-between gap-2 text-sm">
         <p className="text-muted-foreground" aria-live="polite">
-          {status === 'refreshing' ? 'Updating results…' : status === 'success' ? totalLabel : ''}
+          {status === 'refreshing'
+            ? 'Updating results…'
+            : status === 'success'
+              ? totalLabel
+              : ''}
         </p>
       </div>
 
-      {status === 'loading' && <ProductListSkeleton rows={Math.min(query.per_page, 10)} />}
+      {status === 'loading' && (
+        <ProductListSkeleton rows={Math.min(query.per_page, 10)} />
+      )}
 
       {status === 'error' && (
         <ListState
           role="alert"
           icon={CircleAlert}
           title="Products could not be loaded"
-          description={error?.message || 'Check your connection to the catalogue server and try again.'}
+          description={
+            error?.message ||
+            'Check your connection to the catalogue server and try again.'
+          }
         >
           <Button onClick={reload}>
             <RefreshCw aria-hidden="true" />
@@ -327,8 +436,9 @@ export default function ProductListPage() {
         </ListState>
       )}
 
-      {(status === 'success' || status === 'refreshing') && products.length === 0 && (
-        hasQuery ? (
+      {(status === 'success' || status === 'refreshing') &&
+        products.length === 0 &&
+        (hasQuery ? (
           <ListState
             icon={SearchX}
             title="No products match"
@@ -351,35 +461,45 @@ export default function ProductListPage() {
               </Link>
             </Button>
           </ListState>
-        )
-      )}
+        ))}
 
-      {(status === 'success' || status === 'refreshing') && products.length > 0 && (
-        <div className="space-y-4" aria-busy={status === 'refreshing'}>
-          <div className="hidden md:block">
-            <ProductTable
-              products={products}
-              sort={sort}
-              onSort={handleSort}
-              onDelete={setDeleteTarget}
-              linkState={linkState}
-              busy={status === 'refreshing'}
+      {(status === 'success' || status === 'refreshing') &&
+        products.length > 0 && (
+          <div className="space-y-4" aria-busy={status === 'refreshing'}>
+            <div className="hidden md:block">
+              <ProductTable
+                products={products}
+                sort={sort}
+                onSort={handleSort}
+                onDelete={setDeleteTarget}
+                linkState={linkState}
+                busy={status === 'refreshing'}
+              />
+            </div>
+            <div className="md:hidden">
+              <ProductCardList
+                products={products}
+                onDelete={setDeleteTarget}
+                linkState={linkState}
+                busy={status === 'refreshing'}
+              />
+            </div>
+            <ListPagination
+              meta={meta}
+              onPageChange={(page) => {
+                updateParams(
+                  { page: page > 1 ? page : '' },
+                  { resetPage: false }
+                )
+                document.getElementById('main-content')?.focus()
+                window.scrollTo({ top: 0 })
+              }}
+              onPerPageChange={(n) =>
+                updateParams({ per_page: n === PAGE_SIZES[0] ? '' : n })
+              }
             />
           </div>
-          <div className="md:hidden">
-            <ProductCardList products={products} onDelete={setDeleteTarget} linkState={linkState} busy={status === 'refreshing'} />
-          </div>
-          <ListPagination
-            meta={meta}
-            onPageChange={(page) => {
-              updateParams({ page: page > 1 ? page : '' }, { resetPage: false })
-              document.getElementById('main-content')?.focus()
-              window.scrollTo({ top: 0 })
-            }}
-            onPerPageChange={(n) => updateParams({ per_page: n === PAGE_SIZES[0] ? '' : n })}
-          />
-        </div>
-      )}
+        )}
 
       <DeleteProductDialog
         product={deleteTarget}
@@ -388,7 +508,8 @@ export default function ProductListPage() {
         onDeleted={(p) => {
           toast.success(`Deleted ${p.erp_item_code || 'product'}.`)
           // Step back a page if the last row on this page was removed.
-          if (products.length === 1 && query.page > 1) updateParams({ page: query.page - 1 }, { resetPage: false })
+          if (products.length === 1 && query.page > 1)
+            updateParams({ page: query.page - 1 }, { resetPage: false })
           else reload()
         }}
       />

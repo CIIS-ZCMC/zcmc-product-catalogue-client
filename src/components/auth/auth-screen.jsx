@@ -15,7 +15,8 @@ export function AuthScreen({ onAuthSuccess }) {
   const [signInEmail, setSignInEmail] = useState('')
   const [reset, setReset] = useState({ open: false, email: '', key: 0 })
 
-  const openReset = (email) => setReset((r) => ({ open: true, email, key: r.key + 1 }))
+  const openReset = (email) =>
+    setReset((r) => ({ open: true, email, key: r.key + 1 }))
 
   const handleReset = (email) => {
     setReset((r) => ({ ...r, open: false }))
@@ -30,8 +31,12 @@ export function AuthScreen({ onAuthSuccess }) {
         <CardHeader className="flex flex-col items-center gap-2 border-b px-6 py-6 text-center">
           <img src={zcmcLogo} alt="" className="h-16 w-auto" />
           <div className="grid gap-0.5">
-            <h1 className="text-lg font-semibold">Zamboanga City Medical Center</h1>
-            <p className="text-muted-foreground text-sm">Product Catalogue Registry</p>
+            <h1 className="text-lg font-semibold">
+              Zamboanga City Medical Center
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              Product Catalogue Registry
+            </p>
           </div>
         </CardHeader>
 
