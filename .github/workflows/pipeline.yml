@@ -122,11 +122,8 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
             type=ref,event=tag
-            type=raw,value=latest
+            type=semver,pattern=v{{version}}
 
       - name: Build and push client image
         uses: docker/build-push-action@v5
