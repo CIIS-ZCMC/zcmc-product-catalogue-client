@@ -3,7 +3,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { api } from '@/services/api'
-import { applyServerErrors, PASSWORD_HINT } from '@/lib/auth'
+import { applyServerErrors } from '@/lib/auth'
 import { buildUserSchema, ROLES, toUserPayload, userDefaults, userFullName } from '@/lib/users'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -12,23 +12,23 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { FormError, SubmitButton } from '@/components/auth/auth-forms'
-import { PasswordChecklist, PasswordInput } from '@/components/auth/password-input'
 import { CategoryChecklist } from './category-checklist'
 
-// Server keys that differ from the form's field names.
-const FIELD_MAP = { password_confirmation: 'confirmPassword', is_admin: 'role' }
+const FIELD_MAP = {
+  is_admin: 'role',
+}
 
 /**
- * Create or edit an account. `user` null means create. Mount with a fresh `key` per open so the
- * form starts from the right defaults. `isSelf` locks role and status so an administrator cannot
- * lock themselves out (the server enforces this too).
+ * Add / Edit user dialog.
+ * When adding a user, the initial password is automatically generated on the backend and emailed to the user.
+ * Users manage their own passwords upon login.
  */
 export function UserFormDialog({ open, onOpenChange, user = null, isSelf = false, onSaved }) {
   const isEdit = Boolean(user)
   const [formError, setFormError] = useState('')
-  const form = useForm({ resolver: zodResolver(buildUserSchema({ isEdit })), defaultValues: userDefaults(user) })
+
+  const form = useForm({ resolver: zodResolver(buildUserSchema()), defaultValues: userDefaults(user) })
   const role = useWatch({ control: form.control, name: 'role' })
-  const password = useWatch({ control: form.control, name: 'password' })
   const pending = form.formState.isSubmitting
 
   const submit = form.handleSubmit(async (values) => {
@@ -50,7 +50,7 @@ export function UserFormDialog({ open, onOpenChange, user = null, isSelf = false
           <DialogDescription>
             {isEdit
               ? 'Change the account details, role or assigned internal categories.'
-              : 'Create an account and choose what this person can do. They sign in with the email and password set here.'}
+              : 'Create an account and assign privileges. An initial password will be automatically generated and emailed to the user.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -153,42 +153,6 @@ export function UserFormDialog({ open, onOpenChange, user = null, isSelf = false
                 Administrators can work in every internal category, so no assignment is needed.
               </p>
             )}
-
-            <div className="grid gap-4">
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel required={!isEdit}>{isEdit ? 'New password' : 'Password'}</FormLabel>
-                    <FormControl required={!isEdit}>
-                      <PasswordInput autoComplete="new-password" {...field} />
-                    </FormControl>
-                    {password ? (
-                      <PasswordChecklist value={password} />
-                    ) : (
-                      <FormDescription>
-                        {isEdit ? `Leave blank to keep the current password. ${PASSWORD_HINT}` : PASSWORD_HINT}
-                      </FormDescription>
-                    )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel required={!isEdit || Boolean(password)}>Confirm password</FormLabel>
-                    <FormControl required={!isEdit || Boolean(password)}>
-                      <PasswordInput autoComplete="new-password" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
 
             <FormField
               control={form.control}

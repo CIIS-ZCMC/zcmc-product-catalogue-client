@@ -7,6 +7,7 @@ const AuthContext = createContext({
   assignedCategoryIds: null,
   canManageCategory: () => false,
   logout: () => {},
+  updateCurrentUser: () => {},
 })
 
 /**
@@ -14,7 +15,7 @@ const AuthContext = createContext({
  * internal categories (`internal_category_ids`). If the server does not send the list the UI
  * stays permissive and the server (authoritative) rejects what is not allowed.
  */
-export function buildAuthValue(currentUser, logout) {
+export function buildAuthValue(currentUser, logout, updateCurrentUser) {
   const isAdmin = currentUser?.is_admin === true
   const assignedCategoryIds = Array.isArray(currentUser?.internal_category_ids)
     ? currentUser.internal_category_ids.map(Number)
@@ -27,7 +28,7 @@ export function buildAuthValue(currentUser, logout) {
     return assignedCategoryIds.includes(Number(internalCategoryId))
   }
 
-  return { currentUser, isAdmin, assignedCategoryIds, canManageCategory, logout }
+  return { currentUser, isAdmin, assignedCategoryIds, canManageCategory, logout, updateCurrentUser }
 }
 
 export function AuthProvider({ value, children }) {

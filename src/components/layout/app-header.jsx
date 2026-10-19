@@ -1,4 +1,6 @@
-import { LogOut, UserRound } from 'lucide-react'
+import { useState } from 'react'
+import { KeyRound, LogOut, UserRound } from 'lucide-react'
+import { toast } from 'sonner'
 
 import { useAuth } from '@/context/auth-context'
 import { Badge } from '@/components/ui/badge'
@@ -11,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { ChangePasswordDialog } from '@/components/auth/change-password-dialog'
 import { MobileNavigation } from './mobile-navigation'
 
 function displayName(user) {
@@ -20,7 +23,8 @@ function displayName(user) {
 }
 
 export function AppHeader() {
-  const { currentUser, isAdmin, logout } = useAuth()
+  const { currentUser, isAdmin, logout, updateCurrentUser } = useAuth()
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false)
   const name = displayName(currentUser)
 
   return (
@@ -47,6 +51,10 @@ export function AppHeader() {
               </Badge>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => setChangePasswordOpen(true)}>
+              <KeyRound aria-hidden="true" />
+              Change password
+            </DropdownMenuItem>
             <DropdownMenuItem onSelect={logout}>
               <LogOut aria-hidden="true" />
               Sign out
@@ -54,6 +62,16 @@ export function AppHeader() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      <ChangePasswordDialog
+        open={changePasswordOpen}
+        onOpenChange={setChangePasswordOpen}
+        user={currentUser}
+        onSuccess={(updatedUser) => {
+          updateCurrentUser?.(updatedUser)
+          toast.success('Your password has been changed successfully.')
+        }}
+      />
     </header>
   )
 }

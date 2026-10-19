@@ -90,6 +90,17 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
+  changePassword: async (data) => {
+    const res = await request('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    if (res.user) {
+      authStorage.setUser(res.user);
+    }
+    return res;
+  },
+
   logout: async () => {
     try {
       await request('/auth/logout', { method: 'POST' });

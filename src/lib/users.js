@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { emailSchema, newPasswordSchema } from '@/lib/auth'
+import { emailSchema } from '@/lib/auth'
 
 // Contract: docs/ADMIN_USERS_API.md. The server stays authoritative for every rule below.
 export const ROLES = [
@@ -24,7 +24,7 @@ export function assignedIds(user) {
   return []
 }
 
-export function buildUserSchema({ isEdit }) {
+export function buildUserSchema() {
   return z
     .object({
       first_name: z.string().trim().min(1, 'Enter a first name.').max(255),
@@ -33,20 +33,10 @@ export function buildUserSchema({ isEdit }) {
       role: z.enum(['admin', 'encoder']),
       is_active: z.boolean(),
       internal_category_ids: z.array(z.number()),
-      // Required when creating; when editing, blank keeps the current password.
-      password: isEdit ? z.string() : newPasswordSchema,
-      confirmPassword: z.string(),
     })
     .superRefine((v, ctx) => {
       if (v.role === 'encoder' && v.internal_category_ids.length === 0) {
         ctx.addIssue({ code: 'custom', path: ['internal_category_ids'], message: 'Assign at least one internal category.' })
-      }
-      if (isEdit && v.password) {
-        const parsed = newPasswordSchema.safeParse(v.password)
-        if (!parsed.success) ctx.addIssue({ code: 'custom', path: ['password'], message: parsed.error.issues[0].message })
-      }
-      if (v.password !== v.confirmPassword) {
-        ctx.addIssue({ code: 'custom', path: ['confirmPassword'], message: 'Passwords do not match.' })
       }
     })
 }
@@ -59,14 +49,12 @@ export function userDefaults(user) {
     role: user?.is_admin ? 'admin' : 'encoder',
     is_active: user ? user.is_active !== false : true,
     internal_category_ids: assignedIds(user),
-    password: '',
-    confirmPassword: '',
   }
 }
 
 export function toUserPayload(values) {
   const isAdmin = values.role === 'admin'
-  const payload = {
+  return {
     first_name: values.first_name.trim(),
     last_name: values.last_name.trim(),
     email: values.email.trim(),
@@ -75,9 +63,4 @@ export function toUserPayload(values) {
     // Administrators reach every category, so no assignment is stored for them.
     internal_category_ids: isAdmin ? [] : values.internal_category_ids,
   }
-  if (values.password) {
-    payload.password = values.password
-    payload.password_confirmation = values.confirmPassword
-  }
-  return payload
 }

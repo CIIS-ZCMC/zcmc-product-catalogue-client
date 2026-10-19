@@ -38,17 +38,23 @@ import CloseIcon from '@mui/icons-material/Close';
 import PersonIcon from '@mui/icons-material/Person';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import LockResetIcon from '@mui/icons-material/LockReset';
+import PriceChangeIcon from '@mui/icons-material/PriceChange';
 import { api } from '../services/api';
+import { useAuth } from '../context/auth-context';
 
 const ACTION_CONFIG = {
   CREATED: { label: 'Created', color: 'success', icon: <AddCircleIcon fontSize="inherit" /> },
   UPDATED: { label: 'Updated', color: 'info', icon: <EditIcon fontSize="inherit" /> },
+  PRICE_UPDATED: { label: 'Price Updated', color: 'warning', icon: <PriceChangeIcon fontSize="inherit" /> },
+  PASSWORD_CHANGED: { label: 'Password Changed', color: 'default', icon: <LockResetIcon fontSize="inherit" /> },
   DELETED: { label: 'Deleted', color: 'error', icon: <DeleteIcon fontSize="inherit" /> },
   IMPORTED: { label: 'Imported', color: 'secondary', icon: <CloudUploadIcon fontSize="inherit" /> },
   PDF_UPLOADED: { label: 'PDF Upload', color: 'primary', icon: <PictureAsPdfIcon fontSize="inherit" /> },
 };
 
 export default function ActivityLogsView() {
+  const { currentUser, isAdmin } = useAuth();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
@@ -148,10 +154,12 @@ export default function ActivityLogsView() {
             </Box>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#ffffff' }}>
-                System Audit Trail & Activity Logs
+                {isAdmin ? 'System Audit Trail & Activity Logs' : 'My Activity Logs'}
               </Typography>
               <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block' }}>
-                Immutable audit logs tracking product creations, modifications, deletions, and document uploads.
+                {isAdmin
+                  ? 'Immutable audit logs tracking system-wide product, category, pricing, and account activities.'
+                  : `Audit trail of actions and events involving your account (${currentUser?.email || 'User'}).`}
               </Typography>
             </Box>
           </Stack>
@@ -159,10 +167,17 @@ export default function ActivityLogsView() {
 
         <Stack direction="row" spacing={1} alignItems="center">
           <Chip
-            label={`Total Logged Events: ${total}`}
+            label={isAdmin ? `All Events: ${total}` : `My Events: ${total}`}
             variant="outlined"
             sx={{ borderColor: 'rgba(255, 255, 255, 0.2)', color: '#e2e8f0', fontWeight: 700 }}
           />
+          {!isAdmin && (
+            <Chip
+              label="Filtered: Involving Me"
+              size="small"
+              sx={{ backgroundColor: 'rgba(45, 212, 191, 0.15)', color: '#2dd4bf', fontWeight: 700, fontSize: '0.72rem' }}
+            />
+          )}
           <Button
             variant="contained"
             size="small"
@@ -187,7 +202,7 @@ export default function ActivityLogsView() {
           <TextField
             fullWidth
             size="small"
-            placeholder="Search logs by user, description, or item code..."
+            placeholder={isAdmin ? "Search logs by user, description, or item code..." : "Search your activity logs by description or item code..."}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -218,6 +233,8 @@ export default function ActivityLogsView() {
             <MenuItem value="ALL">All Actions</MenuItem>
             <MenuItem value="CREATED">Created</MenuItem>
             <MenuItem value="UPDATED">Updated</MenuItem>
+            <MenuItem value="PRICE_UPDATED">Price Updated</MenuItem>
+            <MenuItem value="PASSWORD_CHANGED">Password Changed</MenuItem>
             <MenuItem value="DELETED">Deleted</MenuItem>
             <MenuItem value="IMPORTED">Imported</MenuItem>
             <MenuItem value="PDF_UPLOADED">PDF Uploaded</MenuItem>
@@ -253,10 +270,12 @@ export default function ActivityLogsView() {
                 <TableRow>
                   <TableCell colSpan={6} align="center" sx={{ py: 6, color: '#94a3b8' }}>
                     <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                      No activity logs found.
+                      {isAdmin ? 'No activity logs found.' : 'No activity logs involving your account found.'}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#cbd5e1' }}>
-                      Try clearing search filters or perform catalogue actions to generate logs.
+                      {isAdmin
+                        ? 'Try clearing search filters or perform catalogue actions to generate logs.'
+                        : 'Your actions such as product creations and modifications will appear here.'}
                     </Typography>
                   </TableCell>
                 </TableRow>
