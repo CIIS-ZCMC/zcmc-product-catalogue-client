@@ -1,0 +1,124 @@
+name: Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  lint:
+    name: 1. Lint & Format Check
+    if: startsWith(github.ref, 'refs/tags/') != true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run format check (prettier)
+        run: npm run format:check
+
+      - name: Run linter (oxlint)
+        run: npm run lint
+
+  test:
+    name: 2. Unit Tests
+    needs: [lint]
+    if: startsWith(github.ref, 'refs/tags/') != true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests (vitest)
+        run: npm run test
+
+  ci-tag:
+    name: 3. CI Tag
+    needs: [test]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate tag name
+        id: tag_gen
+        run: |
+          DATE_STR=$(date +'%Y%m%d%H%M%S')
+          PKG_VERSION=$(node -p "try { require('./package.json').version } catch { '0.0.0' }")
+          TAG_NAME="ci-v${PKG_VERSION}-${DATE_STR}-run${{ github.run_number }}"
+          echo "tag_name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
+          echo "Generated tag: ${TAG_NAME}"
+
+      - name: Create and push git tag
+        env:
+          TAG_NAME: ${{ steps.tag_gen.outputs.tag_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${TAG_NAME}" -m "Automated CI tag [run: ${{ github.run_number }}]"
+          git push origin "${TAG_NAME}"
+
+  build:
+    name: 4. Build Production Bundle
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for production
+        env:
+          VITE_API_BASE_URL: https://product-registryapi.zcmc.online/api
+        run: npm run build
+
+      - name: Upload production artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: front-dist-${{ github.ref_name }}
+          path: dist/
+          retention-days: 14
