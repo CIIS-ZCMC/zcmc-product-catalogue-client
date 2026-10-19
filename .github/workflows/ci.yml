@@ -1,8 +1,8 @@
-name: CI Tagging
+name: CI
 
 on:
   workflow_run:
-    workflows: ['Lint and Test']
+    workflows: ['Lint']
     types:
       - completed
     branches:
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   tag-release:
-    name: Create and Push CI Tag
+    name: 3. Create & Push CI Tag
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
@@ -65,7 +65,5 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_NAME: ${{ steps.tag_gen.outputs.tag_name }}
         run: |
-          # If a Personal Access Token was used, tag push automatically triggers build.yml.
-          # If using default GITHUB_TOKEN, trigger build workflow explicitly via gh CLI.
           echo "Triggering build workflow for tag ${TAG_NAME}..."
-          gh workflow run "Build Production Bundle" --ref "${TAG_NAME}" || echo "Workflow dispatch skipped or already triggered by tag push."
+          gh workflow run "Build" --ref "${TAG_NAME}" || echo "Workflow dispatch skipped or already triggered by tag push."

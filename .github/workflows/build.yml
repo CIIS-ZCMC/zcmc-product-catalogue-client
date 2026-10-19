@@ -1,4 +1,4 @@
-name: Build Production Bundle
+name: Build
 
 on:
   push:
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   build:
-    name: Build Production Assets
+    name: 4. Build Production Bundle
     runs-on: ubuntu-latest
 
     steps:
