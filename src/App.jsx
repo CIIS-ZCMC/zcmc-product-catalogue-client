@@ -8,6 +8,7 @@ import { AuthProvider, buildAuthValue } from './context/auth-context'
 import { Toaster } from './components/ui/sonner'
 import { TooltipProvider } from './components/ui/tooltip'
 import { ChangePasswordDialog } from './components/auth/change-password-dialog'
+import { SettingsProvider } from './context/settings-context'
 
 // Signed-in users never need the sign-in forms, so they load on demand.
 const AuthScreen = lazy(() => import('./components/auth/auth-screen').then((m) => ({ default: m.AuthScreen })))
@@ -55,20 +56,22 @@ export default function App() {
     <TooltipProvider>
       {currentUser ? (
         <AuthProvider value={authValue}>
-          <RouterProvider router={router} />
-          {currentUser.must_change_password && (
-            <ChangePasswordDialog
-              open={true}
-              isFirstTime={true}
-              user={currentUser}
-              onSuccess={(user) => {
-                updateCurrentUser(user)
-                toast.success('Your new permanent password is set. Welcome to the portal!')
-                router.navigate('/products')
-              }}
-              onLogout={logout}
-            />
-          )}
+          <SettingsProvider>
+            <RouterProvider router={router} />
+            {currentUser.must_change_password && (
+              <ChangePasswordDialog
+                open={true}
+                isFirstTime={true}
+                user={currentUser}
+                onSuccess={(user) => {
+                  updateCurrentUser(user)
+                  toast.success('Your new permanent password is set. Welcome to the portal!')
+                  router.navigate('/products')
+                }}
+                onLogout={logout}
+              />
+            )}
+          </SettingsProvider>
         </AuthProvider>
       ) : (
         <Suspense fallback={null}>

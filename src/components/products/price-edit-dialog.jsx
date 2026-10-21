@@ -6,6 +6,7 @@ import { CircleAlert, LoaderCircle } from 'lucide-react'
 
 import { api } from '@/services/api'
 import { useAuth } from '@/context/auth-context'
+import { useSettings } from '@/context/settings-context'
 import { display, formatDate, formatPeso } from '@/lib/product'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -85,9 +86,11 @@ function PriceHistory({ productId }) {
  */
 export function PriceEditDialog({ product, open, onOpenChange, onSaved }) {
   const { isAdmin } = useAuth()
+  const { settings } = useSettings()
+  const requirePassword = !isAdmin && Boolean(settings?.require_password_on_edit)
   const [formError, setFormError] = useState('')
   const form = useForm({
-    resolver: zodResolver(buildSchema(!isAdmin)),
+    resolver: zodResolver(buildSchema(requirePassword)),
     defaultValues: { unit_price: '', price_change_reason: '', confirm_password: '' },
     mode: 'onTouched',
   })
@@ -111,7 +114,7 @@ export function PriceEditDialog({ product, open, onOpenChange, onSaved }) {
       unit_price: Number(values.unit_price),
       price_change_reason: values.price_change_reason || null,
     }
-    if (!isAdmin) payload.confirm_password = values.confirm_password
+    if (requirePassword) payload.confirm_password = values.confirm_password
     try {
       await api.updateProduct(product.id, payload)
       onOpenChange(false)
@@ -185,7 +188,7 @@ export function PriceEditDialog({ product, open, onOpenChange, onSaved }) {
                 </FormItem>
               )}
             />
-            {!isAdmin && (
+            {requirePassword && (
               <FormField
                 control={form.control}
                 name="confirm_password"

@@ -303,4 +303,13 @@ export const api = {
   },
 
   getProductActivityLogs: (productId, options = {}) => request(`/products/${productId}/activity-logs`, options),
+
+  // Application and security settings
+  getSettings: (options = {}) => request('/settings', options),
+  updateSettings: (payload, options = {}) =>
+    request('/settings', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+      ...options,
+    }),
 };

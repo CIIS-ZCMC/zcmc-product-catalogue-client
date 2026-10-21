@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 
 import { api } from '@/services/api'
 import { useAuth } from '@/context/auth-context'
+import { useSettings } from '@/context/settings-context'
 import { useProduct } from '@/hooks/use-product'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
@@ -18,6 +19,8 @@ export default function ProductEditPage() {
   const navigate = useNavigate()
   const returnTo = useReturnTo()
   const { isAdmin, canManageCategory } = useAuth()
+  const { settings } = useSettings()
+  const requirePassword = !isAdmin && Boolean(settings?.require_password_on_edit)
   const { status, data, error, reload } = useProduct(id)
   const product = data?.product
   const detailsPath = `/products/${id}`
@@ -78,7 +81,7 @@ export default function ProductEditPage() {
         key={product?.id}
         mode="edit"
         product={product}
-        requirePassword={!isAdmin}
+        requirePassword={requirePassword}
         onSubmit={handleSubmit}
         onCancel={() => navigate(detailsPath, { state: { from: returnTo } })}
       />

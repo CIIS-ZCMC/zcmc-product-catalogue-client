@@ -1,5 +1,8 @@
 import { useId, useState } from 'react'
-import { CircleAlert, Lock, RefreshCw, Search, SearchX, UserPlus, UsersRound, X } from 'lucide-react'
+import { CircleAlert, Lock, RefreshCw, Search, SearchX, ShieldCheck, LoaderCircle, UserPlus, UsersRound, X } from 'lucide-react'
+import { useSettings } from '@/context/settings-context'
+import { Switch } from '@/components/ui/switch'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
 
 import { useAuth } from '@/context/auth-context'
@@ -30,6 +33,24 @@ export default function UsersPage() {
   const search = useDebouncedValue(filters.search.trim(), 300)
   const [editor, setEditor] = useState({ open: false, user: null, key: 0 })
   const [deleting, setDeleting] = useState(null)
+  const { settings, updateSettings, loading: settingsLoading } = useSettings()
+  const [updatingSetting, setUpdatingSetting] = useState(false)
+
+  const handleTogglePasswordRequirement = async (checked) => {
+    setUpdatingSetting(true)
+    try {
+      await updateSettings({ require_password_on_edit: checked })
+      toast.success(
+        checked
+          ? 'Password confirmation requirement enabled for encoders.'
+          : 'Password confirmation requirement disabled. Encoders can edit directly.'
+      )
+    } catch (err) {
+      toast.error(err?.message || 'Failed to update security setting.')
+    } finally {
+      setUpdatingSetting(false)
+    }
+  }
 
   const query = {
     search,
@@ -76,6 +97,40 @@ export default function UsersPage() {
           </Button>
         }
       />
+
+      {/* Security Policies Card */}
+      <Card className="border-border/80 shadow-xs">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="size-5 text-primary" aria-hidden="true" />
+            <CardTitle className="text-base">Catalogue Security & Verification Policy</CardTitle>
+          </div>
+          <CardDescription>
+            Configure password confirmation rules for non-admin encoders modifying catalogue items or prices.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-lg border p-3.5 bg-muted/30">
+            <div className="space-y-0.5">
+              <Label htmlFor="toggle-password-req" className="text-sm font-medium cursor-pointer">
+                Require password confirmation on product & price edits
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                When enabled, non-admin encoders must enter their account password to save changes to products or unit prices. When disabled (default), encoders can save updates directly.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 pt-1 sm:pt-0 shrink-0">
+              {updatingSetting && <LoaderCircle className="size-4 animate-spin text-muted-foreground" aria-hidden="true" />}
+              <Switch
+                id="toggle-password-req"
+                checked={Boolean(settings?.require_password_on_edit)}
+                disabled={updatingSetting || settingsLoading}
+                onCheckedChange={handleTogglePasswordRequirement}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <section aria-label="Filter users" className="bg-card grid gap-3 rounded-xl border p-4 md:grid-cols-2 xl:grid-cols-[2fr_1fr_1fr_1.5fr_auto]">
         <div className="grid min-w-0 gap-1.5">

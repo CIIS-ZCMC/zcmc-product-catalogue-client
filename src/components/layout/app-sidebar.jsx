@@ -54,7 +54,7 @@ export function AppSidebar({ collapsed, onToggle }) {
   return (
     <aside
       className={cn(
-        'bg-sidebar border-sidebar-border sticky top-0 hidden h-dvh shrink-0 flex-col border-r md:flex',
+        'bg-sidebar border-sidebar-border sticky top-0 hidden h-dvh shrink-0 flex-col border-r transition-[width] duration-200 ease-in-out md:flex',
         // Tablet always uses the icon rail; desktop honours the user's choice.
         'md:w-16',
         collapsed ? 'lg:w-16' : 'lg:w-60',
