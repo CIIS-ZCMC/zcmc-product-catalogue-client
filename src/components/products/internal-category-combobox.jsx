@@ -38,9 +38,16 @@ export function InternalCategoryCombobox({
       getOptionCode={getCode}
       getSearchText={getSearchText}
       renderOption={(c) => (
-        <span className="flex items-start justify-between gap-3">
-          <span className="min-w-0 break-words">{c.name}</span>
-          <span className="text-muted-foreground shrink-0 font-mono text-xs">{c.code}</span>
+        <span className="flex items-start justify-between gap-3 w-full">
+          <span className="min-w-0 break-words font-medium">{c.name}</span>
+          <span className="flex shrink-0 items-center gap-2 font-mono text-xs">
+            {c.products_count !== undefined && (
+              <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-sans text-muted-foreground">
+                {c.products_count} {c.products_count === 1 ? 'item' : 'items'}
+              </span>
+            )}
+            <span className="text-muted-foreground">{c.code}</span>
+          </span>
         </span>
       )}
       placeholder={pendingValue ? 'Loading…' : placeholder}

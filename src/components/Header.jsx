@@ -120,6 +120,12 @@ export default function Header({
                 />
                 <Chip
                   size="small"
+                  label={`Internal: ${stats.internal_categorized_count ?? 0}/${stats.total_products || 0}`}
+                  variant="outlined"
+                  sx={{ borderColor: '#99f6e4', color: '#0f766e', backgroundColor: '#f0fdfa', fontWeight: 700, fontSize: '0.75rem', height: 24 }}
+                />
+                <Chip
+                  size="small"
                   label={`UNSPSC: ${stats.total_categories?.toLocaleString() || '158,519'}`}
                   variant="outlined"
                   sx={{ borderColor: '#cbd5e1', fontWeight: 600, fontSize: '0.75rem', height: 24 }}

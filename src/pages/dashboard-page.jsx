@@ -65,7 +65,12 @@ export default function DashboardPage() {
 
   return (
     <LegacyTheme>
-      <DashboardView stats={stats} onNavigateToProducts={() => navigate('/products')} />
+      <DashboardView
+        stats={stats}
+        onNavigateToProducts={(catId) =>
+          navigate(catId ? `/products?internal_category_id=${catId}` : '/products')
+        }
+      />
     </LegacyTheme>
   )
 }
