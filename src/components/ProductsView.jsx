@@ -582,6 +582,11 @@ export default function ProductsView({
                               </Tooltip>
                             </Box>
                           )}
+                          {row.stock_card_number && (
+                            <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
+                              <strong>Stock Card:</strong> {row.stock_card_number}
+                            </Typography>
+                          )}
                           {row.unspsc_code && (
                             <Typography variant="caption" sx={{ color: '#0284c7', display: 'block', fontWeight: 600 }}>
                               <strong>UNSPSC:</strong> {row.unspsc_code}

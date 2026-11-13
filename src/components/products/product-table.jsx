@@ -64,6 +64,7 @@ export function ProductTable({ products, sort, onSort, onDelete, linkState, busy
                 <div className="text-muted-foreground mt-1 text-xs [overflow-wrap:anywhere]">
                   BizBox {display(p.bizbox_item_code)}
                   {p.philgeps_code && <> · PhilGEPS {p.philgeps_code}</>}
+                  {p.stock_card_number && <> · Stock Card {p.stock_card_number}</>}
                 </div>
                 {/* Commodity moves under the description where its column is hidden. */}
                 <div className="text-muted-foreground mt-1 text-xs break-words lg:hidden">{commodityLabel(p)}</div>

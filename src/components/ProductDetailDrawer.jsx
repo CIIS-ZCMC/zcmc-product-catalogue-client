@@ -508,6 +508,13 @@ export default function ProductDetailDrawer({
               )}
             </Box>
 
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="caption" sx={{ color: '#64748b' }}>Stock Card No.:</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: '#0f172a' }}>
+                {product.stock_card_number || 'N/A'}
+              </Typography>
+            </Box>
+
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography variant="caption" sx={{ color: '#64748b' }}>UNSPSC Code:</Typography>
               <Typography variant="caption" sx={{ fontWeight: 700, color: '#0f172a' }}>{product.unspsc_code || 'N/A'}</Typography>

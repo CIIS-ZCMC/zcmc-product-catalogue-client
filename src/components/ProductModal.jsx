@@ -70,6 +70,7 @@ export default function ProductModal({
     erp_item_code: '',
     bizbox_item_code: '',
     philgeps_code: '',
+    stock_card_number: '',
     unspsc_code: '',
     uom: 'Piece',
     other_specs: '',
@@ -187,6 +188,7 @@ export default function ProductModal({
         erp_item_code: product.erp_item_code || '',
         bizbox_item_code: product.bizbox_item_code || '',
         philgeps_code: product.philgeps_code || '',
+        stock_card_number: product.stock_card_number || '',
         unspsc_code: product.unspsc_code || '',
         uom: (() => {
           if (!product.uom) return 'Piece';
@@ -239,6 +241,7 @@ export default function ProductModal({
         erp_item_code: '',
         bizbox_item_code: '',
         philgeps_code: '',
+        stock_card_number: '',
         unspsc_code: '',
         uom: 'Piece',
         other_specs: '',
@@ -455,6 +458,7 @@ export default function ProductModal({
         item_description: builtName,
         bizbox_item_code: formData.bizbox_item_code.trim(),
         philgeps_code: formData.philgeps_code.trim(),
+        stock_card_number: formData.stock_card_number ? formData.stock_card_number.trim() : null,
         other_specs: specTags.length > 0 ? specTags.join('; ') : null,
         tech_specs_pdf_path: formData.tech_specs_pdf_path || null,
       };
@@ -947,6 +951,19 @@ export default function ProductModal({
                     </Link>
                   </Box>
                 }
+              />
+            </Grid>
+
+            {/* Stock Card Number */}
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                size="small"
+                label="Stock Card Number"
+                placeholder="e.g. SC-2024-001"
+                value={formData.stock_card_number}
+                onChange={(e) => setFormData({ ...formData, stock_card_number: e.target.value })}
+                helperText="Optional hospital stock card reference number"
               />
             </Grid>
 

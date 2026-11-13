@@ -355,6 +355,9 @@ export default function ProductDetailsPage() {
                   display(null)
                 )}
               </Field>
+              <Field label="Stock card number" mono>
+                {display(product.stock_card_number)}
+              </Field>
               <Field label="UNSPSC code" mono>
                 {display(product.unspsc_code)}
               </Field>

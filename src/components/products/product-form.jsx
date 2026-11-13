@@ -84,6 +84,7 @@ function buildSchema({ requirePassword }) {
         .min(1, { message: 'Enter the BizBox item code.' })
         .max(100, { message: 'BizBox item code must be 100 characters or fewer.' }),
       philgeps_code: optional(100, 'PhilGEPS code'),
+      stock_card_number: optional(100, 'Stock card number'),
       other_specs: z.array(z.string()),
       tech_specs_pdf_path: z.string().nullable(),
       confirm_password: z.string(),
@@ -124,6 +125,7 @@ function defaultsFrom(product, prefill) {
     internal_category_id: p.internal_category_id ?? null,
     bizbox_item_code: p.bizbox_item_code || '',
     philgeps_code: p.philgeps_code || '',
+    stock_card_number: p.stock_card_number || '',
     other_specs: splitSpecs(p.other_specs),
     tech_specs_pdf_path: p.tech_specs_pdf_path || null,
     confirm_password: '',
@@ -146,6 +148,7 @@ function toPayload(values, { includePassword }) {
     internal_category_id: values.internal_category_id,
     bizbox_item_code: values.bizbox_item_code.trim(),
     philgeps_code: values.philgeps_code.trim() || null,
+    stock_card_number: values.stock_card_number ? values.stock_card_number.trim() : null,
     other_specs: values.other_specs.length ? values.other_specs.join('; ') : null,
     tech_specs_pdf_path: values.tech_specs_pdf_path || null,
   }
@@ -168,6 +171,7 @@ const FIELD_LABELS = {
   internal_category_id: 'Internal category',
   bizbox_item_code: 'BizBox item code',
   philgeps_code: 'PhilGEPS code',
+  stock_card_number: 'Stock card number',
   other_specs: 'Other specifications',
   tech_specs_pdf_path: 'Technical specification PDF',
   confirm_password: 'Account password',
@@ -829,6 +833,20 @@ export function ProductForm({ mode, product, prefillDescription, requirePassword
                     </a>
                     .
                   </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="stock_card_number"
+              render={({ field }) => (
+                <FormItem data-field="stock_card_number">
+                  <FormLabel>Stock card number</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="e.g. SC-2024-001" autoComplete="off" autoCapitalize="characters" spellCheck={false} />
+                  </FormControl>
+                  <FormDescription>Optional hospital stock card reference number.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
